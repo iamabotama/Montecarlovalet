@@ -19,8 +19,7 @@ Open `index.html` (double-click works offline) or play the GitHub Pages build.
 Add `?debug=1` to the URL (or set `CONFIG.debug = true`), then press backtick. Time scale, heat, spawns, gala, fill lot, grant power-ups, hit boxes, patience %. Job planned vs actual times log to the console; `MCV.JOBLOG` holds them.
 
 ## Deploy
-`.github/workflows/pages.yml` deploys `main` to GitHub Pages on every push.
-Custom domain: add a `CNAME` file containing `montecarlovalet.com`, set the domain in repo Settings > Pages, and point DNS (A records to GitHub Pages IPs, or CNAME `www` to `iamabotama.github.io`).
+Push to `main` here. `.github/workflows/deploy.yml` syntax-checks the JS, then copies `index.html` + `js/` (plus `CNAME` = `www.montecarlovalet.com`) into **iamabotama/Montecarlovalet.com**, which serves GitHub Pages. Needs the `DEPLOY_TOKEN` repo secret (a token with push access to that repo). Never edit the `.com` repo by hand; it is overwritten on every deploy.
 
 ## Status
 Stage 1 (playable core) done. Stage 2: career ranks/promotion screen, loadout, nightly goals, cosmetics, interactive tutorial, shuffle mode, Reserved Sign.
