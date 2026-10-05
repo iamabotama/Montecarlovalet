@@ -62,9 +62,11 @@ function tryGrantStars() { const pool = powerPool(); while (S.stars >= CONFIG.po
 /* ---- guest events ---- */
 function reachCarAtCurb(car, g, bags) {
   g.state = 'handed'; g.claimed = true;
-  if (isWhale(g.tier)) { const T = CONFIG.tiers[g.tier]; let tip = Math.round(rnd(...T.arrivalTip) * Math.max(0, 1 - g.wait / g.patience)) * (bags ? 2 : 1);
+  if (isWhale(g.tier)) { const T = CONFIG.tiers[g.tier]; let tip = jackpot(g, Math.round(rnd(...T.arrivalTip) * Math.max(0, 1 - g.wait / g.patience)) * (bags ? 2 : 1));
     if (tip > 0) { earn(tip, 'tip', g); if (g.stage <= CONFIG.heat.repairMaxStage) repairHeat(tip * CONFIG.heat.repairPerDollar); } }
 }
+function jackpot(g, tip) { const J = CONFIG.tips.jackpot; if (!isWhale(g.tier) || g.wait > J.maxWaitFrac * g.patience || Math.random() >= J.chance) return tip;
+  S.banners.push({ text: 'JACKPOT! $' + J.amount + ' TIP!', t: 2.5 }); Sound.sfx('gala'); S.shake = 0.2; return J.amount; }
 function earn(amt, kind, g) { S.money += amt; S.stats[kind === 'tip' ? 'tips' : 'pay'] += amt; if (kind === 'tip') { S.stats.biggestTip = Math.max(S.stats.biggestTip, amt); floater('+$' + amt, g.x + 2, g.y - 4, PAL.yellow); Sound.sfx(amt >= 40 ? 'bigcoin' : 'coin'); } }
 function greetLimo(car, g) { earn(CONFIG.pay.limo, 'pay', g); earn(rndi(...CONFIG.tiers.limo.greetTip), 'tip', g); S.stats.limos++; departCar(car); guestGone(g); }
 function carAtCurbForPickup(car, g, k) {
@@ -74,7 +76,7 @@ function carAtCurbForPickup(car, g, k) {
   if (g.comped) { floater('COMPED!', g.x, g.y - 6, PAL.red); S.stats.comped++; }
   else { earn(CONFIG.pay[g.tier], 'pay', g); const base = rndi(...T.pickupTip);
     const f = isWhale(g.tier) ? Math.max(0, 1 - CONFIG.tips.whalePickupDecayPer10s * w / 10) : 1 - (1 - CONFIG.tips.otherDecayFloor) * clamp(w / g.patience, 0, 1);
-    const tip = Math.round(base * f); if (tip > 0) earn(tip, 'tip', g); }
+    const tip = jackpot(g, Math.round(base * f)); if (tip > 0) earn(tip, 'tip', g); }
 }
 function leaveAngry(g, why) {
   const car = S.cars.get(g.carId); S.stats.angry++; floater('HMPH!', g.x, g.y - 6, PAL.red); removeQueuedJobsFor(g.carId);
