@@ -1,0 +1,33 @@
+name: Deploy to montecarlovalet.com
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 1. Sanity check: every module must parse
+      - name: Syntax check
+        run: for f in js/*.js; do node --check "$f"; done
+      # 2. Stage only what the site needs (no docs/spec/art)
+      - name: Stage site
+        run: |
+          mkdir site
+          cp -r index.html js site/
+          echo "www.montecarlovalet.com" > site/CNAME
+          printf '# montecarlovalet.com\nDeployed automatically from iamabotama/Montecarlovalet. Do not edit here.\n' > site/README.md
+      # 3. Push to the Pages repo
+      - name: Push to iamabotama/Montecarlovalet.com
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.DEPLOY_TOKEN }}
+        with:
+          source-directory: site
+          destination-github-username: iamabotama
+          destination-repository-name: Montecarlovalet.com
+          target-branch: main
+          commit-message: "Deploy: ORIGIN_COMMIT"
+          user-email: actions@github.com
+          user-name: Monte Carlo Valet CI
