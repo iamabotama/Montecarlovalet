@@ -6,8 +6,8 @@
    ===================================================================== */
 const CONFIG = {
   debug: false,                 // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '1.2.0',
-  lot:   { orientation: 'horizontal', lanes: 6, stallsPerLane: 8, stallPx: [16, 15],
+  version: '1.3.0',
+  lot:   { orientation: 'horizontal', lanes: 6, stallsPerLane: 6, stallPx: [16, 15],
            tempSlots: { west: 2, east: 2 }, curbSlots: 4,
            streetQueueMax: 3, prefilledCars: 0, tempOverstaySec: 60, tempOverstayEverySec: 30, tempOverstayHeat: 1 },
   map:   { // Monte Carlo layout (internal px). A future hotel = another entry like this.
@@ -74,6 +74,8 @@ const CONFIG = {
     { fromSec: 360, interval: [9, 12],  mix: [20, 35, 25, 12, 3, 5], patienceMult: 1.5, maxPickups: 3, banner: 'LIMOS AND ULTRAS TONIGHT' },
   ] },
   // Extra valets: tap HIRE (left panel), tap a valet to make him active; new jobs go to the active valet.
+  // VIP helicopter: once per shift, lands on the pad right of the lot. A valet must be at the pad within meetSec of touchdown.
+  helo: { atSec: [330, 420], descendSec: 6, meetSec: 10, greetSec: 2, tip: 1000, pay: 50, missHeat: 12, pad: { x: 190, y: 148 } },
   helpers: { max: 3, costPerHour: 100, speed: 1.0, idleOffsets: [0, 8, -8, 16] },
   podium: { x: 172, handSec: 0.6, boardRows: 5 },
   gala: { hour: 22, jitterHours: 0.3, durationSec: 60, interval: [2, 3], highShare: 0.5 },

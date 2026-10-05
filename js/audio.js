@@ -36,6 +36,7 @@ const Sound = {
       case 'blip': this.tone(300 + (arg || 0) * 110, 0.07, 'triangle', 0.12); break;
       case 'grawlix': this.noise(0.18, 0.14, 0, 1200); this.tone(90, 0.12, 'sawtooth', 0.06); break;
       case 'whistle': this.tone(1800, 0.12, 'square', 0.06, 2400); this.tone(2400, 0.25, 'square', 0.06, 1500, 0.14); break;
+      case 'rotor': this.noise(0.06, 0.05, 0, 500); this.tone(55, 0.05, 'square', 0.03); break;
       case 'engine': this.tone(70 + Math.random() * 20, 0.05, 'square', 0.025); break;
       case 'door': this.noise(0.05, 0.06, 0, 2000); break;
       case 'power': [523, 659, 784].forEach((f, i) => this.tone(f, 0.08, 'square', 0.07, 0, i * 0.05)); break;

@@ -37,3 +37,8 @@ Stage 1 (playable core) done. Stage 2: career ranks/promotion screen, loadout, n
 - With a helper active, the panel becomes **SEND HOME**; his queued jobs move back to you and he leaves after his current job.
 - Valets never work the same lot row at once (lane lock) - a blocked job shows orange "LANE BUSY" and starts when the row frees up.
 - Wages are listed on the end-of-shift summary.
+
+## v1.3: smaller lot + VIP helicopter
+- Lot is now 3 stalls per side (6 per row, 36 total) - `CONFIG.lot.stallsPerLane`.
+- **VIP helicopter** (`CONFIG.helo`): once per shift (5.5-7 min in), lands on the helipad right of the lot. Tap the pad to send the active valet. Be there within 10 s of touchdown: $1,000 tip + $50 pay. Miss it: +12 heat.
+- Stage 2 plan: `docs/STAGE2.md`.

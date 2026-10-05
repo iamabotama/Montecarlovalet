@@ -12,6 +12,7 @@ const LANE_NAMES = 'ABCDEFGHIJ';
 const TEMPS = [];
 (function () { let n = 1; for (let k = 0; k < LOT.tempSlots.west; k++) TEMPS.push({ x: MAP.lotX - 30, y: MAP.lotY + 11 + k * 18, side: 'west', name: 'T' + n++ });
   for (let k = 0; k < LOT.tempSlots.east; k++) TEMPS.push({ x: LOT_R + 30, y: MAP.lotY + 11 + k * 18, side: 'east', name: 'T' + n++ }); })();
+const PAD = CONFIG.helo.pad, PAD_MEET = [PAD.x - 15, PAD.y];
 const SPOTS = [84, 236, 68, 252, 52, 268, 36, 284, 20, 300];
 
 /* ------------------------------ ROUTING GRAPH ------------------------------ */
@@ -28,10 +29,11 @@ function buildGraph() {
   chainNodes([[aisleX('west'), MAP.streetY], [MAP.mouthL, MAP.streetY], [MAP.mouthR, MAP.streetY], [aisleX('east'), MAP.streetY]]);
   for (const side of ['west', 'east']) {
     const ax = aisleX(side); const ys = new Set([MAP.streetY]); for (let i = 0; i < NL; i++) ys.add(laneY(i));
-    TEMPS.filter(t => t.side === side).forEach(t => ys.add(t.y));
+    TEMPS.filter(t => t.side === side).forEach(t => ys.add(t.y)); if (side === 'east') ys.add(PAD.y);
     chainNodes([...ys].sort((a, b) => a - b).map(y => [ax, y]));
     TEMPS.filter(t => t.side === side).forEach(t => chainNodes([[ax, t.y], [t.x, t.y]]));
   }
+  chainNodes([[aisleX('east'), PAD.y], PAD_MEET]);
 }
 const pathCache = new Map();
 function graphPath(a, b) {
@@ -47,6 +49,7 @@ function locEnds(loc) {
   if (loc.t === 'stand') return [{ node: nk(MAP.standX, MAP.curbY), tail: [[MAP.standX, MAP.standY]] }];
   if (loc.t === 'curb') return [{ node: nk(MAP.curbX[loc.k], MAP.curbY), tail: [] }];
   if (loc.t === 'temp') return [{ node: nk(TEMPS[loc.i].x, TEMPS[loc.i].y), tail: [] }];
+  if (loc.t === 'pad') return [{ node: nk(PAD_MEET[0], PAD_MEET[1]), tail: [] }];
   if (loc.t === 'stall') { const y = laneY(loc.lane), x = stallX(loc.idx);
     return ['west', 'east'].map(side => ({ side, node: nk(aisleX(side), y), tail: [[x, y]] })); }
   throw new Error('bad loc');
@@ -82,6 +85,7 @@ function newRun() {
     streetQueue: [], jobs: [], spots: SPOTS.map(() => null),
     valet: { id: 0, speed: 1, x: MAP.standX, y: MAP.standY, loc: { t: 'stand' }, job: null, dir: 1, walking: false, inCar: null, stepT: 0, anim: 0 },
     helpers: [], activeW: 0, nextWid: 1,
+    heli: { phase: 'wait', at: rnd(...CONFIG.helo.atSec), t: 0, greeting: false, ok: null, vipT: 0 },
     spawnT: CONFIG.arrivals.firstSec, galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours, galaEnd: 0, galaDone: false, galaActive: false,
     floaters: [], particles: [], toasts: [], banners: [], shake: 0, manager: null, phase: 'play', endT: 0, boost: { hustle: 0, coffee: 0, spareKeys: 0 },
     lastHeatReason: 'THE GUESTS COMPLAINED.', ticketNo: 1, rampRow: null, heatFloat: 0, meltdown: false, npcs: [], selected: null, armed: null, lotFullFlash: 0,
@@ -128,6 +132,7 @@ function jobLabel(j) {
     case 'fetch': return car && car.loc.t === 'stall' ? 'FETCH ' + stallName(car.loc.lane, car.loc.idx) : car && car.loc.t === 'temp' ? 'FETCH ' + TEMPS[car.loc.i].name : 'FETCH';
     case 'restow': return 'RESTOW ' + j.list.filter(e => !e.done).length;
     case 'greet': return 'GREET';
+    case 'heli': return 'HELIPAD';
   }
   return j.type.toUpperCase();
 }
@@ -186,6 +191,14 @@ function plan(j, from, dry, w) {
   } else if (j.type === 'greet') {
     if (!car || car.loc.t !== 'curb' || !g || g.state !== 'curbDrop') return { refuse: '' };
     const k = car.loc.k; walk({ t: 'curb', k }); act(() => { g.state = 'greeting'; }); wait(SPD.greetSec, 'GREET'); act(() => greetLimo(car, g));
+  } else if (j.type === 'heli') {
+    const H = S.heli; if (!H || (H.phase !== 'incoming' && H.phase !== 'landed') || H.greeting) return { refuse: '' };
+    walk({ t: 'pad' });
+    steps.push({ k: 'until', fn: () => S.heli.phase !== 'incoming', label: 'HELI' });
+    act(() => { if (S.heli.phase === 'landed') S.heli.greeting = true; });
+    steps.push({ k: 'wait', sec: CONFIG.helo.greetSec / m, label: 'GREET', skip: () => !S.heli.greeting }); est += CONFIG.helo.greetSec / m;
+    act(() => { if (S.heli.greeting) heliGreet(); });
+    walk({ t: 'stand' });
   } else if (j.type === 'fetch') {
     if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
     const k = freeCurb(j.id); if (k < 0) return { wait: 'CURB FULL' };
@@ -254,6 +267,8 @@ function runWorker(v, dt) {
     const st = j.steps[j.si]; if (!st) { endJob(j); break; }
     const m = speedMult() * v.speed;
     if (st.k === 'do') { st.fn(); j.si++; continue; }
+    if (st.k === 'until') { if (st.fn()) { j.si++; v.waitLabel = null; continue; } v.walking = false; v.waitLabel = st.label; budget = 0; continue; }
+    if (st.k === 'wait' && st.skip && st.skip()) { j.si++; continue; }
     if (st.k === 'wait') { st.t = (st.t || 0) + budget; budget = 0; v.walking = false; v.waitLabel = st.label; if (st.t >= st.sec) { budget = st.t - st.sec; j.si++; v.waitLabel = null; } continue; }
     if (st.k === 'walk') {
       if (!st.started) { st.started = true; v.pi = 1; v.x = st.pts[0][0]; v.y = st.pts[0][1]; }

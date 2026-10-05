@@ -29,6 +29,37 @@ function buildBG() {
   r(222, 82, 92, 9, PAL.green); r(234, 91, 1, 6, PAL.lgrey);
 }
 function drawPalm(x, y) { R(x, y, 1, 14, PAL.brown); R(x - 4, y - 1, 9, 1, PAL.emer); R(x - 5, y, 2, 1, PAL.green); R(x + 4, y, 2, 1, PAL.green); R(x - 2, y - 2, 5, 1, PAL.leaf); }
+/* ---- helipad + VIP helicopter (vector-drawn at 3x) ---- */
+function ell(x, y, rx, ry, c, rot) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); ctx.fill(); }
+function drawPad() { const x = PAD.x, y = PAD.y;
+  R(x - 18, y - 18, 36, 36, PAL.dgrey); RB(x - 18, y - 18, 36, 36, PAL.lgrey);
+  ctx.strokeStyle = PAL.yellow; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
+  R(x - 5, y - 6, 2, 12, PAL.white); R(x + 3, y - 6, 2, 12, PAL.white); R(x - 3, y - 1, 6, 2, PAL.white);
+  for (let i = 0; i < 4; i++) { const on = Math.floor(UI.t * 2 + i) % 2 === 0; R(x - 18 + (i % 2) * 34, y - 18 + (i > 1 ? 34 : 0), 2, 2, on ? PAL.red : PAL.rust); } }
+function drawHeli() {
+  if (!heliVisible()) return; const H = S.heli; const a = heliAlt(); const x = PAD.x, y = PAD.y;
+  // shadow grows sharper as it descends
+  ctx.globalAlpha = 0.25 + 0.35 * (1 - a); ell(x + a * 10, y + 2, 16 * (1 - a * 0.4), 7 * (1 - a * 0.4), PAL.ink); ctx.globalAlpha = 1;
+  const hx = x + a * 40, hy = y - a * 110, s = 1 + a * 0.5;
+  ctx.save(); ctx.translate(hx, hy); ctx.scale(s, s);
+  R(-9, 5, 18, 1, PAL.lgrey); R(-9, -6, 18, 1, PAL.lgrey); R(-6, -6, 1, 11, PAL.lgrey); R(5, -6, 1, 11, PAL.lgrey); // skids
+  R(6, -1, 18, 2, PAL.ink); R(22, -4, 2, 8, PAL.ink); R(22, -1, 4, 2, PAL.yellow); // tail boom + fin
+  ell(0, 0, 11, 6, PAL.ink); ell(0, 0, 10, 5, '#1b1b2e'); R(-8, -1, 16, 1, PAL.yellow); // body + gold pinstripe
+  ell(-6, 0, 4.5, 4, '#7fd4ff'); ell(-7, -1.2, 2, 1.4, PAL.white); // cockpit glass + glint
+  const ang = UI.t * (H.phase === 'landed' ? (H.t < 1.5 ? 18 : 4) : 30);
+  ctx.strokeStyle = 'rgba(220,220,235,0.85)'; ctx.lineWidth = 1.1; ctx.beginPath();
+  for (let k = 0; k < 4; k++) { const t = ang + k * Math.PI / 2; ctx.moveTo(0, 0); ctx.lineTo(Math.cos(t) * 17, Math.sin(t) * 17); } ctx.stroke();
+  ctx.globalAlpha = 0.18; ell(0, 0, 17, 17, PAL.white); ctx.globalAlpha = 1; ell(0, 0, 1.5, 1.5, PAL.yellow);
+  const tr = ang * 1.7; ctx.beginPath(); ctx.moveTo(24 + Math.cos(tr) * 3, Math.sin(tr) * 3); ctx.lineTo(24 - Math.cos(tr) * 3, -Math.sin(tr) * 3); ctx.stroke();
+  ctx.restore();
+  // countdown ring once landed
+  if (H.phase === 'landed' && !H.greeting) { const f = 1 - H.t / CONFIG.helo.meetSec; ctx.strokeStyle = f > 0.5 ? PAL.lime : f > 0.25 ? PAL.yellow : PAL.red; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 19, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f); ctx.stroke(); drawText(ctx, Math.ceil(CONFIG.helo.meetSec - H.t) + '', x, y - 26, f > 0.25 ? PAL.white : PAL.red, { align: 'center' }); }
+  if (H.phase === 'incoming' && !heliJob() && Math.floor(UI.t * 4) % 2) drawText(ctx, 'TAP!', x, y - 26, PAL.yellow, { align: 'center' });
+}
+function drawVip() { const H = S.heli; if (!H || !(H.vipT > 0)) return; const f = 1 - H.vipT / 2.5;
+  const px = lerp(PAD_MEET[0], MAP.standX + 4, f), py = f < 0.5 ? lerp(PAD.y, MAP.streetY, f * 2) : lerp(MAP.streetY, 34, (f - 0.5) * 2);
+  drawPerson(ctx, Math.round(px), Math.round(py - 8), Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', { h: PAL.yellow, s: PAL.peach, c: PAL.ink, p: PAL.ink, k: PAL.ink, x: PAL.yellow }); }
 function drawWorldStatic() {
   ctx.drawImage(BG, 0, 0); const t = UI.t;
   for (let row = 0; row < 2; row++) for (let x = 6; x < 316; x += 10) { if (x > 118 && x < 202 && row === 0) continue; if (x > 146 && x < 174) continue;
@@ -65,7 +96,7 @@ function drawBubbles(list) { // list of {x,y,b,order}; stack upward when overlap
 
 /* ---- game render ---- */
 function renderGame() {
-  const shake = S.shake > 0 ? Math.round(rnd(-1, 1)) : 0; ctx.save(); ctx.translate(shake, 0); drawWorldStatic(); tutWorldFx();
+  const shake = S.shake > 0 ? Math.round(rnd(-1, 1)) : 0; ctx.save(); ctx.translate(shake, 0); drawWorldStatic(); drawPad(); tutWorldFx();
   // lot cars
   for (const car of S.cars.values()) if (car.loc.t !== 'moving' && car.loc.t !== 'street') drawCar(car);
   S.streetQueue.forEach((id, n) => { if (n < LOT.streetQueueMax) drawCar(S.cars.get(id)); }); if (S.streetQueue.length > LOT.streetQueueMax) drawText(ctx, '+' + (S.streetQueue.length - LOT.streetQueueMax), 2, 68, PAL.yellow);
@@ -96,6 +127,7 @@ function renderGame() {
     if (crew) { const tag = w.id === 0 ? '1' : String(S.helpers.indexOf(w) + 2); const act = w.id === S.activeW;
       if (act) { const by = hy - 22 + (Math.floor(UI.t * 3) % 2); R(hx - 1, by, 3, 1, PAL.yellow); R(hx, by + 1, 1, 1, PAL.yellow); }
       R(hx - 2, hy - 19, 5, 7, act ? PAL.yellow : PAL.ink); drawText(ctx, tag, hx, hy - 18, act ? PAL.ink : PAL.white, { align: 'center' }); if (w.leaving) drawText(ctx, 'BYE', hx, hy - 24, PAL.lgrey, { align: 'center' }); } }
+  drawVip(); drawHeli();
   // manager
   if (S.manager || S.phase === 'fired') { const mx = S.phase === 'fired' ? 156 - Math.min(20, S.endT * 15) : 156; drawPerson(ctx, mx, 29, 'idle', { h: PAL.lgrey, s: PAL.peach, c: PAL.ink, p: PAL.ink, k: PAL.ink });
     if (S.manager) bubbles.push({ x: mx + 1, y: 29, b: { text: S.manager.line, kind: 'w' }, order: 1e9 }); }
@@ -207,6 +239,7 @@ function hitTargets() {
   add(308, 170, 10, 10, 5, () => { UI.paused = true; }); add(294, 170, 10, 10, 5, toggleMute);
   if (canClockOut()) add(226, 158, 88, 12, 5, clockOut);
   if (!S.tutorial) add(2, 124, 28, 44, 5, crewButton);
+  if (heliVisible() && S.heli.phase !== 'leaving') add(PAD.x - 18, PAD.y - 18, 36, 36, 5, tapHeli);
   if (S.helpers.length) for (const w of workers()) if (!w.inCar && !w.leaving) add(w.x + (w.off || 0) - 4, w.y - 10, 8, 12, 6, () => selectWorker(w));
   for (const { g, y } of boardRows().rows) add(222, y, 96, 9, 5, () => tapGuest(g));
   for (let i = 0; i < slotsAllowed(); i++) if (S.cards[i]) add(178 + i * 12, 1, 9, 8, 5, () => armCard(i));
@@ -283,7 +316,7 @@ function renderText(title, lines) { R(0, 0, 320, 180, PAL.night); drawText(ctx, 
 function renderSummary() { const r = RESULT; R(0, 0, 320, 180, PAL.night);
   drawText(ctx, r.kind === 'fired' ? 'FIRED' : 'CLOCKED OUT', 160, 8, r.kind === 'fired' ? PAL.red : PAL.lime, { align: 'center', scale: 2 });
   wrapText(r.kind === 'fired' ? 'THE MOMENT: ' + r.reason : 'YOU CLOCKED OUT AT ' + fmtClock(r.hour) + '. NICE NIGHT.', 70).forEach((l, i) => drawText(ctx, l, 160, 24 + i * 7, PAL.white, { align: 'center' }));
-  const s = r.st; const rows = [['TOTAL EARNED', fmtMoney(r.money)], ['TIPS / PAY', fmtMoney(s.tips) + ' / ' + fmtMoney(s.pay)], ...(s.wages ? [['VALET WAGES', '-' + fmtMoney(s.wages)]] : []), ['CARS PARKED', s.carsParked], ['WHALES SERVED', s.whalesServed], ['BIGGEST TIP', fmtMoney(s.biggestTip)],
+  const s = r.st; const rows = [['TOTAL EARNED', fmtMoney(r.money)], ['TIPS / PAY', fmtMoney(s.tips) + ' / ' + fmtMoney(s.pay)], ...(s.wages ? [['VALET WAGES', '-' + fmtMoney(s.wages)]] : []), ...(s.heli ? [['HELICOPTER VIP', s.heli]] : []), ['CARS PARKED', s.carsParked], ['WHALES SERVED', s.whalesServed], ['BIGGEST TIP', fmtMoney(s.biggestTip)],
     ['WORST GRAWLIX', s.longestWhaleName ? Math.round(s.longestWhaleWait) + 'S - ' + s.longestWhaleName : 'NONE'], ['TIME SURVIVED', Math.floor(r.t / 60) + 'M ' + Math.floor(r.t % 60) + 'S'], ['ANGRY / STOLEN', s.angry + ' / ' + s.stolen], ['CAREER XP', '+' + r.xp], ['HIGH SCORE', fmtMoney(SAVE.highScore)]];
   rows.forEach(([a, b], i) => { drawText(ctx, a, 60, 42 + i * 10, PAL.lgrey); drawText(ctx, String(b), 260, 42 + i * 10, PAL.yellow, { align: 'right' }); });
   if (r.isHigh && Math.floor(UI.t * 3) % 2) drawText(ctx, 'NEW HIGH SCORE!', 160, 146, PAL.pink, { align: 'center' }); drawButtons(screenButtons()); }
