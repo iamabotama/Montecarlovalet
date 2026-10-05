@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false,                 // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '1.1.0',
+  version: '1.2.0',
   lot:   { orientation: 'horizontal', lanes: 6, stallsPerLane: 8, stallPx: [16, 15],
            tempSlots: { west: 2, east: 2 }, curbSlots: 4,
            streetQueueMax: 3, prefilledCars: 0, tempOverstaySec: 60, tempOverstayEverySec: 30, tempOverstayHeat: 1 },
@@ -73,6 +73,8 @@ const CONFIG = {
     { fromSec: 240, interval: [12, 15], mix: [25, 40, 25, 10, 0, 0], patienceMult: 2,   maxPickups: 2, banner: 'WHALE SPOTTED - BIG TIPS, PARK FAST' },
     { fromSec: 360, interval: [9, 12],  mix: [20, 35, 25, 12, 3, 5], patienceMult: 1.5, maxPickups: 3, banner: 'LIMOS AND ULTRAS TONIGHT' },
   ] },
+  // Extra valets: tap HIRE (left panel), tap a valet to make him active; new jobs go to the active valet.
+  helpers: { max: 3, costPerHour: 100, speed: 1.0, idleOffsets: [0, 8, -8, 16] },
   podium: { x: 172, handSec: 0.6, boardRows: 5 },
   gala: { hour: 22, jitterHours: 0.3, durationSec: 60, interval: [2, 3], highShare: 0.5 },
   fx:   { shakeSec: 0.35, toastSec: 2.6, musicSpeedPerHour: 0.05, musicBpm: 116 },

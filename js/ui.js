@@ -69,7 +69,7 @@ function renderGame() {
   // lot cars
   for (const car of S.cars.values()) if (car.loc.t !== 'moving' && car.loc.t !== 'street') drawCar(car);
   S.streetQueue.forEach((id, n) => { if (n < LOT.streetQueueMax) drawCar(S.cars.get(id)); }); if (S.streetQueue.length > LOT.streetQueueMax) drawText(ctx, '+' + (S.streetQueue.length - LOT.streetQueueMax), 2, 68, PAL.yellow);
-  const v = S.valet; if (v.inCar) drawCar(S.cars.get(v.inCar));
+  const v = S.valet; for (const w of workers()) if (w.inCar) drawCar(S.cars.get(w.inCar));
   // reserved (restow) stalls
   S.lanes.forEach((L, i) => L.res.forEach((r, j) => { if (r !== null && L.cars[j] === null) RB(MAP.lotX + j * SW + 2, MAP.lotY + i * SH + 2, SW - 3, SH - 3, PAL.dgrey); }));
   // podium
@@ -85,10 +85,17 @@ function renderGame() {
   for (const n of S.npcs) drawPerson(ctx, n.x, n.y, 'walk', { h: PAL.ink, s: PAL.peach, c: n.kind === 'newbie' ? PAL.lime : PAL.lav, p: PAL.ink, k: PAL.ink, x: n.kind === 'newbie' ? PAL.lime : PAL.lav });
   // valet
   const uni = { h: PAL.ink, s: PAL.peach, c: PAL.red, p: PAL.ink, k: PAL.ink, x: PAL.red };
-  if (tutValetVisible() && (!v.inCar && S.phase !== 'fired' || (S.phase === 'fired' && S.endT < 2))) drawPerson(ctx, Math.round(v.x - 2), Math.round(v.y - 8 + tutValetOffset()), v.walking && Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', uni, v.dir === 2);
-  if (v.job && v.job.est > 0) { const f = clamp(v.job.elapsed / v.job.est, 0, 1); R(v.x - 6, v.y - 12, 12, 2, PAL.ink); R(v.x - 6, v.y - 12, Math.round(12 * f), 2, PAL.lime); }
-  if (v.waitLabel === 'BAGS') drawIcon(ctx, 'cart', v.x + 3, v.y - 6, PAL.orange);
-  if (S.boost.hustle > 0 || S.boost.coffee > 0) R(v.x - 3, v.y + 1, 1, 1, PAL.yellow);
+  const crew = S.helpers.length > 0;
+  for (const w of workers()) { const wx = w.x + (w.off || 0);
+    if (w === S.valet && !tutValetVisible()) continue;
+    if (!w.inCar && S.phase !== 'fired' || (w === S.valet && S.phase === 'fired' && S.endT < 2)) drawPerson(ctx, Math.round(wx - 2), Math.round(w.y - 8 + (w === S.valet ? tutValetOffset() : 0)), w.walking && Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', w === S.valet ? uni : { ...uni, h: PAL.brown }, w.dir === 2);
+    const hx = w.inCar ? w.x : wx, hy = w.inCar ? w.y - 4 : w.y;
+    if (w.job && w.job.est > 0) { const f = clamp(w.job.elapsed / w.job.est, 0, 1); R(hx - 6, hy - 12, 12, 2, PAL.ink); R(hx - 6, hy - 12, Math.round(12 * f), 2, PAL.lime); }
+    if (w.waitLabel === 'BAGS') drawIcon(ctx, 'cart', hx + 3, hy - 6, PAL.orange);
+    if (S.boost.hustle > 0 || S.boost.coffee > 0) R(hx - 3, hy + 1, 1, 1, PAL.yellow);
+    if (crew) { const tag = w.id === 0 ? '1' : String(S.helpers.indexOf(w) + 2); const act = w.id === S.activeW;
+      if (act) { const by = hy - 22 + (Math.floor(UI.t * 3) % 2); R(hx - 1, by, 3, 1, PAL.yellow); R(hx, by + 1, 1, 1, PAL.yellow); }
+      R(hx - 2, hy - 19, 5, 7, act ? PAL.yellow : PAL.ink); drawText(ctx, tag, hx, hy - 18, act ? PAL.ink : PAL.white, { align: 'center' }); if (w.leaving) drawText(ctx, 'BYE', hx, hy - 24, PAL.lgrey, { align: 'center' }); } }
   // manager
   if (S.manager || S.phase === 'fired') { const mx = S.phase === 'fired' ? 156 - Math.min(20, S.endT * 15) : 156; drawPerson(ctx, mx, 29, 'idle', { h: PAL.lgrey, s: PAL.peach, c: PAL.ink, p: PAL.ink, k: PAL.ink });
     if (S.manager) bubbles.push({ x: mx + 1, y: 29, b: { text: S.manager.line, kind: 'w' }, order: 1e9 }); }
@@ -118,11 +125,11 @@ function renderHUD() {
   for (let i = 0; i < Math.min(S.stars, 4); i++) drawIcon(ctx, 'star', 240 + i * 6, 3, PAL.yellow);
   drawText(ctx, 'HI ' + fmtMoney(SAVE.highScore), 318, 3, PAL.lav, { align: 'right' });
   // bottom strip: queue
-  R(0, 172, 320, 8, PAL.ink); drawText(ctx, 'QUEUE:', 2, 174, PAL.lgrey);
-  queueItems().forEach(q => { const car = S.cars.get(q.j.carId); const active = q.j === S.valet.job; drawText(ctx, q.label, q.x, 174, active ? PAL.lime : q.j.waitMsg ? PAL.orange : PAL.white);
+  R(0, 172, 320, 8, PAL.ink); drawText(ctx, S.helpers.length ? (S.activeW === 0 ? 'V1 YOU:' : 'V' + (S.helpers.indexOf(activeWorker()) + 2) + ':') : 'QUEUE:', 2, 174, S.helpers.length ? PAL.yellow : PAL.lgrey);
+  queueItems().forEach(q => { const car = S.cars.get(q.j.carId); const active = !!q.j.worker; drawText(ctx, q.label, q.x, 174, active ? PAL.lime : q.j.waitMsg ? PAL.orange : PAL.white);
     if (!q.j.type.startsWith('restow') || true) drawIcon(ctx, 'x', q.x + q.w + 2, 173, PAL.red); void car; });
   drawIcon(ctx, 'pause', 312, 173, PAL.white); drawIcon(ctx, Sound.muted ? 'spkoff' : 'spk', 298, 173, PAL.white);
-  renderBoard();
+  renderBoard(); if (!S.tutorial || TUT_STEPS[TUT.i].crew) renderCrewPanel();
   if (S.galaActive) drawText(ctx, 'GALA ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 84, PAL.pink);
   const sel = S.selected && S.cars.get(S.selected.carId); if (sel) drawText(ctx, carName(sel), 222, 150, PAL.yellow);
   else if (S.armed !== null && S.cards[S.armed]) drawText(ctx, POWER_INFO[S.cards[S.armed].type].name + ': TAP TARGET', 222, 150, PAL.white);
@@ -148,8 +155,18 @@ function renderBoard() {
       drawText(ctx, String(Math.floor(g.wait)), 316, y + 2, c, { align: 'right' }); } }
   if (more) drawText(ctx, '+' + more + ' MORE', 270, 143, PAL.orange, { align: 'center' });
 }
+/* ---- crew panel (left, under the temp slots) ---- */
+function crewButton() { const w = activeWorker(); if (w.id !== 0) sendHome(w); else hireValet(); }
+function renderCrewPanel() {
+  const w = activeWorker(); const full = S.helpers.length >= CONFIG.helpers.max; const poor = S.money < CONFIG.helpers.costPerHour;
+  const home = w.id !== 0; const col = home ? PAL.orange : full || poor ? PAL.dgrey : PAL.lime;
+  R(2, 124, 28, 44, PAL.ink); RB(2, 124, 28, 44, col);
+  const lines = home ? ['V' + (S.helpers.indexOf(w) + 2), 'SEND', 'HOME', ''] : full ? ['CREW', 'FULL', '', ''] : ['HIRE', 'VALET', fmtMoney(CONFIG.helpers.costPerHour), '/HR'];
+  lines.forEach((l, i) => drawText(ctx, l, 16, 127 + i * 7, i < 2 ? PAL.white : col, { align: 'center' }));
+  for (let i = 0; i < CONFIG.helpers.max; i++) R(6 + i * 7, 160, 5, 4, i < S.helpers.length ? PAL.red : PAL.dgrey);
+}
 const canClockOut = () => S.phase === 'play' && hourNow() >= CONFIG.clock.clockOutHour;
-function queueItems() { let x = 28; const out = []; for (const j of S.jobs) { if (j.aborted) continue; const label = jobLabel(j); const w = textW(label); out.push({ j, label, x, w }); x += w + 10; if (x > 280) break; } return out; }
+function queueItems() { let x = S.helpers.length && S.activeW === 0 ? 32 : 28; const out = []; for (const j of S.jobs) { if (j.aborted || j.wid !== S.activeW) continue; const label = jobLabel(j); const w = textW(label); out.push({ j, label, x, w }); x += w + 10; if (x > 280) break; } return out; }
 
 /* ---- selection: stall highlights + curb menu ---- */
 function selectionOptions() {
@@ -189,6 +206,8 @@ function hitTargets() {
   if (S.phase !== 'play') { add(0, 0, 320, 180, 0, () => { if (S.endT > 1.5) finishRun(); }); return T; }
   add(308, 170, 10, 10, 5, () => { UI.paused = true; }); add(294, 170, 10, 10, 5, toggleMute);
   if (canClockOut()) add(226, 158, 88, 12, 5, clockOut);
+  if (!S.tutorial) add(2, 124, 28, 44, 5, crewButton);
+  if (S.helpers.length) for (const w of workers()) if (!w.inCar && !w.leaving) add(w.x + (w.off || 0) - 4, w.y - 10, 8, 12, 6, () => selectWorker(w));
   for (const { g, y } of boardRows().rows) add(222, y, 96, 9, 5, () => tapGuest(g));
   for (let i = 0; i < slotsAllowed(); i++) if (S.cards[i]) add(178 + i * 12, 1, 9, 8, 5, () => armCard(i));
   for (const q of queueItems()) { add(q.x, 172, q.w, 8, 5, () => promoteJob(q.j)); add(q.x + q.w + 1, 172, 5, 8, 6, () => cancelJob(q.j)); }
@@ -264,7 +283,7 @@ function renderText(title, lines) { R(0, 0, 320, 180, PAL.night); drawText(ctx, 
 function renderSummary() { const r = RESULT; R(0, 0, 320, 180, PAL.night);
   drawText(ctx, r.kind === 'fired' ? 'FIRED' : 'CLOCKED OUT', 160, 8, r.kind === 'fired' ? PAL.red : PAL.lime, { align: 'center', scale: 2 });
   wrapText(r.kind === 'fired' ? 'THE MOMENT: ' + r.reason : 'YOU CLOCKED OUT AT ' + fmtClock(r.hour) + '. NICE NIGHT.', 70).forEach((l, i) => drawText(ctx, l, 160, 24 + i * 7, PAL.white, { align: 'center' }));
-  const s = r.st; const rows = [['TOTAL EARNED', fmtMoney(r.money)], ['TIPS / PAY', fmtMoney(s.tips) + ' / ' + fmtMoney(s.pay)], ['CARS PARKED', s.carsParked], ['WHALES SERVED', s.whalesServed], ['BIGGEST TIP', fmtMoney(s.biggestTip)],
+  const s = r.st; const rows = [['TOTAL EARNED', fmtMoney(r.money)], ['TIPS / PAY', fmtMoney(s.tips) + ' / ' + fmtMoney(s.pay)], ...(s.wages ? [['VALET WAGES', '-' + fmtMoney(s.wages)]] : []), ['CARS PARKED', s.carsParked], ['WHALES SERVED', s.whalesServed], ['BIGGEST TIP', fmtMoney(s.biggestTip)],
     ['WORST GRAWLIX', s.longestWhaleName ? Math.round(s.longestWhaleWait) + 'S - ' + s.longestWhaleName : 'NONE'], ['TIME SURVIVED', Math.floor(r.t / 60) + 'M ' + Math.floor(r.t % 60) + 'S'], ['ANGRY / STOLEN', s.angry + ' / ' + s.stolen], ['CAREER XP', '+' + r.xp], ['HIGH SCORE', fmtMoney(SAVE.highScore)]];
   rows.forEach(([a, b], i) => { drawText(ctx, a, 60, 42 + i * 10, PAL.lgrey); drawText(ctx, String(b), 260, 42 + i * 10, PAL.yellow, { align: 'right' }); });
   if (r.isHigh && Math.floor(UI.t * 3) % 2) drawText(ctx, 'NEW HIGH SCORE!', 160, 146, PAL.pink, { align: 'center' }); drawButtons(screenButtons()); }

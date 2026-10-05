@@ -30,3 +30,10 @@ Stage 1 (playable core) done. Stage 2: career ranks/promotion screen, loadout, n
 - **Podium + retrieve board**: leaving guests hand a ticket in at the podium; it appears on the board (ticket, car type, stall, depth, seconds waiting), most urgent first. Tap a ticket to fetch.
 - **Hi-res cars** (`js/cars.js`): procedural sprites drawn at 3x the game grid (canvas is 960x540). Distinct bodies per class; exotics get canopies, intakes, wings, glow halos.
 - **Tips**: whales $50-150 on arrival / $50-200 on pickup; whales and ultras served super fast have a 1-in-10 chance of a $500 jackpot (`CONFIG.tips.jackpot`).
+
+## v1.2: hire valets
+- **HIRE VALET** panel (left, under T1/T2): $100 up front, then $100 every game hour (`CONFIG.helpers`). Up to 3 helpers. If you can't make payroll, the helper quits.
+- **Tap a valet to make him active** (yellow arrow + number tag). Every job you set up after that (park, fetch, greet) goes into *his* queue; the bottom strip shows the active valet's queue. Selection sticks until you tap another valet.
+- With a helper active, the panel becomes **SEND HOME**; his queued jobs move back to you and he leaves after his current job.
+- Valets never work the same lot row at once (lane lock) - a blocked job shows orange "LANE BUSY" and starts when the row frees up.
+- Wages are listed on the end-of-shift summary.

@@ -47,7 +47,7 @@ function departCar(car, kind) { // drive off-screen east; free its spot immediat
   car.mv = { pts, pi: 0, speed: 70, done: () => S.cars.delete(car.id) }; void kind;
 }
 function guestGone(g) { g.state = 'gone'; const si = S.spots.indexOf(g.id); if (si >= 0) S.spots[si] = null; S.guests.delete(g.id); }
-function removeQueuedJobsFor(carId) { for (const j of S.jobs.slice()) if (j.carId === carId && j !== S.valet.job) S.jobs.splice(S.jobs.indexOf(j), 1); const a = S.valet.job; if (a && a.carId === carId && !a.carMoved) { a.aborted = true; releaseJob(a); } }
+function removeQueuedJobsFor(carId) { for (const j of S.jobs.slice()) if (j.carId === carId && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1); const a = S.valet.job; if (a && a.carId === carId && !a.carMoved) { a.aborted = true; releaseJob(a); } }
 
 /* ---- heat ---- */
 function addHeat(amt, reason, x, y) {
@@ -106,7 +106,7 @@ function updateGuests(dt) {
           const rate = T.escalateStart + T.escalateStep * Math.floor(g.over / T.escalateEverySec);
           addHeat(rate * dt, 'A ' + carName(car) + ' OWNER WAITED ' + Math.round(g.wait) + 'S ' + (g.phase === 'pick' ? 'AT PICKUP' : 'AT THE CURB') + '.');
           if (Math.random() < dt * 2) S.shake = 0.15; }
-        else if (g.phase === 'pick') { const a = S.valet.job; if (a && a.type === 'fetch' && a.carId === g.carId && a.carMoved) { if (!g.comped) { g.comped = true; addHeat(CONFIG.tiers[g.tier].angryHeat, 'A ' + carName(car) + ' OWNER WAITED TOO LONG.'); } } else leaveAngry(g, 'TOOK A CAB'); continue; }
+        else if (g.phase === 'pick') { const a = S.jobs.find(x => x.worker && x.type === 'fetch' && x.carId === g.carId && x.carMoved); if (a) { if (!g.comped) { g.comped = true; addHeat(CONFIG.tiers[g.tier].angryHeat, 'A ' + carName(car) + ' OWNER WAITED TOO LONG.'); } } else leaveAngry(g, 'TOOK A CAB'); continue; }
         else { leaveAngry(g, g.tier === 'limo' ? 'LIMO WAS IGNORED' : 'GAVE UP AT THE CURB'); continue; }
       }
     }
@@ -162,6 +162,31 @@ function finishRun() {
   const isHigh = S.money > SAVE.highScore; if (isHigh) SAVE.highScore = Math.round(S.money);
   SAVE.careerXP += xp; const best = SAVE.bestStats; best.biggestTip = Math.max(best.biggestTip || 0, st.biggestTip); best.longestShift = Math.max(best.longestShift || 0, S.t); best.whalesServed = Math.max(best.whalesServed || 0, st.whalesServed);
   writeSave(); RESULT = { kind, money: S.money, xp, isHigh, hour: hourNow(), reason: S.lastHeatReason, line: S.firedLine, st: { ...st }, t: S.t }; UI.screen = 'summary';
+}
+/* ---- crew: hire / wages / send home ---- */
+const HC = CONFIG.helpers;
+function hireValet() {
+  if (S.helpers.length >= HC.max) { toast('CREW IS FULL (' + HC.max + ' HELPERS)'); Sound.sfx('deny'); return; }
+  if (S.money < HC.costPerHour) { toast('NEED ' + fmtMoney(HC.costPerHour) + ' TO HIRE A VALET'); Sound.sfx('deny'); return; }
+  S.money -= HC.costPerHour; S.stats.wages = (S.stats.wages || 0) + HC.costPerHour;
+  const w = { id: S.nextWid++, speed: HC.speed, x: MAP.standX, y: 30, loc: { t: 'stand' }, job: null, dir: 1, walking: true, inCar: null, paidT: CONFIG.clock.realSecPerGameHour, leaving: false, off: 0, arriveT: 1.2 };
+  S.helpers.push(w); S.activeW = w.id; floater('-' + fmtMoney(HC.costPerHour) + ' NEW VALET', MAP.standX, 40, PAL.orange); Sound.sfx('power');
+  toast(workerName(w) + ' IS ON - YOUR NEXT JOBS GO TO HIM');
+}
+function sendHome(w) { if (!w || w.id === 0) return; w.leaving = true;
+  for (const j of S.jobs) if (j.wid === w.id && !j.worker) j.wid = 0; // hand his queue back to you
+  if (S.activeW === w.id) S.activeW = 0; toast(workerName(w) + ' IS GOING HOME' + (w.job ? ' AFTER THIS JOB' : '')); Sound.sfx('click'); }
+function selectWorker(w) { S.activeW = w.id; S.selected = null; Sound.sfx('blip', 2); floater(workerName(w), w.x, w.y - 14, PAL.yellow); }
+function updateCrew(dt) {
+  for (const w of S.helpers.slice()) {
+    if (w.arriveT > 0) { w.arriveT -= dt; w.y = lerp(MAP.standY, 30, Math.max(0, w.arriveT) / 1.2); if (w.arriveT <= 0) { w.y = MAP.standY; w.walking = false; } }
+    if (w.leaving && !w.job) { for (const j of S.jobs) if (j.wid === w.id) j.wid = 0; S.helpers.splice(S.helpers.indexOf(w), 1); floater('BYE!', w.x, w.y - 10, PAL.lgrey); continue; }
+    if (S.tutorial || w.leaving) continue;
+    w.paidT -= dt; if (w.paidT <= 0) {
+      if (S.money >= HC.costPerHour) { S.money -= HC.costPerHour; S.stats.wages = (S.stats.wages || 0) + HC.costPerHour; w.paidT += CONFIG.clock.realSecPerGameHour; floater('-' + fmtMoney(HC.costPerHour) + ' WAGES', w.x, w.y - 12, PAL.orange); }
+      else { toast(workerName(w) + ' QUIT - NO MONEY FOR WAGES'); sendHome(w); } } }
+  // idle valets spread out around the stand instead of stacking
+  workers().forEach((w, i) => { const atStand = !w.job && w.loc.t === 'stand' && !(w.arriveT > 0); const target = atStand ? HC.idleOffsets[i % HC.idleOffsets.length] : 0; w.off = (w.off || 0) + clamp(target - (w.off || 0), -dt * 30, dt * 30); });
 }
 function stepSim(dt) {
   if (S.phase === 'play') {

@@ -80,7 +80,8 @@ function newRun() {
     lanes: Array.from({ length: NL }, () => ({ cars: Array(NS).fill(null), res: Array(NS).fill(null) })),
     temps: TEMPS.map(() => ({ car: null, res: null })), curb: MAP.curbX.map(() => ({ car: null, res: null })),
     streetQueue: [], jobs: [], spots: SPOTS.map(() => null),
-    valet: { x: MAP.standX, y: MAP.standY, loc: { t: 'stand' }, job: null, dir: 1, walking: false, inCar: null, stepT: 0, anim: 0 },
+    valet: { id: 0, speed: 1, x: MAP.standX, y: MAP.standY, loc: { t: 'stand' }, job: null, dir: 1, walking: false, inCar: null, stepT: 0, anim: 0 },
+    helpers: [], activeW: 0, nextWid: 1,
     spawnT: CONFIG.arrivals.firstSec, galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours, galaEnd: 0, galaDone: false, galaActive: false,
     floaters: [], particles: [], toasts: [], banners: [], shake: 0, manager: null, phase: 'play', endT: 0, boost: { hustle: 0, coffee: 0, spareKeys: 0 },
     lastHeatReason: 'THE GUESTS COMPLAINED.', ticketNo: 1, rampRow: null, heatFloat: 0, meltdown: false, npcs: [], selected: null, armed: null, lotFullFlash: 0,
@@ -113,7 +114,7 @@ function removeCarFromWorld(car) {
 function dropRestowEntry(carId) {
   for (const j of S.jobs) if (j.type === 'restow' && !j.aborted) { const e = j.list.find(e => e.carId === carId);
     if (e && !e.done) { e.done = true; const L = S.lanes[e.lane]; if (L.res[e.idx] === carId) L.res[e.idx] = null; } }
-  S.jobs = S.jobs.filter(j => !(j.type === 'restow' && j.list.every(e => e.done) && j !== S.valet.job));
+  S.jobs = S.jobs.filter(j => !(j.type === 'restow' && j.list.every(e => e.done) && !j.worker));
 }
 function carName(car) { return MODELS[car.tier][car.mi][0]; }
 function stallName(lane, idx) { return LANE_NAMES[lane] + (idx + 1); }
@@ -130,25 +131,36 @@ function jobLabel(j) {
   }
   return j.type.toUpperCase();
 }
-function queuedCount() { return S.jobs.filter(j => j.type !== 'restow' && !j.aborted).length; }
+/* ---- crew: S.valet (you, id 0) + up to CONFIG.helpers.max hired valets, each with its own job queue ---- */
+function workers() { return [S.valet, ...S.helpers]; }
+function activeWorker() { return workers().find(w => w.id === S.activeW) || S.valet; }
+function workerName(w) { return w.id === 0 ? 'YOU' : 'VALET ' + (S.helpers.indexOf(w) + 2); }
+function jobLanes(j) { const car = S.cars.get(j.carId);
+  if (j.type === 'park' || j.type === 'move') return [j.lane];
+  if (j.type === 'fetch') return car && car.loc.t === 'stall' ? [car.loc.lane] : [];
+  if (j.type === 'restow') return j.list.filter(e => !e.done).map(e => e.lane); return []; }
+function laneBusy(j, w) { const mine = jobLanes(j); if (!mine.length) return false;
+  for (const o of workers()) if (o !== w && o.job && !o.job.aborted && jobLanes(o.job).some(l => mine.includes(l))) return true; return false; }
+function queuedCount(wid) { return S.jobs.filter(j => j.type !== 'restow' && !j.aborted && j.wid === wid).length; }
 function enqueue(job) {
-  if (queuedCount() >= SPD.jobQueueMax) { toast('JOB QUEUE FULL (' + SPD.jobQueueMax + ')'); Sound.sfx('deny'); return false; }
+  const w = activeWorker(); if (job.wid === undefined) job.wid = w.id;
+  if (queuedCount(job.wid) >= SPD.jobQueueMax) { toast(workerName(w) + ': QUEUE FULL (' + SPD.jobQueueMax + ')'); Sound.sfx('deny'); return false; }
   job.id = nid(); job.carMoved = false; S.jobs.push(job); Sound.sfx('click'); return true;
 }
 function releaseJob(j) {
   S.curb.forEach(c => { if (c.res === j.id) c.res = null; }); S.temps.forEach(t => { if (t.res === j.id) t.res = null; });
 }
 function cancelJob(j) {
-  if (j === S.valet.job) { if (j.carMoved) { toast('CAN\'T CANCEL - CAR IN MOTION'); Sound.sfx('deny'); return; } j.aborted = true; releaseJob(j); }
+  if (j.worker) { if (j.carMoved) { toast('CAN\'T CANCEL - CAR IN MOTION'); Sound.sfx('deny'); return; } j.aborted = true; releaseJob(j); }
   else S.jobs.splice(S.jobs.indexOf(j), 1);
   if (j.type === 'restow') { for (const e of j.list) if (!e.done) { e.done = true; const L = S.lanes[e.lane]; if (L.res[e.idx] === e.carId) L.res[e.idx] = null; } toast('BLOCKERS LEFT IN TEMP - TAP ONE TO RE-PARK'); }
   Sound.sfx('click');
 }
-function promoteJob(j) { const i = S.jobs.indexOf(j); const first = S.valet.job ? 1 : 0; if (i > first) { S.jobs.splice(i, 1); S.jobs.splice(first, 0, j); Sound.sfx('click'); } }
+function promoteJob(j) { if (j.worker) return; const i = S.jobs.indexOf(j); const first = S.jobs.findIndex(x => x.wid === j.wid && !x.worker); if (first >= 0 && i > first) { S.jobs.splice(i, 1); S.jobs.splice(first, 0, j); Sound.sfx('click'); } }
 
 // Planner: builds steps with precomputed paths from the valet's location; returns {steps, est} | {refuse} | {wait}
-function plan(j, from, dry) {
-  const m = speedMult(); let cur = from; const steps = []; let est = 0;
+function plan(j, from, dry, w) {
+  const m = speedMult() * (w ? w.speed : 1); let cur = from; const steps = []; let est = 0;
   const walk = (to, sideB, sideA) => { const r = route(cur, to, sideA, sideB); if (r.len > 0) { steps.push({ k: 'walk', pts: r.pts, to }); est += walkSec(r.len, m); } cur = to; return r; };
   const drive = (carId, to, sideA, sideB, onStart, onEnd) => { const r = route(cur, to, sideA, sideB); steps.push({ k: 'drive', carId, pts: r.pts, to, onStart, onEnd }); est += driveSec(r.len, m); cur = to; };
   const wait = (sec, label) => { steps.push({ k: 'wait', sec: sec / m, label }); est += sec / m; };
@@ -178,7 +190,7 @@ function plan(j, from, dry) {
     if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
     const k = freeCurb(j.id); if (k < 0) return { wait: 'CURB FULL' };
     if (car.loc.t === 'temp') {
-      const i = car.loc.i; walk({ t: 'temp', i });
+      const i = car.loc.i; if (!dry) S.curb[k].res = j.id; walk({ t: 'temp', i });
       drive(car.id, { t: 'curb', k }, null, null, () => { S.temps[i].car = null; dropRestowEntry(car.id); S.curb[k].res = null; S.curb[k].car = car.id; }, () => carAtCurbForPickup(car, g, k));
     } else if (car.loc.t === 'stall') {
       const { lane, idx } = car.loc; const d = liveDepth(lane, idx); const side = d.side; const L = S.lanes[lane];
@@ -195,7 +207,7 @@ function plan(j, from, dry) {
         restow.unshift({ carId: bid, lane, idx: bx, side }); });
       walk({ t: 'stall', lane, idx }, side);
       drive(car.id, { t: 'curb', k }, side, null, () => { L.cars[idx] = null; S.curb[k].res = null; S.curb[k].car = car.id; }, () => carAtCurbForPickup(car, g, k));
-      if (restow.length) act(() => { S.jobs.splice(1, 0, { id: nid(), type: 'restow', list: restow, carMoved: false }); });
+      if (restow.length) act(() => { S.jobs.splice(S.jobs.indexOf(j) + 1, 0, { id: nid(), type: 'restow', list: restow, carMoved: false, wid: j.wid }); });
       j.blockers = blockers.length; j.depth = d.best;
     } else return { refuse: '' };
   } else if (j.type === 'restow') {
@@ -208,21 +220,22 @@ function plan(j, from, dry) {
   }
   return { steps, est };
 }
-function estimateFor(j) { const from = S.valet.job ? { t: 'stand' } : S.valet.loc; const p = plan(j, from, true); return p.steps ? p.est : null; }
+function estimateFor(j) { const w = activeWorker(); const from = w.job ? { t: 'stand' } : w.loc; const p = plan(j, from, true, w); return p.steps ? p.est : null; }
 
-function startNextJob() {
-  const v = S.valet;
+function startNextJob(v) {
   for (let n = 0; n < S.jobs.length; n++) {
-    const j = S.jobs[n]; if (j.aborted) { S.jobs.splice(n--, 1); continue; }
-    const p = plan(j, v.loc, false);
+    const j = S.jobs[n]; if (j.aborted && !j.worker) { S.jobs.splice(n--, 1); continue; }
+    if (j.worker || j.wid !== v.id) continue;
+    if (laneBusy(j, v)) { j.waitMsg = 'LANE BUSY'; continue; }
+    const p = plan(j, v.loc, false, v);
     if (p.refuse !== undefined) { if (p.refuse) { toast(p.refuse); Sound.sfx('deny'); } releaseJob(j); S.jobs.splice(n--, 1); continue; }
     if (p.wait) { j.waitMsg = p.wait; continue; }
     j.waitMsg = null; j.steps = p.steps; j.est = p.est; j.si = 0; j.elapsed = 0; j.phase = 0; j.startT = S.t;
-    S.jobs.splice(n, 1); S.jobs.unshift(j); v.job = j; return;
+    S.jobs.splice(n, 1); S.jobs.unshift(j); v.job = j; j.worker = v; return;
   }
 }
 function endJob(j) {
-  const v = S.valet; const i = S.jobs.indexOf(j); if (i >= 0) S.jobs.splice(i, 1); v.job = null; v.inCar = null; releaseJob(j);
+  const v = j.worker || S.valet; const i = S.jobs.indexOf(j); if (i >= 0) S.jobs.splice(i, 1); v.job = null; v.inCar = null; j.worker = null; releaseJob(j);
   if (!j.aborted) { const actual = S.t - j.startT; const rec = { type: j.type, label: jobLabel(j), planned: +j.est.toFixed(2), actual: +actual.toFixed(2), depth: j.depth, blockers: j.blockers || 0 };
     JOBLOG.push(rec); if (JOBLOG.length > 200) JOBLOG.shift(); if (DEBUG.on || CONFIG.debug) console.log('[job]', rec.label, 'planned', rec.planned + 's', 'actual', rec.actual + 's'); }
 }
@@ -233,12 +246,13 @@ function advanceAlong(o, pts, dist) { // o: {x,y,pi}; returns true when finished
     if (d <= dist) { o.x = tx; o.y = ty; o.pi++; dist -= d; } else { const f = dist / d; o.x += dx * f; o.y += dy * f; o.dir = dirOf(dx, dy); dist = 0; } }
   return o.pi >= pts.length;
 }
-function runValet(dt) {
-  const v = S.valet; if (!v.job) startNextJob(); const j = v.job; if (!j) { v.walking = false; return; }
+function runValet(dt) { for (const w of workers()) runWorker(w, dt); updateCrew(dt); }
+function runWorker(v, dt) {
+  if (v.arriveT > 0) return; if (!v.job) startNextJob(v); const j = v.job; if (!j) { v.walking = false; return; }
   j.elapsed += dt; let budget = dt;
   while (budget > 0 && v.job === j) {
     const st = j.steps[j.si]; if (!st) { endJob(j); break; }
-    const m = speedMult();
+    const m = speedMult() * v.speed;
     if (st.k === 'do') { st.fn(); j.si++; continue; }
     if (st.k === 'wait') { st.t = (st.t || 0) + budget; budget = 0; v.walking = false; v.waitLabel = st.label; if (st.t >= st.sec) { budget = st.t - st.sec; j.si++; v.waitLabel = null; } continue; }
     if (st.k === 'walk') {
