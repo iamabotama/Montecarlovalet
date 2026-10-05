@@ -5,8 +5,12 @@ const GUEST_COLORS = { beater: [PAL.khaki, PAL.olive, PAL.dgrey], standard: [PAL
 function toast(msg) { if (msg) S.toasts.push({ msg, t: CONFIG.fx.toastSec }); }
 function floater(text, x, y, color) { S.floaters.push({ text, x, y, color, t: 1.4 }); }
 function puff(car) { S.particles.push({ x: car.x, y: car.y, vx: rnd(-6, 6), vy: rnd(-8, -2), t: 0.5, c: PAL.lgrey }); }
-function dropPatience(tier) { const T = CONFIG.tiers[tier]; if (tier === 'limo') return T.greetPatience;
-  const tb = T.dropPatienceByHour; if (!tb) return T.dropPatience; const h = hourNow(); const [h0, p0] = tb[0], [h1, p1] = tb[tb.length - 1]; return lerp(p0, p1, clamp((h - h0) / (h1 - h0), 0, 1)); }
+function rampRow() { const R = CONFIG.ramp; if (!R || !R.enabled || S.tutorial || S.t >= R.endSec) return null; let row = null; for (const r of R.steps) if (S.t >= r.fromSec) row = r; return row; }
+const patienceMult = () => { const r = rampRow(); return r ? r.patienceMult : 1; };
+function dropPatience(tier) { const T = CONFIG.tiers[tier]; if (tier === 'limo') return T.greetPatience * patienceMult();
+  const tb = T.dropPatienceByHour; if (!tb) return T.dropPatience * patienceMult(); const h = hourNow(); const [h0, p0] = tb[0], [h1, p1] = tb[tb.length - 1]; return lerp(p0, p1, clamp((h - h0) / (h1 - h0), 0, 1)) * patienceMult(); }
+const PICK_ACTIVE = new Set(['pickWalk', 'handTicket', 'toSpot', 'pickWait']);
+function pickupsActive() { let n = 0; for (const g of S.guests.values()) if (PICK_ACTIVE.has(g.state)) n++; return n; }
 function makeGuest(tier, mi) {
   const car = { id: nid(), tier, mi, x: -14, y: MAP.streetY, dir: 0, loc: { t: 'street' } };
   const g = { id: nid(), tier, carId: car.id, state: 'queued', wait: 0, patience: dropPatience(tier), stage: 0, over: 0, comped: false, ignoreT: 0, claimT: 0, claimed: false,
@@ -20,16 +24,17 @@ function prefillLot() {
     g.state = 'inside'; g.stay = rnd(CONFIG.stay.prefillMinSec, CONFIG.stay.prefillMaxSec);
   }
 }
-function scheduleRow() { const h = hourNow(); let row = CONFIG.arrivals.schedule[0]; for (const r of CONFIG.arrivals.schedule) if (h >= r.fromHour) row = r; return row; }
+function scheduleRow() { const rr = rampRow(); if (rr) return rr; const h = hourNow(); let row = CONFIG.arrivals.schedule[0]; for (const r of CONFIG.arrivals.schedule) if (h >= r.fromHour) row = r; return row; }
 function spawnArrival(forceTier) {
   const row = scheduleRow(); let mix = row.mix.slice();
   if (S.galaActive) { const hi = [3, 4, 5], sh = CONFIG.gala.highShare; const hs = hi.reduce((a, i) => a + mix[i], 0) || 1, ls = 100 - hs || 1; mix = mix.map((w, i) => (hi.includes(i) ? (w / hs) * sh : (w / ls) * (1 - sh))); }
-  const tier = forceTier || TIERS[weightedIndex(mix)]; const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1)); S.streetQueue.push(g.carId);
+  const tier = forceTier || TIERS[weightedIndex(mix)]; const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1)); S.streetQueue.push(g.carId); return g;
 }
 function nextInterval() { if (S.galaActive) return rnd(...CONFIG.gala.interval); const r = scheduleRow(); let iv = rnd(...r.interval); if (r.perHourDec) iv = Math.max(r.floor, iv - r.perHourDec * (hourNow() - r.fromHour)); return iv; }
 function updateArrivals(dt) {
-  S.spawnT -= dt; if (S.spawnT <= 0) { spawnArrival(); S.spawnT = nextInterval(); }
-  const h = hourNow(); if (!S.galaDone && h >= S.galaAt) { S.galaDone = true; S.galaActive = true; S.galaEnd = S.t + CONFIG.gala.durationSec; S.banners.push({ text: 'THE GALA HAS BEGUN!', t: 3 }); Sound.sfx('gala'); S.spawnT = 1; }
+  const rr = rampRow(); if (rr && rr !== S.rampRow) { S.rampRow = rr; if (rr.banner) S.banners.push({ text: rr.banner, t: 3 }); }
+  if (!S.tutorial) { S.spawnT -= dt; if (S.spawnT <= 0) { spawnArrival(); S.spawnT = nextInterval(); } }
+  const h = hourNow(); if (!S.tutorial && !S.galaDone && h >= S.galaAt) { S.galaDone = true; S.galaActive = true; S.galaEnd = S.t + CONFIG.gala.durationSec; S.banners.push({ text: 'THE GALA HAS BEGUN!', t: 3 }); Sound.sfx('gala'); S.spawnT = 1; }
   if (S.galaActive && S.t >= S.galaEnd) { S.galaActive = false; S.banners.push({ text: 'GALA OVER', t: 2 }); }
   // street queue -> curb
   if (S.streetQueue.length) { const k = freeCurb(); if (k >= 0) { const car = S.cars.get(S.streetQueue.shift()); const g = S.guests.get(car.guestId); S.curb[k].car = car.id; g.state = 'arriving'; car.loc = { t: 'arriving', k };
@@ -46,7 +51,7 @@ function removeQueuedJobsFor(carId) { for (const j of S.jobs.slice()) if (j.carI
 
 /* ---- heat ---- */
 function addHeat(amt, reason, x, y) {
-  if (S.phase !== 'play' || amt <= 0) return; const gain = amt * (CONFIG.heat.spiral ? 1 + S.heat / 100 : 1);
+  if (S.phase !== 'play' || amt <= 0 || S.tutorial) return; const gain = amt * (CONFIG.heat.spiral ? 1 + S.heat / 100 : 1);
   S.heat = Math.min(CONFIG.heat.max, S.heat + gain); if (reason) S.lastHeatReason = reason; S.heatFloat += gain;
   if (S.heatFloat >= 1) { floater('+' + Math.round(S.heatFloat), 140, 10, PAL.red); S.heatFloat = 0; Sound.sfx('heat'); }
   for (const w of CONFIG.heat.warnings) if (S.heat >= w && !S.warned[w]) { S.warned[w] = true; S.manager = { line: CONFIG.lines.warnings[w] || 'WATCH IT, KID.', t: 3 }; S.shake = CONFIG.fx.shakeSec; Sound.sfx('whistle'); }
@@ -89,12 +94,12 @@ function leaveAngry(g, why) {
 function stageOf(g) { const f = g.wait / g.patience; if (f >= 1) return isWhale(g.tier) ? 5 : 4; return f < 0.2 ? 0 : f < 0.45 ? 1 : f < 0.7 ? 2 : f < 0.9 ? 3 : 4; }
 function bubbleLine(g, st) { const L = CONFIG.lines, posh = isWhale(g.tier);
   if (st === 1) return pick(posh ? L.poshMurmur : L.murmur); if (st === 2) return pick(posh ? L.poshAnnoyed : L.annoyed); return ''; }
-const WAITING = new Set(['queued', 'curbDrop', 'pickWalk', 'pickWait']);
+const WAITING = new Set(['queued', 'curbDrop', 'toSpot', 'pickWait']);
 function updateGuests(dt) {
   for (const g of [...S.guests.values()]) {
     const car = S.cars.get(g.carId);
     if (WAITING.has(g.state)) {
-      if (g.ignoreT > 0) g.ignoreT -= dt; else g.wait += dt;
+      if (g.ignoreT > 0) g.ignoreT -= dt; else if (!S.tutorial) g.wait += dt;
       const st = stageOf(g); if (st !== g.stage) { if (st > g.stage) { Sound.sfx(st >= 4 ? 'grawlix' : 'blip', st); if (st === 4) S.stats.grawlix++; } g.stage = st; g.line = bubbleLine(g, st); g.stageAt = S.t; }
       if (g.wait >= g.patience) {
         if (isWhale(g.tier)) { g.over += dt; if (g.phase === 'pick') g.comped = true; const T = CONFIG.tiers[g.tier];
@@ -108,11 +113,14 @@ function updateGuests(dt) {
     if (g.state === 'curbDrop' && isWhale(g.tier) && !g.claimed) { g.claimT += dt;
       if (S.jobs.some(j => j.type === 'park' && j.carId === g.carId)) g.claimed = true;
       else if (g.claimT >= CONFIG.power.rivalClaimSec) { S.stats.stolen++; floater('STOLEN!', g.x, g.y - 6, PAL.lav); Sound.sfx('steal'); S.npcs.push({ kind: 'senior', x: MAP.curbX[car.loc.k] - 2, y: 34, t: 1 }); departCar(car); guestGone(g); continue; } }
-    if (g.state === 'handed' || g.state === 'leavingIn') { g.state = 'leavingIn'; const tx = MAP.standX - 2; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt); if (Math.abs(g.x - tx) < 1) { g.state = 'inside'; g.stay = rnd(CONFIG.stay.minSec, CONFIG.stay.maxSec); } }
-    else if (g.state === 'inside') { g.stay -= dt; if (g.stay <= 0 && car && (car.loc.t === 'stall' || car.loc.t === 'temp')) {
-      g.state = 'pickWalk'; g.phase = 'pick'; g.wait = 0; g.over = 0; g.stage = 0; g.patience = CONFIG.tiers[g.tier].pickPatience; g.x = MAP.standX - 2;
-      let si = S.spots.indexOf(null); if (si >= 0) S.spots[si] = g.id; g.spotX = si >= 0 ? SPOTS[si] - 2 : MAP.standX - 2 + rndi(-6, 6); } }
-    else if (g.state === 'pickWalk' || g.state === 'pickWait') { const tx = g.spotX; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt); if (Math.abs(g.x - tx) < 1) g.state = 'pickWait'; }
+    if (g.state === 'handed' || g.state === 'leavingIn') { g.state = 'leavingIn'; const tx = MAP.standX - 2; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt); if (Math.abs(g.x - tx) < 1) { g.state = 'inside'; g.stay = S.tutorial ? 1e9 : rnd(CONFIG.stay.minSec, CONFIG.stay.maxSec); } }
+    else if (g.state === 'inside') { g.stay -= dt; const rr = rampRow();
+      if (g.stay <= 0 && car && (car.loc.t === 'stall' || car.loc.t === 'temp') && !(rr && pickupsActive() >= rr.maxPickups)) {
+        g.state = 'pickWalk'; g.phase = 'pick'; g.wait = 0; g.over = 0; g.stage = 0; g.patience = CONFIG.tiers[g.tier].pickPatience * patienceMult(); g.x = MAP.standX - 2; } }
+    else if (g.state === 'pickWalk') { const tx = CONFIG.podium.x - 6; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt); if (Math.abs(g.x - tx) < 1) { g.state = 'handTicket'; g.handT = CONFIG.podium.handSec; } }
+    else if (g.state === 'handTicket') { g.handT -= dt; if (g.handT <= 0) { g.ticket = S.ticketNo++; g.ticketAt = S.t; floater('TICKET ' + g.ticket, CONFIG.podium.x + 2, 30, PAL.yellow); Sound.sfx('blip', 3);
+      const si = S.spots.indexOf(null); if (si >= 0) S.spots[si] = g.id; g.spotX = si >= 0 ? SPOTS[si] - 2 : CONFIG.podium.x + 6 + rndi(0, 6); g.state = 'toSpot'; } }
+    else if (g.state === 'toSpot' || g.state === 'pickWait') { const tx = g.spotX; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt); if (Math.abs(g.x - tx) < 1) g.state = 'pickWait'; }
     else if (g.state === 'pickBoard') { const tx = g.boardX; g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * 2 * dt); if (Math.abs(g.x - tx) < 1) { departCar(car); guestGone(g); } }
   }
 }
@@ -158,7 +166,7 @@ function finishRun() {
 function stepSim(dt) {
   if (S.phase === 'play') {
     S.t += dt; for (const k of ['hustle', 'coffee']) if (S.boost[k] > 0) S.boost[k] -= dt;
-    updateArrivals(dt); updateGuests(dt); runValet(dt); updateMovers(dt);
+    updateArrivals(dt); updateGuests(dt); runValet(dt); updateMovers(dt); if (S.tutorial) tutUpdate(dt);
     S.meltdown = [...S.guests.values()].some(g => g.stage === 5);
     Sound.music.speed = 1 + CONFIG.fx.musicSpeedPerHour * Math.floor(hourNow() - CONFIG.clock.startHour);
   } else { S.endT += dt; if (S.endT > (S.phase === 'fired' ? 5 : 3)) finishRun(); }

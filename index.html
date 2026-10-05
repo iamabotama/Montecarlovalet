@@ -5,12 +5,14 @@
 <title>Monte Carlo Valet</title>
 <style>html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}</style>
-</head><body><canvas id="c" width="320" height="180"></canvas>
-<!-- Load order matters: config -> art -> audio -> world (map/lot/jobs) -> sim (rules) -> ui (render/input/boot) -->
+</head><body><canvas id="c" width="960" height="540"></canvas>
+<!-- Load order matters: config -> art -> cars (hi-res car sprites) -> audio -> world (map/lot/jobs) -> sim (rules) -> ui (render/input/boot) -->
 <script src="js/config.js"></script>
 <script src="js/art.js"></script>
+<script src="js/cars.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/world.js"></script>
 <script src="js/sim.js"></script>
+<script src="js/tutorial.js"></script>
 <script src="js/ui.js"></script>
 </body></html>

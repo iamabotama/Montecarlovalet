@@ -83,7 +83,7 @@ function newRun() {
     valet: { x: MAP.standX, y: MAP.standY, loc: { t: 'stand' }, job: null, dir: 1, walking: false, inCar: null, stepT: 0, anim: 0 },
     spawnT: CONFIG.arrivals.firstSec, galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours, galaEnd: 0, galaDone: false, galaActive: false,
     floaters: [], particles: [], toasts: [], banners: [], shake: 0, manager: null, phase: 'play', endT: 0, boost: { hustle: 0, coffee: 0, spareKeys: 0 },
-    lastHeatReason: 'THE GUESTS COMPLAINED.', heatFloat: 0, meltdown: false, npcs: [], selected: null, armed: null, lotFullFlash: 0,
+    lastHeatReason: 'THE GUESTS COMPLAINED.', ticketNo: 1, rampRow: null, heatFloat: 0, meltdown: false, npcs: [], selected: null, armed: null, lotFullFlash: 0,
     stats: { carsParked: 0, whalesServed: 0, biggestTip: 0, longestWhaleWait: 0, longestWhaleName: '', tips: 0, pay: 0, angry: 0, waved: 0, stolen: 0, limos: 0, comped: 0, grawlix: 0 },
   };
   for (const t of CONFIG.career.defaultLoadout.slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);
@@ -175,7 +175,7 @@ function plan(j, from, dry) {
     if (!car || car.loc.t !== 'curb' || !g || g.state !== 'curbDrop') return { refuse: '' };
     const k = car.loc.k; walk({ t: 'curb', k }); act(() => { g.state = 'greeting'; }); wait(SPD.greetSec, 'GREET'); act(() => greetLimo(car, g));
   } else if (j.type === 'fetch') {
-    if (!car || !g || (g.state !== 'pickWait' && g.state !== 'pickWalk')) return { refuse: '' };
+    if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
     const k = freeCurb(j.id); if (k < 0) return { wait: 'CURB FULL' };
     if (car.loc.t === 'temp') {
       const i = car.loc.i; walk({ t: 'temp', i });

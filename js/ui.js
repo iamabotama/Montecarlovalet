@@ -6,7 +6,7 @@ const UI = { screen: 'title', paused: false, howPage: 0, confirmReset: false, t:
 const DEBUG = { on: false, enabled: CONFIG.debug || /[?&]debug=1/.test(location.search), scale: 1, hit: false, pct: true, grant: 0 };
 const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
 const RB = (x, y, w, h, c) => { R(x, y, w, 1, c); R(x, y + h - 1, w, 1, c); R(x, y, 1, h, c); R(x + w - 1, y, 1, h, c); };
-function drawCar(car) { const s = carSprite(car.tier, car.mi, car.dir); const vert = car.dir % 2 === 1; ctx.drawImage(s, Math.round(car.x - (s.width - 1) / 2), Math.round(car.y - (s.height - 1) / 2)); void vert; }
+function drawCar(car) { drawCarSprite(ctx, carSprite(car.tier, car.mi, car.dir), car.x, car.y); }
 
 /* ---- static background (pre-rendered once) ---- */
 let BG = null;
@@ -44,7 +44,7 @@ function drawWorldStatic() {
 
 /* ---- people & bubbles ---- */
 function guestPose(g) { const s = g.stage, t = UI.t; let pose = 'idle', dx = 0, dy = 0, cols = { ...g.colors };
-  if (g.state === 'pickWalk' || g.state === 'leavingIn' || g.state === 'pickBoard') pose = Math.floor(t * 6) % 2 ? 'walk' : 'idle';
+  if (g.state === 'pickWalk' || g.state === 'toSpot' || g.state === 'leavingIn' || g.state === 'pickBoard') pose = Math.floor(t * 6) % 2 ? 'walk' : 'idle';
   else if (s === 1) pose = 'idle'; else if (s === 2) pose = Math.floor(t * 4) % 2 ? 'tap' : 'idle'; else if (s === 3) { pose = 'cross'; cols.s = PAL.salmon || PAL.pink; }
   else if (s >= 4) { pose = 'arms'; cols.s = PAL.red; dy = -Math.abs(Math.round(Math.sin(t * 12) * 2)); dx = Math.round(Math.sin(t * 40)); }
   return { pose, dx, dy, cols, flip: s === 1 && Math.floor(t * 1.5) % 2 }; }
@@ -65,25 +65,27 @@ function drawBubbles(list) { // list of {x,y,b,order}; stack upward when overlap
 
 /* ---- game render ---- */
 function renderGame() {
-  const shake = S.shake > 0 ? Math.round(rnd(-1, 1)) : 0; ctx.save(); ctx.translate(shake, 0); drawWorldStatic();
+  const shake = S.shake > 0 ? Math.round(rnd(-1, 1)) : 0; ctx.save(); ctx.translate(shake, 0); drawWorldStatic(); tutWorldFx();
   // lot cars
   for (const car of S.cars.values()) if (car.loc.t !== 'moving' && car.loc.t !== 'street') drawCar(car);
   S.streetQueue.forEach((id, n) => { if (n < LOT.streetQueueMax) drawCar(S.cars.get(id)); }); if (S.streetQueue.length > LOT.streetQueueMax) drawText(ctx, '+' + (S.streetQueue.length - LOT.streetQueueMax), 2, 68, PAL.yellow);
   const v = S.valet; if (v.inCar) drawCar(S.cars.get(v.inCar));
   // reserved (restow) stalls
   S.lanes.forEach((L, i) => L.res.forEach((r, j) => { if (r !== null && L.cars[j] === null) RB(MAP.lotX + j * SW + 2, MAP.lotY + i * SH + 2, SW - 3, SH - 3, PAL.dgrey); }));
+  // podium
+  { const px = CONFIG.podium.x; R(px, 35, 5, 8, PAL.brown); R(px + 1, 36, 3, 6, PAL.rust); R(px - 1, 34, 7, 2, PAL.yellow); R(px + 1, 33, 3, 1, PAL.white); }
   // claim timers & tickets
   const bubbles = [];
   for (const g of S.guests.values()) { const car = S.cars.get(g.carId);
     if (g.state === 'curbDrop' && isWhale(g.tier) && !g.claimed && car) { const f = 1 - g.claimT / CONFIG.power.rivalClaimSec; R(car.x - 7, car.y - 7, 14, 2, PAL.ink); R(car.x - 7, car.y - 7, Math.round(14 * f), 2, PAL.lav); }
-    if (['curbDrop', 'handed', 'leavingIn', 'pickWalk', 'pickWait', 'pickBoard', 'greeting'].includes(g.state)) { const p = guestPose(g); drawPerson(ctx, Math.round(g.x + p.dx), g.y + p.dy, p.pose, p.cols, p.flip);
-      if (g.phase === 'pick' && WAITING.has(g.state)) drawIcon(ctx, 'ticket', g.x + 5, g.y + 3, PAL.yellow);
+    if (['curbDrop', 'handed', 'leavingIn', 'pickWalk', 'handTicket', 'toSpot', 'pickWait', 'pickBoard', 'greeting'].includes(g.state)) { const p = guestPose(g); drawPerson(ctx, Math.round(g.x + p.dx), g.y + p.dy, p.pose, p.cols, p.flip);
+      if (g.state === 'handTicket') drawIcon(ctx, 'ticket', g.x + 5, g.y + 3, PAL.yellow);
       if (g.stage === 5) R(g.x + 5, g.y - 1, 2, 3, PAL.ink);
       const b = bubbleFor(g); if (b) bubbles.push({ x: g.x + 1, y: g.y, b, order: g.stageAt || 0 }); } }
   for (const n of S.npcs) drawPerson(ctx, n.x, n.y, 'walk', { h: PAL.ink, s: PAL.peach, c: n.kind === 'newbie' ? PAL.lime : PAL.lav, p: PAL.ink, k: PAL.ink, x: n.kind === 'newbie' ? PAL.lime : PAL.lav });
   // valet
   const uni = { h: PAL.ink, s: PAL.peach, c: PAL.red, p: PAL.ink, k: PAL.ink, x: PAL.red };
-  if (!v.inCar && S.phase !== 'fired' || (S.phase === 'fired' && S.endT < 2)) drawPerson(ctx, Math.round(v.x - 2), Math.round(v.y - 8), v.walking && Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', uni, v.dir === 2);
+  if (tutValetVisible() && (!v.inCar && S.phase !== 'fired' || (S.phase === 'fired' && S.endT < 2))) drawPerson(ctx, Math.round(v.x - 2), Math.round(v.y - 8 + tutValetOffset()), v.walking && Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', uni, v.dir === 2);
   if (v.job && v.job.est > 0) { const f = clamp(v.job.elapsed / v.job.est, 0, 1); R(v.x - 6, v.y - 12, 12, 2, PAL.ink); R(v.x - 6, v.y - 12, Math.round(12 * f), 2, PAL.lime); }
   if (v.waitLabel === 'BAGS') drawIcon(ctx, 'cart', v.x + 3, v.y - 6, PAL.orange);
   if (S.boost.hustle > 0 || S.boost.coffee > 0) R(v.x - 3, v.y + 1, 1, 1, PAL.yellow);
@@ -102,6 +104,7 @@ function renderGame() {
     wrapText(S.firedLine, 60).forEach((l, i) => drawText(ctx, l, 160, 90 + i * 7, PAL.white, { align: 'center' }));
     const hy = 40 - (S.endT - 1.2) * 30; R(S.valet.x + (S.endT - 1.2) * 20, hy, 4, 2, PAL.red); }
   if (S.phase === 'clockout') { R(0, 66, 320, 30, PAL.ink); drawText(ctx, 'SHIFT OVER', 160, 72, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange }); }
+  tutRender();
   if (DEBUG.on) renderDebug();
 }
 function renderHUD() {
@@ -119,13 +122,31 @@ function renderHUD() {
   queueItems().forEach(q => { const car = S.cars.get(q.j.carId); const active = q.j === S.valet.job; drawText(ctx, q.label, q.x, 174, active ? PAL.lime : q.j.waitMsg ? PAL.orange : PAL.white);
     if (!q.j.type.startsWith('restow') || true) drawIcon(ctx, 'x', q.x + q.w + 2, 173, PAL.red); void car; });
   drawIcon(ctx, 'pause', 312, 173, PAL.white); drawIcon(ctx, Sound.muted ? 'spkoff' : 'spk', 298, 173, PAL.white);
-  // right panel info
-  drawText(ctx, 'FREE ' + freeStalls() + '/' + NL * NS, 222, 100, PAL.lgrey);
-  if (lotFull() && Math.floor(UI.t * 3) % 2) { R(222, 108, 52, 9, PAL.red); drawText(ctx, 'LOT FULL', 226, 110, PAL.white); }
-  if (S.galaActive) drawText(ctx, 'GALA ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 100, PAL.pink);
-  if (canClockOut()) { R(226, 150, 88, 14, PAL.green); RB(226, 150, 88, 14, PAL.lime); drawText(ctx, 'CLOCK OUT', 270, 155, PAL.white, { align: 'center' }); }
-  const sel = S.selected && S.cars.get(S.selected.carId); if (sel) drawText(ctx, carName(sel), 222, 120, PAL.yellow);
-  if (S.armed !== null && S.cards[S.armed]) drawText(ctx, 'USE ' + POWER_INFO[S.cards[S.armed].type].name + ': TAP TARGET', 222, 128, PAL.white);
+  renderBoard();
+  if (S.galaActive) drawText(ctx, 'GALA ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 84, PAL.pink);
+  const sel = S.selected && S.cars.get(S.selected.carId); if (sel) drawText(ctx, carName(sel), 222, 150, PAL.yellow);
+  else if (S.armed !== null && S.cards[S.armed]) drawText(ctx, POWER_INFO[S.cards[S.armed].type].name + ': TAP TARGET', 222, 150, PAL.white);
+  if (canClockOut()) { R(226, 158, 88, 12, PAL.green); RB(226, 158, 88, 12, PAL.lime); drawText(ctx, 'CLOCK OUT', 270, 162, PAL.white, { align: 'center' }); }
+}
+/* ---- retrieve board: one row per ticket handed in at the podium, most urgent first ---- */
+const TIER_MARK = { beater: ['B', PAL.khaki], standard: ['S', PAL.blue], premium: ['P', PAL.lav], whale: ['W', PAL.pink], ultra: ['U', PAL.yellow], limo: ['L', PAL.white] };
+function boardList() { return [...S.guests.values()].filter(g => g.ticket && (g.state === 'toSpot' || g.state === 'pickWait')).sort((a, b) => b.wait / b.patience - a.wait / a.patience); }
+function boardRows() { const list = boardList(); return { rows: list.slice(0, CONFIG.podium.boardRows).map((g, i) => ({ g, y: 102 + i * 9 })), more: Math.max(0, list.length - CONFIG.podium.boardRows) }; }
+function renderBoard() {
+  R(221, 92, 98, 56, PAL.ink); RB(221, 92, 98, 56, PAL.lgrey); drawText(ctx, 'TICKETS', 224, 94, PAL.yellow);
+  if (lotFull()) { if (Math.floor(UI.t * 3) % 2) drawText(ctx, 'LOT FULL', 316, 94, PAL.red, { align: 'right' }); } else drawText(ctx, 'FREE ' + freeStalls(), 316, 94, PAL.lgrey, { align: 'right' });
+  R(222, 100, 96, 1, PAL.dgrey);
+  const { rows, more } = boardRows();
+  if (!rows.length) drawText(ctx, S.t < (CONFIG.ramp.enabled ? CONFIG.ramp.steps[1].fromSec : 0) ? 'NO PICKUPS YET' : 'NO TICKETS', 270, 118, PAL.dgrey, { align: 'center' });
+  for (const { g, y } of rows) { const car = S.cars.get(g.carId); if (!car) continue; const f = g.wait / g.patience;
+    const c = f < 0.45 ? PAL.lime : f < 0.7 ? PAL.yellow : f < 0.9 ? PAL.orange : (Math.floor(UI.t * 4) % 2 ? PAL.red : PAL.crimson);
+    R(223, y, 2, 8, c); drawIcon(ctx, 'ticket', 227, y + 2, PAL.yellow); drawText(ctx, String(g.ticket), 233, y + 2, PAL.white); const [m, mc] = TIER_MARK[g.tier]; drawText(ctx, m, 247, y + 2, mc);
+    const loc = car.loc.t === 'stall' ? stallName(car.loc.lane, car.loc.idx) : car.loc.t === 'temp' ? TEMPS[car.loc.i].name : '..'; drawText(ctx, loc, 254, y + 2, PAL.lgrey);
+    const fetching = S.jobs.some(j => j.type === 'fetch' && j.carId === g.carId && !j.aborted);
+    if (fetching) drawText(ctx, 'FETCH', 316, y + 2, PAL.lime, { align: 'right' });
+    else { if (car.loc.t === 'stall') { const d = liveDepth(car.loc.lane, car.loc.idx).best; drawText(ctx, 'D' + d, 268, y + 2, d ? PAL.orange : PAL.lime); }
+      drawText(ctx, String(Math.floor(g.wait)), 316, y + 2, c, { align: 'right' }); } }
+  if (more) drawText(ctx, '+' + more + ' MORE', 270, 143, PAL.orange, { align: 'center' });
 }
 const canClockOut = () => S.phase === 'play' && hourNow() >= CONFIG.clock.clockOutHour;
 function queueItems() { let x = 28; const out = []; for (const j of S.jobs) { if (j.aborted) continue; const label = jobLabel(j); const w = textW(label); out.push({ j, label, x, w }); x += w + 10; if (x > 280) break; } return out; }
@@ -157,7 +178,7 @@ function renderSelection() {
   for (const s of o.stalls) { const x = MAP.lotX + s.idx * SW, y = MAP.lotY + s.lane * SH;
     if (s.bad) { RB(x + 1, y + 1, SW - 2, SH - 2, PAL.dgrey); continue; }
     const pulse = Math.floor(UI.t * 4) % 2 ? PAL.yellow : PAL.orange; RB(x, y, SW + 1, SH + 1, pulse); R(x + 1, y + 1, SW - 1, SH - 1, PAL.ink);
-    drawText(ctx, 'D' + s.depth, x + 3, y + 2, PAL.yellow); if (s.est != null) drawText(ctx, Math.round(s.est) + 'S', x + 3, y + 8, PAL.white); }
+    drawText(ctx, 'D' + s.depth, x + 3, y + 2, PAL.yellow); if (s.est != null) drawText(ctx, String(Math.round(s.est)), x + 3, y + 8, PAL.white); }
   for (const m of o.menu) { R(m.x, m.y, m.w, 9, PAL.ink); RB(m.x, m.y, m.w, 9, PAL.yellow); drawText(ctx, m.label, m.x + 3, m.y + 2, PAL.yellow); }
 }
 
@@ -167,7 +188,8 @@ function hitTargets() {
   if (DEBUG.on) debugButtons().forEach(b => add(b.x, b.y, b.w, 8, 9, b.fn));
   if (S.phase !== 'play') { add(0, 0, 320, 180, 0, () => { if (S.endT > 1.5) finishRun(); }); return T; }
   add(308, 170, 10, 10, 5, () => { UI.paused = true; }); add(294, 170, 10, 10, 5, toggleMute);
-  if (canClockOut()) add(226, 150, 88, 14, 5, clockOut);
+  if (canClockOut()) add(226, 158, 88, 12, 5, clockOut);
+  for (const { g, y } of boardRows().rows) add(222, y, 96, 9, 5, () => tapGuest(g));
   for (let i = 0; i < slotsAllowed(); i++) if (S.cards[i]) add(178 + i * 12, 1, 9, 8, 5, () => armCard(i));
   for (const q of queueItems()) { add(q.x, 172, q.w, 8, 5, () => promoteJob(q.j)); add(q.x + q.w + 1, 172, 5, 8, 6, () => cancelJob(q.j)); }
   const o = selectionOptions();
@@ -182,6 +204,7 @@ function hitTargets() {
 }
 function armCard(i) { const c = S.cards[i]; if (!c) return; if (POWER_INFO[c.type].target === 'self') { useCard(i); floater(POWER_INFO[c.type].name + '!', S.valet.x, S.valet.y - 14, PAL.yellow); return; } S.armed = S.armed === i ? null : i; Sound.sfx('click'); }
 function tapGuest(g) { if (!g) return; if (S.armed !== null) { useCard(S.armed, g); return; }
+  if (g.phase === 'pick' && !g.ticket) { toast('WAIT FOR THE TICKET'); return; }
   if (g.phase === 'pick') { if (S.jobs.some(j => j.type === 'fetch' && j.carId === g.carId)) { toast('ALREADY FETCHING'); return; }
     const car = S.cars.get(g.carId); if (car.loc.t === 'stall') { const d = liveDepth(car.loc.lane, car.loc.idx); if (d.best > freeTemps().length) { toast('NO ROOM TO DIG OUT - FREE A TEMP SLOT'); Sound.sfx('deny'); return; } }
     enqueue({ type: 'fetch', carId: g.carId }); }
@@ -197,7 +220,7 @@ function toggleMute() { Sound.setMuted(!Sound.muted); SAVE.muted = Sound.muted; 
 function pointerAt(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 320, (e.clientY - r.top) / r.height * 180]; }
 function dispatch(T, x, y) { const hits = T.filter(t => x >= t.x && x < t.x + t.w && y >= t.y && y < t.y + t.h); if (!hits.length) return;
   const top = Math.max(...hits.map(h => h.pri)); const c = hits.filter(h => h.pri === top).sort((a, b) => Math.hypot(a.cx - x, a.cy - y) - Math.hypot(b.cx - x, b.cy - y))[0]; c.fn(); }
-cv.addEventListener('pointerdown', e => { e.preventDefault(); Sound.unlock(); if (UI.screen === 'game' && !UI.paused) Sound.startMusic(); const [x, y] = pointerAt(e); dispatch(currentTargets(), x, y); });
+cv.addEventListener('pointerdown', e => { e.preventDefault(); Sound.unlock(); if (UI.screen === 'game' && !UI.paused) Sound.startMusic(); const [x, y] = pointerAt(e); if (UI.screen === 'game' && S && S.tutorial && !UI.paused && tutTap(x, y)) return; dispatch(currentTargets(), x, y); });
 document.addEventListener('keydown', e => {
   if (e.key === '`' && DEBUG.enabled) DEBUG.on = !DEBUG.on;
   if (UI.screen !== 'game' || !S) return; if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') UI.paused = !UI.paused;
@@ -209,7 +232,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && UI.
 function button(x, y, w, label, fn, col = PAL.yellow) { return { x, y, w, h: 12, label, fn, col }; }
 function drawButtons(bs) { for (const b of bs) { R(b.x, b.y, b.w, b.h, PAL.ink); RB(b.x, b.y, b.w, b.h, b.col); drawText(ctx, b.label, b.x + b.w / 2, b.y + 4, b.col, { align: 'center' }); } }
 function screenButtons() {
-  if (UI.screen === 'title') return [button(120, 118, 80, 'START', startGame), button(120, 132, 80, 'HOW TO PLAY', () => { UI.screen = 'howto'; UI.howPage = 0; }),
+  if (UI.screen === 'title') return [button(120, 118, 80, 'START', () => (SAVE.tutorialSeen ? startGame() : startTutorial())), button(120, 132, 80, 'TUTORIAL', startTutorial),
     button(120, 146, 80, 'SETTINGS', () => { UI.screen = 'settings'; UI.confirmReset = false; }), button(4, 164, 40, Sound.muted ? 'UNMUTE' : 'MUTE', toggleMute, PAL.lgrey), button(256, 164, 60, 'FULLSCREEN', goFullscreen, PAL.lgrey)];
   if (UI.screen === 'howto') return [button(220, 160, 90, UI.howPage < 2 ? 'NEXT >' : 'DONE', () => { if (UI.howPage < 2) UI.howPage++; else UI.screen = 'title'; })];
   if (UI.screen === 'settings') return [button(100, 70, 120, Sound.muted ? 'SOUND: OFF' : 'SOUND: ON', toggleMute),
@@ -228,13 +251,13 @@ function renderTitle() {
   R(70, 30, 180, 106, PAL.plum); R(150, 20, 20, 10, PAL.plum); for (let y = 36; y < 130; y += 10) for (let x = 76; x < 246; x += 10) R(x, y, 4, 4, (x * y) % 7 ? PAL.yellow : PAL.orange);
   R(44, 46, 232, 44, PAL.ink); RB(44, 46, 232, 44, Math.sin(UI.t * 7) > -0.8 ? PAL.pink : PAL.plum);
   drawText(ctx, 'MONTE CARLO', 160, 52, PAL.pink, { align: 'center', scale: 3, shadow: PAL.crimson }); drawText(ctx, 'VALET', 160, 70, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
-  R(0, 136, 320, 4, PAL.lgrey); R(0, 140, 320, 40, PAL.asph); const cx = (UI.t * 40) % 400 - 40; ctx.drawImage(carSprite('whale', 1, 0), Math.round(cx), 146); ctx.drawImage(carSprite('limo', 1, 2), Math.round(360 - ((UI.t * 25) % 420)), 154);
+  R(0, 136, 320, 4, PAL.lgrey); R(0, 140, 320, 40, PAL.asph); const cx = (UI.t * 40) % 400 - 40; drawCarSprite(ctx, carSprite('whale', 1, 0), cx, 150); drawCarSprite(ctx, carSprite('limo', 1, 2), 360 - ((UI.t * 25) % 420), 160);
   R(70, 102, 180, 11, PAL.ink); drawText(ctx, 'HI-SCORE ' + fmtMoney(SAVE.highScore) + '   RANK: ' + CONFIG.career.ranks[SAVE.rank || 0].name, 160, 106, PAL.yellow, { align: 'center' });
   drawText(ctx, 'V' + CONFIG.version, 2, 2, PAL.dgrey); drawButtons(screenButtons());
 }
 const HOWTO = [
   ['PARKING', ['TAP A CAR AT THE CURB, THEN TAP A LANE END.', 'CARS SLIDE IN AS DEEP AS THEY CAN GO.', 'EACH LANE IS TWO STACKS: WEST AND EAST.', 'D# = HOW DEEP. DEEPER = SLOWER TO DIG OUT.']],
-  ['FETCHING', ['GUESTS COME OUT WITH A TICKET. TAP THEM.', 'BLOCKERS GO TO TEMP SLOTS T1-T4, THEN A', 'RESTOW JOB PUTS THEM BACK. TAP X TO CANCEL', 'A JOB, TAP A JOB TO MOVE IT TO THE FRONT.']],
+  ['FETCHING', ['GUESTS HAND THEIR TICKET IN AT THE PODIUM.', 'TAP A TICKET ON THE BOARD TO FETCH THE CAR.', 'BLOCKERS GO TO TEMP SLOTS T1-T4, THEN A', 'RESTOW JOB PUTS THEM BACK.']],
   ['MONEY & HEAT', ['WHALES TIP BIG ON ARRIVAL AND COOL THE HEAT.', 'THEY NEVER LEAVE - THEY ESCALATE. RIVALS', 'STEAL UNCLAIMED WHALES AFTER 6S.', 'HEAT 100 = FIRED. FROM 10PM YOU CAN CLOCK OUT.']],
 ];
 function renderText(title, lines) { R(0, 0, 320, 180, PAL.night); drawText(ctx, title, 160, 20, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.orange }); lines.forEach((l, i) => drawText(ctx, l, 160, 50 + i * 10, PAL.white, { align: 'center' })); }
@@ -261,13 +284,13 @@ function renderDebug() { R(220, 10, 100, 44, PAL.ink); for (const b of debugButt
   if (DEBUG.hit) { for (const t of hitTargets()) RB(t.x, t.y, t.w, t.h, PAL.blue); for (const n of NODES.values()) R(n.x, n.y, 1, 1, PAL.lime); } }
 
 /* ---- scaling + main loop ---- */
-function resize() { const dpr = window.devicePixelRatio || 1; const s = Math.max(1, Math.floor(Math.min(innerWidth * dpr / 320, innerHeight * dpr / 180))); cv.style.width = (320 * s / dpr) + 'px'; cv.style.height = (180 * s / dpr) + 'px'; }
+function resize() { const w = Math.min(innerWidth, innerHeight * 16 / 9); cv.style.width = w + 'px'; cv.style.height = (w * 9 / 16) + 'px'; } // canvas is 960x540 (3x game grid)
 addEventListener('resize', resize);
 let last = performance.now(), acc = 0; const TICK = 1 / 60;
 function frame(now) {
   const dt = Math.min(0.25, (now - last) / 1000); last = now; UI.t += dt;
   if (UI.screen === 'game' && S && !UI.paused) { acc += dt; while (acc >= TICK) { stepSim(TICK * DEBUG.scale); acc -= TICK; if (UI.screen !== 'game') break; } } else acc = 0;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(CAR_RES, 0, 0, CAR_RES, 0, 0); ctx.imageSmoothingEnabled = false;
   if (UI.screen === 'title') renderTitle(); else if (UI.screen === 'howto') { renderText(HOWTO[UI.howPage][0], HOWTO[UI.howPage][1]); drawButtons(screenButtons()); }
   else if (UI.screen === 'settings') { renderText('SETTINGS', []); drawButtons(screenButtons()); } else if (UI.screen === 'summary') renderSummary();
   else if (UI.screen === 'game') { renderGame(); if (UI.paused) { R(90, 60, 140, 70, PAL.ink); RB(90, 60, 140, 70, PAL.yellow); drawText(ctx, 'PAUSED', 160, 66, PAL.yellow, { align: 'center', scale: 2 }); drawButtons(screenButtons()); } }
