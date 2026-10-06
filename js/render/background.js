@@ -1,0 +1,93 @@
+'use strict';
+/* Static world: pre-rendered background + animated facade. */
+
+/* ---- static background (pre-rendered once) ---- */
+let BG = null;
+function buildBG() {
+  BG = document.createElement('canvas');
+  BG.width = 320;
+  BG.height = 180;
+  const g = BG.getContext('2d');
+  const r = (x, y, w, h, c) => {
+    g.fillStyle = c;
+    g.fillRect(x, y, w, h);
+  };
+  r(0, 0, 320, 180, PAL.asph);
+  r(0, 10, 320, 28, PAL.plum);
+  r(0, 10, 320, 2, PAL.wine);
+  for (let x = 0; x < 320; x += 40) r(x, 12, 2, 26, PAL.mauve);
+  r(0, 38, 320, 6, PAL.lgrey);
+  for (let x = 0; x < 320; x += 8) r(x, 38, 1, 6, PAL.khaki);
+  r(0, 43, 320, 1, PAL.white);
+  r(0, 44, 320, 22, PAL.night); // gardens either side
+  for (let x = 0; x < 320; x += 3) {
+    if (x > 90 && x < 230) continue;
+    r(x, 58 + (x % 2), 3, 8, x % 6 ? PAL.green : PAL.teal);
+  }
+  r(92, 44, 136, 22, PAL.asph2); // drive
+  g.fillStyle = PAL.green;
+  for (let y = 0; y < 10; y++) {
+    const hw = Math.round(42 * Math.sqrt(1 - Math.pow((10 - y) / 10, 2)));
+    g.fillRect(160 - hw, 56 + y, hw * 2, 1);
+  }
+  r(154, 60, 12, 5, PAL.lgrey);
+  r(156, 61, 8, 3, PAL.royal);
+  r(0, 66, 320, 12, PAL.asph);
+  r(0, 66, 320, 1, PAL.lgrey);
+  r(0, 77, 320, 1, PAL.lgrey);
+  for (let x = 0; x < 320; x += 12) r(x, 71, 6, 1, PAL.yellow);
+  r(0, 78, 320, 102, PAL.night);
+  r(aisleX('west') - 8, 78, LOT_R - MAP.lotX + 32, LOT_B - 78, PAL.asph);
+  r(MAP.lotX, MAP.lotY, NS * SW, NL * SH, PAL.asph2);
+  for (let i = 0; i <= NL; i++) r(MAP.lotX, MAP.lotY + i * SH, NS * SW, 1, PAL.asph3);
+  for (let i = 0; i < NL; i++)
+    for (let j = 0; j <= NS; j++) {
+      r(MAP.lotX + j * SW, MAP.lotY + i * SH, 1, 3, PAL.dgrey);
+      r(MAP.lotX + j * SW, MAP.lotY + i * SH + SH - 3, 1, 3, PAL.dgrey);
+    }
+  r(MAP.lotX + HALF * SW, MAP.lotY, 1, NL * SH, PAL.dgrey);
+  TEMPS.forEach(t => {
+    g.fillStyle = PAL.orange;
+    g.fillRect(t.x - 10, t.y - 6, 20, 1);
+    g.fillRect(t.x - 10, t.y + 6, 20, 1);
+    g.fillRect(t.x - 10, t.y - 6, 1, 13);
+    g.fillRect(t.x + 9, t.y - 6, 1, 13);
+  });
+  r(222, 82, 92, 9, PAL.green);
+  r(234, 91, 1, 6, PAL.lgrey);
+}
+function drawPalm(x, y) {
+  R(x, y, 1, 14, PAL.brown);
+  R(x - 4, y - 1, 9, 1, PAL.emer);
+  R(x - 5, y, 2, 1, PAL.green);
+  R(x + 4, y, 2, 1, PAL.green);
+  R(x - 2, y - 2, 5, 1, PAL.leaf);
+}
+function drawWorldStatic() {
+  ctx.drawImage(BG, 0, 0);
+  const t = UI.t;
+  for (let row = 0; row < 2; row++)
+    for (let x = 6; x < 316; x += 10) {
+      if (x > 118 && x < 202 && row === 0) continue;
+      if (x > 146 && x < 174) continue;
+      const seed = (x * 7 + row * 13) % 17;
+      const lit = (seed + Math.floor(t / 4 + seed)) % 5;
+      R(x, 16 + row * 10, 4, 4, lit === 0 ? PAL.navy : lit === 1 ? PAL.orange : PAL.yellow);
+    }
+  const neon = Math.sin(t * 9) > -0.9 ? PAL.pink : PAL.plum;
+  RB(120, 11, 80, 9, neon);
+  drawText(ctx, 'HOTEL MONTE CARLO', 160, 13, neon, { align: 'center' });
+  R(150, 26, 20, 12, PAL.navy);
+  R(150, 26, 1, 12, PAL.orange);
+  R(169, 26, 1, 12, PAL.orange);
+  R(160, 26, 1, 12, PAL.orange);
+  for (let x = 146; x < 174; x += 4) (R(x, 23, 2, 3, PAL.red), R(x + 2, 23, 2, 3, PAL.white));
+  for (const px of [12, 52, 268, 308]) drawPalm(px, 46);
+  for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((t * 6 + i * 2) % 4), 1, 1, PAL.blue);
+  for (let i = 0; i < NL; i++) {
+    drawText(ctx, LANE_NAMES[i], aisleX('west') - 1, laneY(i) - 2, PAL.asph3);
+    drawText(ctx, LANE_NAMES[i], aisleX('east') - 1, laneY(i) - 2, PAL.asph3);
+  }
+  TEMPS.forEach(tp => drawText(ctx, tp.name, tp.x - 3, tp.y - 2, PAL.orange));
+  drawText(ctx, 'GENERAL PARK >', 225, 84, PAL.white);
+}

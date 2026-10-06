@@ -1,0 +1,38 @@
+'use strict';
+/* The fixed 32-colour palette. Everything visual uses PAL. */
+
+// PICO-8 16 + 16 extended (asphalt greys and secret-palette tones). Fixed; everything uses it.
+const PAL = {
+  ink: '#000000',
+  navy: '#1d2b53',
+  plum: '#7e2553',
+  green: '#008751',
+  brown: '#ab5236',
+  dgrey: '#5f574f',
+  lgrey: '#c2c3c7',
+  white: '#fff1e8',
+  red: '#ff004d',
+  orange: '#ffa300',
+  yellow: '#ffec27',
+  lime: '#00e436',
+  blue: '#29adff',
+  lav: '#83769c',
+  pink: '#ff77a8',
+  peach: '#ffccaa',
+  night: '#111d35',
+  asph: '#2b2b36',
+  asph2: '#363644',
+  asph3: '#4a4a5a',
+  wine: '#422136',
+  teal: '#125359',
+  rust: '#742f29',
+  khaki: '#a28879',
+  cream: '#f3ef7d',
+  crimson: '#be1250',
+  tang: '#ff6c24',
+  leaf: '#a8e72e',
+  emer: '#00b543',
+  royal: '#065ab5',
+  mauve: '#754665',
+  olive: '#6b6a4a',
+};

@@ -6,13 +6,7 @@
 <style>html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}</style>
 </head><body><canvas id="c" width="960" height="540"></canvas>
-<!-- Load order matters: config -> art -> cars (hi-res car sprites) -> audio -> world (map/lot/jobs) -> sim (rules) -> ui (render/input/boot) -->
-<script src="js/config.js"></script>
-<script src="js/art.js"></script>
-<script src="js/cars.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/world.js"></script>
-<script src="js/sim.js"></script>
-<script src="js/tutorial.js"></script>
-<script src="js/ui.js"></script>
+<!-- Module load order lives in js/modules.js (shared with the service worker). async=false keeps execution in order. -->
+<script src="js/modules.js"></script>
+<script>for (const m of MCV_MODULES) { const s = document.createElement('script'); s.src = 'js/' + m; s.async = false; document.body.appendChild(s); }</script>
 </body></html>

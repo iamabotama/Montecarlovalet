@@ -1,0 +1,86 @@
+'use strict';
+/* Run state S: created fresh by newRun() for every shift. */
+
+/* ------------------------------ RUN STATE ------------------------------ */
+let S = null;
+function hourNow() {
+  return CONFIG.clock.startHour + S.t / CONFIG.clock.realSecPerGameHour;
+}
+function newRun() {
+  S = {
+    t: 0,
+    money: 0,
+    heat: 0,
+    stars: 0,
+    cards: [],
+    cardSeq: 0,
+    warned: {},
+    cars: new Map(),
+    guests: new Map(),
+    nextId: 1,
+    lanes: Array.from({ length: NL }, () => ({ cars: Array(NS).fill(null), res: Array(NS).fill(null) })),
+    temps: TEMPS.map(() => ({ car: null, res: null })),
+    curb: MAP.curbX.map(() => ({ car: null, res: null })),
+    streetQueue: [],
+    jobs: [],
+    spots: SPOTS.map(() => null),
+    valet: {
+      id: 0,
+      speed: 1,
+      x: MAP.standX,
+      y: MAP.standY,
+      loc: { t: 'stand' },
+      job: null,
+      dir: 1,
+      walking: false,
+      inCar: null,
+      stepT: 0,
+      anim: 0,
+    },
+    helpers: [],
+    activeW: 0,
+    nextWid: 1,
+    heli: { phase: 'wait', at: rnd(...CONFIG.helo.atSec), t: 0, greeting: false, ok: null, vipT: 0 },
+    spawnT: CONFIG.arrivals.firstSec,
+    galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours,
+    galaEnd: 0,
+    galaDone: false,
+    galaActive: false,
+    floaters: [],
+    particles: [],
+    toasts: [],
+    banners: [],
+    shake: 0,
+    manager: null,
+    phase: 'play',
+    endT: 0,
+    boost: { hustle: 0, coffee: 0, spareKeys: 0 },
+    lastHeatReason: 'THE GUESTS COMPLAINED.',
+    ticketNo: 1,
+    rampRow: null,
+    heatFloat: 0,
+    meltdown: false,
+    npcs: [],
+    selected: null,
+    armed: null,
+    lotFullFlash: 0,
+    stats: {
+      carsParked: 0,
+      whalesServed: 0,
+      biggestTip: 0,
+      longestWhaleWait: 0,
+      longestWhaleName: '',
+      tips: 0,
+      pay: 0,
+      angry: 0,
+      waved: 0,
+      stolen: 0,
+      limos: 0,
+      comped: 0,
+      grawlix: 0,
+    },
+  };
+  for (const t of CONFIG.career.defaultLoadout.slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);
+  prefillLot();
+}
+const nid = () => S.nextId++;
