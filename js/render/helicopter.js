@@ -37,9 +37,24 @@ function drawHeli() {
   ctx.globalAlpha = 0.25 + 0.35 * (1 - a);
   ell(x + a * 10, y + 2, 16 * (1 - a * 0.4), 7 * (1 - a * 0.4), PAL.ink);
   ctx.globalAlpha = 1;
-  const hx = x + a * 40,
-    hy = y - a * 110,
-    s = 1 + a * 0.5;
+  drawHeliBody(x + a * 40, y - a * 110, 1 + a * 0.5, UI.t * (H.phase === 'landed' ? (H.t < 1.5 ? 18 : 4) : 30));
+  // countdown ring once landed
+  if (H.phase === 'landed' && !H.greeting) {
+    const f = 1 - H.t / CONFIG.helo.meetSec;
+    ctx.strokeStyle = f > 0.5 ? PAL.lime : f > 0.25 ? PAL.yellow : PAL.red;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 19, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f);
+    ctx.stroke();
+    drawText(ctx, Math.ceil(CONFIG.helo.meetSec - H.t) + '', x, y - 26, f > 0.25 ? PAL.white : PAL.red, {
+      align: 'center',
+    });
+  }
+  if (H.phase === 'incoming' && !heliJob() && Math.floor(UI.t * 4) % 2)
+    drawText(ctx, 'TAP!', x, y - 26, PAL.yellow, { align: 'center' });
+}
+// The airframe + spinning rotors centred at (hx, hy), scaled by s; ang = rotor angle. Also used by the vehicle guide.
+function drawHeliBody(hx, hy, s, ang) {
   ctx.save();
   ctx.translate(hx, hy);
   ctx.scale(s, s);
@@ -55,7 +70,6 @@ function drawHeli() {
   R(-8, -1, 16, 1, PAL.yellow); // body + gold pinstripe
   ell(-6, 0, 4.5, 4, '#7fd4ff');
   ell(-7, -1.2, 2, 1.4, PAL.white); // cockpit glass + glint
-  const ang = UI.t * (H.phase === 'landed' ? (H.t < 1.5 ? 18 : 4) : 30);
   ctx.strokeStyle = 'rgba(220,220,235,0.85)';
   ctx.lineWidth = 1.1;
   ctx.beginPath();
@@ -75,28 +89,20 @@ function drawHeli() {
   ctx.lineTo(24 - Math.cos(tr) * 3, -Math.sin(tr) * 3);
   ctx.stroke();
   ctx.restore();
-  // countdown ring once landed
-  if (H.phase === 'landed' && !H.greeting) {
-    const f = 1 - H.t / CONFIG.helo.meetSec;
-    ctx.strokeStyle = f > 0.5 ? PAL.lime : f > 0.25 ? PAL.yellow : PAL.red;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, 19, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f);
-    ctx.stroke();
-    drawText(ctx, Math.ceil(CONFIG.helo.meetSec - H.t) + '', x, y - 26, f > 0.25 ? PAL.white : PAL.red, {
-      align: 'center',
-    });
-  }
-  if (H.phase === 'incoming' && !heliJob() && Math.floor(UI.t * 4) % 2)
-    drawText(ctx, 'TAP!', x, y - 26, PAL.yellow, { align: 'center' });
 }
-function drawVip() {
+// The VIP's walk from the pad to the hotel door: sprite top-left, or null when not walking.
+function vipPos() {
   const H = S.heli;
-  if (!H || !(H.vipT > 0)) return;
+  if (!H || !(H.vipT > 0)) return null;
   const f = 1 - H.vipT / 2.5;
   const px = lerp(PAD_MEET[0], MAP.standX + 4, f),
     py = f < 0.5 ? lerp(PAD.y, MAP.streetY, f * 2) : lerp(MAP.streetY, 34, (f - 0.5) * 2);
-  drawPerson(ctx, Math.round(px), Math.round(py - 8), Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', {
+  return { x: px, y: py - 8 };
+}
+function drawVip() {
+  const v = vipPos();
+  if (!v) return;
+  drawPerson(ctx, Math.round(v.x + crowdOff(S.heli)), Math.round(v.y), Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', {
     h: PAL.yellow,
     s: PAL.peach,
     c: PAL.ink,

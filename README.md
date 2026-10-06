@@ -44,3 +44,7 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - **Offline / installable** (PWA): `sw.js` + manifest; play with no connection, add to home screen.
 - **Paid-feature hooks** (`js/career/store.js`, `js/data/products.js`): hotel pack + supporter edition defined; the store is switched off (`CONFIG.store.enabled = false`), so everything is free until a payment backend exists.
 - Tests in `tests/` (Playwright): tutorial, gameplay, crew, helicopter, career, reserved, all hotels.
+
+## v2.1: vehicle guide + no overlapping characters
+- **VEHICLES** on the title menu (`js/screens/vehicle_guide.js`): three tabs (Everyday, High Rollers, VIP Arrivals) showing every car model with the in-game sprites, the limo and the helicopter. Every number (tips, pay, patience, jackpot, helicopter tip/pay/meet window/heat, landings per hotel, hotel tip bonuses) is read live from `CONFIG` and the hotel files, so the guide always matches the game.
+- **No overlapping characters** (`js/render/crowd.js`): everyone on the sidewalk (guests, valets, VIP, NPCs) is laid out each frame so sprites keep at least 2px apart, held tickets count toward width, and nobody stands inside the podium. Presentation only - the simulation is untouched; tap targets follow the drawn positions. Covered by `tests/crowd_test.py`.

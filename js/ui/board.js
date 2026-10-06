@@ -2,14 +2,6 @@
 /* Retrieve board: tickets handed in at the podium. */
 
 /* ---- retrieve board: one row per ticket handed in at the podium, most urgent first ---- */
-const TIER_MARK = {
-  beater: ['B', PAL.khaki],
-  standard: ['S', PAL.blue],
-  premium: ['P', PAL.lav],
-  whale: ['W', PAL.pink],
-  ultra: ['U', PAL.yellow],
-  limo: ['L', PAL.white],
-};
 function boardList() {
   return [...S.guests.values()]
     .filter(g => g.ticket && (g.state === 'toSpot' || g.state === 'pickWait'))

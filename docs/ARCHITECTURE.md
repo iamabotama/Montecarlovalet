@@ -15,7 +15,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | `career/` | Everything that **persists between shifts**: save and migrations, XP and ranks, unlocks, crew roster, store ownership | Run during a shift (except roster and wage lookups) |
 | `sim/` | The rules of **one shift**: run state `S`, arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
-| `render/` | Drawing the world: themed background, people, helicopter, the game frame | Change state |
+| `render/` | Drawing the world: themed background, people, crowd spacing (`crowd.js`), helicopter, the game frame | Change state |
 | `ui/` | In-game HUD, board, selection, crew panel, input hit-targets, debug overlay, widgets | Hold rules |
 | `screens/` | One file per screen (`defineScreen`). Covers title, hotels, shift prep, game, promotion, summary, settings and how-to | Build run state themselves |
 | `app/` | Flow between screens: `loadHotel()`, `startGame()` | |
@@ -38,7 +38,8 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | A power-up | `data/powerups.js` (info) and `CONFIG.power`. Logic goes in `sim/powerups.js#useCard`, or its own `sim/<name>.js` if it has state (see `sim/reserved.js`). Unlock it in `CONFIG.career.ranks` |
 | A uniform or name tag | `data/cosmetics.js`, plus an unlock key in a rank |
 | A rank | `CONFIG.career.ranks` |
-| A screen | New `screens/<name>.js` with `defineScreen`, plus `js/modules.js` |
+| A screen | New `screens/<name>.js` with `defineScreen`, plus `js/modules.js` (e.g. `vehicle_guide.js`) |
+| Something that stands on the sidewalk | Add it to `crowdMembers()` in `render/game.js` (props use `fixed: true`) and draw it at `x + crowdOff(ref)` |
 | A paid product | `data/products.js`, then point a hotel's `product` at it |
 | Tuning | `data/config.js` only |
 
@@ -51,6 +52,7 @@ cd tests
 python3 hotels_test.py     # every hotel plays 10 sim-minutes without errors
 python3 career_test.py     # v1 save migration, hotel locks, prep, promotion, roster, persistence
 python3 reserved_test.py   # RESERVED power-up
+python3 crowd_test.py      # standing characters never overlap
 python3 tutorial_test.py   # full scripted tutorial
 python3 gameplay_test.py; python3 crew_test.py; python3 heli_test.py
 ```

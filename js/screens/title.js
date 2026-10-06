@@ -4,7 +4,8 @@ defineScreen('title', {
   buttons: () => [
     button(120, 118, 80, 'START', () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
     button(120, 132, 80, 'TUTORIAL', startTutorial),
-    button(120, 146, 80, 'SETTINGS', () => goScreen('settings')),
+    button(120, 146, 80, 'VEHICLES', () => goScreen('guide')),
+    button(120, 160, 80, 'SETTINGS', () => goScreen('settings')),
     button(4, 164, 40, Sound.muted ? 'UNMUTE' : 'MUTE', toggleMute, PAL.lgrey),
     button(256, 164, 60, 'FULLSCREEN', goFullscreen, PAL.lgrey),
   ],

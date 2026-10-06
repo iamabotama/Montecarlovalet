@@ -3,6 +3,15 @@
 
 const TIERS = ['beater', 'standard', 'premium', 'whale', 'ultra', 'limo'];
 const isWhale = t => t === 'whale' || t === 'ultra';
+// Board letter + colour per tier (retrieve board, vehicle guide).
+const TIER_MARK = {
+  beater: ['B', PAL.khaki],
+  standard: ['S', PAL.blue],
+  premium: ['P', PAL.lav],
+  whale: ['W', PAL.pink],
+  ultra: ['U', PAL.yellow],
+  limo: ['L', PAL.white],
+};
 /* ------------------------------ SPRITES ------------------------------ */
 // Cars face EAST (front = right). Legend: k tire, b body, d body-dark, l body-light, w glass,
 // h headlight, t taillight, r rust, g chrome/grey, c stripe (white)

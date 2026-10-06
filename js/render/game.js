@@ -34,6 +34,7 @@ function renderGame() {
     R(px + 1, 33, 3, 1, PAL.white);
   }
   // claim timers & tickets
+  layoutCrowd(crowdMembers(), 1 / 60);
   const bubbles = [];
   for (const g of S.guests.values()) {
     const car = S.cars.get(g.carId);
@@ -42,29 +43,18 @@ function renderGame() {
       R(car.x - 7, car.y - 7, 14, 2, PAL.ink);
       R(car.x - 7, car.y - 7, Math.round(14 * f), 2, PAL.lav);
     }
-    if (
-      [
-        'curbDrop',
-        'handed',
-        'leavingIn',
-        'pickWalk',
-        'handTicket',
-        'toSpot',
-        'pickWait',
-        'pickBoard',
-        'greeting',
-      ].includes(g.state)
-    ) {
-      const p = guestPose(g);
-      drawPerson(ctx, Math.round(g.x + p.dx), g.y + p.dy, p.pose, p.cols, p.flip);
-      if (g.state === 'handTicket') drawIcon(ctx, 'ticket', g.x + 5, g.y + 3, PAL.yellow);
-      if (g.stage === 5) R(g.x + 5, g.y - 1, 2, 3, PAL.ink);
+    if (guestDrawn(g)) {
+      const p = guestPose(g),
+        gx = Math.round(g.x + crowdOff(g));
+      drawPerson(ctx, gx + p.dx, g.y + p.dy, p.pose, p.cols, p.flip);
+      if (g.state === 'handTicket') drawIcon(ctx, 'ticket', gx + 4, g.y + 3, PAL.yellow);
+      if (g.stage === 5) R(gx + 5, g.y - 1, 2, 3, PAL.ink);
       const b = bubbleFor(g);
-      if (b) bubbles.push({ x: g.x + 1, y: g.y, b, order: g.stageAt || 0 });
+      if (b) bubbles.push({ x: gx + 1, y: g.y, b, order: g.stageAt || 0 });
     }
   }
   for (const n of S.npcs)
-    drawPerson(ctx, n.x, n.y, 'walk', {
+    drawPerson(ctx, Math.round(n.x + crowdOff(n)), n.y, 'walk', {
       h: PAL.ink,
       s: PAL.peach,
       c: n.kind === 'newbie' ? PAL.lime : PAL.lav,
@@ -76,7 +66,7 @@ function renderGame() {
   const uni = valetColors();
   const crew = S.helpers.length > 0;
   for (const w of workers()) {
-    const wx = w.x + (w.off || 0);
+    const wx = w.x + (w.off || 0) + crowdOff(w);
     if (w === S.valet && !tutValetVisible()) continue;
     if ((!w.inCar && S.phase !== 'fired') || (w === S.valet && S.phase === 'fired' && S.endT < 2))
       drawPerson(
@@ -162,4 +152,32 @@ function valetColors() {
 function drawNametag(x, y) {
   const tag = NAMETAGS[SAVE.cosmetic.nametag];
   if (tag && tag.color) R(x + 3, y + 4, 1, 1, tag.color);
+}
+// Guest states that are visible on the sidewalk (others are inside the hotel, in a car or queued off-screen).
+const GUEST_DRAWN = new Set([
+  'curbDrop',
+  'handed',
+  'leavingIn',
+  'pickWalk',
+  'handTicket',
+  'toSpot',
+  'pickWait',
+  'pickBoard',
+  'greeting',
+]);
+const guestDrawn = g => GUEST_DRAWN.has(g.state);
+// Everyone on foot this frame, as render/crowd.js wants them (sprite left edge + drawn top + width),
+// plus the podium as a fixed obstacle. A guest handing in a ticket is wider: the ticket sticks out.
+const TICKET_HELD_W = 9;
+function crowdMembers() {
+  const out = [{ ref: null, k: -1, x: CONFIG.podium.x - 1, y: 33, w: 7, fixed: true }];
+  for (const g of S.guests.values())
+    if (guestDrawn(g)) out.push({ ref: g, k: g.id, x: g.x, y: g.y, w: g.state === 'handTicket' ? TICKET_HELD_W : 5 });
+  S.npcs.forEach((n, i) => out.push({ ref: n, k: 1e6 + i, x: n.x, y: n.y }));
+  for (const w of workers())
+    if (!w.inCar && !(w === S.valet && !tutValetVisible()))
+      out.push({ ref: w, k: 2e6 + w.id, x: w.x + (w.off || 0) - 2, y: w.y - 8 });
+  const v = vipPos();
+  if (v) out.push({ ref: S.heli, k: 3e6, x: v.x, y: v.y });
+  return out;
 }

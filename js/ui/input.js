@@ -48,7 +48,7 @@ function hitTargets() {
         }
       });
   for (const g of S.guests.values())
-    if (WAITING.has(g.state) && g.state !== 'queued') add(g.x - 2, g.y - 1, 9, 11, 2, () => tapGuest(g));
+    if (WAITING.has(g.state) && g.state !== 'queued') add(g.x + crowdOff(g) - 2, g.y - 1, 9, 11, 2, () => tapGuest(g));
   for (const car of S.cars.values()) {
     const g = S.guests.get(car.guestId);
     if (!g) continue;
