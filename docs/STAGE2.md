@@ -1,5 +1,7 @@
 # Monte Carlo Valet: Stage 2 plan
 
+> **Status (v2.0): built.** Everything below is implemented except cloud save and real payments (Stage 3). The paid features are wired to a store switch that is off, so all content is currently free. Code layout: `docs/ARCHITECTURE.md`.
+
 Stage 1 is a single, replayable shift. Stage 2 turns it into a **career**: every shift (fired or not) moves you forward, there are multiple **hotels** (levels), and it all works **offline**. Paid features are layered on top without making the game pay-to-win.
 
 ## 1. Continuity: the career

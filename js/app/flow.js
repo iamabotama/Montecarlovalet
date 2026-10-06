@@ -10,9 +10,10 @@ function loadHotel(id) {
   buildBG();
   return h;
 }
-function startGame(hotelId) {
-  loadHotel(hotelId || (HOTEL && HOTEL.id) || HOTEL_ORDER[0]);
-  newRun();
+// opts: { loadout, goals } from the shift-prep screen; goals are drawn here when not supplied.
+function startGame(hotelId, opts = {}) {
+  const h = loadHotel(hotelId || (HOTEL && HOTEL.id) || HOTEL_ORDER[0]);
+  newRun({ loadout: opts.loadout || SAVE.loadout, goals: opts.goals || drawGoals(h) });
   UI.screen = 'game';
   UI.paused = false;
   Sound.startMusic();

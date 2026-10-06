@@ -11,6 +11,7 @@ defineHotel({
   pad: { x: 190, y: 148 },
   helo: { times: [[330, 420]] },
   event: { name: 'THE GALA', short: 'GALA' },
+  starTarget: 600,
   theme: {
     facade: PAL.plum,
     trim: PAL.wine,

@@ -10,6 +10,7 @@ defineHotel({
   map: { lotX: 46, lotY: 81 },
   pad: null,
   event: { name: 'FIGHT NIGHT', short: 'FIGHT' },
+  starTarget: 800,
   arrivals: { intervalMult: 0.85, mixMult: [1, 1.2, 1.2, 1, 1, 1.6] },
   mods: { tipMult: 1.1 },
   theme: {

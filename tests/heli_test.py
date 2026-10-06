@@ -5,7 +5,7 @@ async def run(meet):
         b = await p.chromium.launch(executable_path='/usr/bin/chromium'); pg = await b.new_page(viewport={'width':1280,'height':720})
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(400)
-        await pg.evaluate('SAVE.tutorialSeen=true'); await pg.mouse.click(640, 498); await pg.wait_for_timeout(300)
+        await pg.evaluate('SAVE.tutorialSeen=true'); await pg.evaluate("startGame('monte_carlo')"); await pg.wait_for_timeout(300)
         await pg.evaluate('MCV.S.heli.at = MCV.S.t + 1')
         await pg.wait_for_timeout(3500)
         tag = 'met' if meet else 'miss'

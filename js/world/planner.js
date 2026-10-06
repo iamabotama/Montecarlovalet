@@ -31,8 +31,8 @@ function plan(j, from, dry, w) {
   const g = car ? S.guests.get(car.guestId) : null;
   if (j.type === 'park') {
     if (!car || car.loc.t !== 'curb' || !g || g.state !== 'curbDrop') return { refuse: '' };
-    const e = entryIndex(j.lane, j.side, dry ? pendingParks(j.lane, j.side, j) : 0);
-    if (!e) return { refuse: 'LANE ' + LANE_NAMES[j.lane] + ' ' + j.side.toUpperCase() + ' IS FULL' };
+    const e = parkTarget(j, dry);
+    if (!e) return { refuse: parkRefusal(j) };
     const k = car.loc.k;
     walk({ t: 'curb', k });
     act(() => reachCarAtCurb(car, g, j.bags));
@@ -44,6 +44,7 @@ function plan(j, from, dry, w) {
       j.side,
       () => {
         S.curb[k].car = null;
+        if (j.vip) takeVipHold();
         S.lanes[j.lane].cars[e.idx] = car.id;
       },
       () => {
@@ -55,8 +56,8 @@ function plan(j, from, dry, w) {
     j.depth = e.depth;
   } else if (j.type === 'move') {
     if (!car || car.loc.t !== 'temp') return { refuse: '' };
-    const e = entryIndex(j.lane, j.side, dry ? pendingParks(j.lane, j.side, j) : 0);
-    if (!e) return { refuse: 'LANE ' + LANE_NAMES[j.lane] + ' ' + j.side.toUpperCase() + ' IS FULL' };
+    const e = parkTarget(j, dry);
+    if (!e) return { refuse: parkRefusal(j) };
     const i = car.loc.i;
     walk({ t: 'temp', i });
     drive(
@@ -67,6 +68,7 @@ function plan(j, from, dry, w) {
       () => {
         S.temps[i].car = null;
         dropRestowEntry(car.id);
+        if (j.vip) takeVipHold();
         S.lanes[j.lane].cars[e.idx] = car.id;
       },
       () => placeInStall(car, j.lane, e.idx),
@@ -233,3 +235,9 @@ function estimateFor(j) {
   const p = plan(j, from, true, w);
   return p.steps ? p.est : null;
 }
+// Where a park/move job puts the car: the deepest free stall of that row end, or the RESERVED hold.
+function parkTarget(j, dry) {
+  return j.vip ? vipHoldTarget() : entryIndex(j.lane, j.side, dry ? pendingParks(j.lane, j.side, j) : 0);
+}
+const parkRefusal = j =>
+  j.vip ? 'THE VIP SPOT WAS RELEASED' : 'LANE ' + LANE_NAMES[j.lane] + ' ' + j.side.toUpperCase() + ' IS FULL';

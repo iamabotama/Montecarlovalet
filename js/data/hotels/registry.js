@@ -11,12 +11,14 @@
      event:{ name, short }                           the nightly rush (CONFIG.gala timing)
      arrivals: { intervalMult, mixMult[6] }          busier / richer crowds (mix order = TIERS)
      mods: { tipMult, driveMult }                    economy + handling
+     starTarget                                      $ for the 3rd star (see career/progression.js shiftStars)
      theme: see render/background.js (colours, decor, weather) */
 const HOTELS = {};
 const HOTEL_ORDER = [];
 const HOTEL_DEFAULTS = {
   unlockRank: 0,
   product: null,
+  starTarget: 600,
   blurb: [],
   pad: null,
   helo: null,

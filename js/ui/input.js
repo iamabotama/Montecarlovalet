@@ -110,7 +110,7 @@ function currentTargets() {
       x: b.x,
       y: b.y - 2,
       w: b.w,
-      h: 16,
+      h: (b.h || 12) + 4,
       cx: b.x + b.w / 2,
       cy: b.y + 6,
       pri: 5,

@@ -13,7 +13,7 @@ async def main():
         b = await p.chromium.launch(executable_path='/usr/bin/chromium'); pg = await b.new_page(viewport={'width':1280,'height':720})
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(400)
-        await pg.evaluate('SAVE.tutorialSeen=true'); await pg.mouse.click(640, 498); await pg.wait_for_timeout(300)
+        await pg.evaluate('SAVE.tutorialSeen=true'); await pg.evaluate("startGame('monte_carlo')"); await pg.wait_for_timeout(300)
         await pg.evaluate('MCV.S.money=1000')
         await pg.mouse.click(16*4, 146*4); await pg.wait_for_timeout(1500)
         await pg.evaluate('MCV.S.activeW=0'); await pg.mouse.click(16*4, 146*4); await pg.wait_for_timeout(1500)

@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '1.3.0',
+  version: '2.0.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -136,9 +136,8 @@ const CONFIG = {
     loadoutCap: 3,
     defaultLoadout: ['pawnOff', 'bags'],
     goalsPerNight: 3,
-    goalXp: [200, 500],
     saveKey: 'mcvalet.save',
-    saveVersion: 1,
+    saveVersion: 2, // bump + add a migration in career/save.js when the save shape changes
   },
   stay: { minSec: 45, maxSec: 150, prefillMinSec: 15, prefillMaxSec: 140 },
   clock: { realSecPerGameHour: 120, startHour: 18, clockOutHour: 22 },
@@ -204,7 +203,21 @@ const CONFIG = {
     pay: 50,
     missHeat: 12,
   },
-  helpers: { max: 3, costPerHour: 100, speed: 1.0, idleOffsets: [0, 8, -8, 16] },
+  helpers: {
+    max: 3,
+    costPerHour: 100,
+    speed: 1.0,
+    idleOffsets: [0, 8, -8, 16],
+    // Persistent crew (career/roster.js): the same named valets come back each shift and improve.
+    roster: {
+      names: ['MARCO', 'LUCA', 'ENZO', 'PAOLO', 'GINO', 'NICO'],
+      levelJobs: [0, 25, 60, 120, 200], // jobs completed to reach each level
+      speedPerLevel: 0.05,
+      wagePerLevel: 10,
+    },
+  },
+  // Store (career/store.js). Off = no paywall; every product counts as owned.
+  store: { enabled: false },
   podium: { x: 172, handSec: 0.6, boardRows: 5 },
   gala: { hour: 22, jitterHours: 0.3, durationSec: 60, interval: [2, 3], highShare: 0.5 },
   fx: { shakeSec: 0.35, toastSec: 2.6, musicSpeedPerHour: 0.05, musicBpm: 116 },

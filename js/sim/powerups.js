@@ -16,10 +16,8 @@ function enforceSlots() {
   }
   tryGrantStars();
 }
-function powerPool() {
-  const unlocked = new Set([...CONFIG.power.base, ...SAVE.unlocked]);
-  return Object.keys(CONFIG.power.weights).filter(k => unlocked.has(k));
-}
+// Cards earned mid-shift come from everything the career has unlocked (career/progression.js).
+const powerPool = () => unlockedPowerups();
 function grantCard(type, silent) {
   if (S.cards.length >= slotsAllowed()) return false;
   S.cards.push({ type, at: ++S.cardSeq });
@@ -57,6 +55,7 @@ function useCard(idx, g) {
     if (type === 'hustle') S.boost.hustle = P.hustleSec;
     if (type === 'coffee') S.boost.coffee = P.coffeeSec;
     if (type === 'spareKeys') S.boost.spareKeys++;
+    if (type === 'reserved' && !holdVipStall()) return Sound.sfx('deny');
   } else if (!powerTargets(type, g, car)) {
     Sound.sfx('deny');
     return;

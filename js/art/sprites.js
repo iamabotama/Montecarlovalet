@@ -70,7 +70,7 @@ function carDims(tier, mi) {
   return [r[0].length, r.length];
 }
 
-// People 5x9. Legend: h hair, s skin, c shirt, a sleeve/arm, p pants, k shoes, x hat, f face-accent
+// People 5x9. Legend: h hair, s skin, c shirt, a sleeve/arm, p pants, k shoes, x hat, f face-accent, g gloves (optional)
 const PEOPLE = {
   idle: ['.hhh.', '.sss.', '.sss.', 'ccccc', 'scccs', '.ccc.', '.p.p.', '.p.p.', '.k.k.'],
   walk: ['.hhh.', '.sss.', '.sss.', 'ccccc', 'scccs', '.ccc.', '.p.p.', 'p...p', 'k...k'],
@@ -85,6 +85,7 @@ function drawPerson(ctx, x, y, pose, colors, flip) {
     for (let rx = 0; rx < 5; rx++) {
       let ch = rows[ry][flip ? 4 - rx : rx];
       if (ch === '.') continue;
+      if (ch === 's' && ry === 4 && colors.g) ch = 'g'; // hands: gloves when given
       if (ry === 0 && colors.x) {
         ctx.fillStyle = colors.x;
         ctx.fillRect(x + rx, y + ry, 1, 1);

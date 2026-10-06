@@ -22,7 +22,20 @@ defineScreen('game', {
       R(90, 60, 140, 70, PAL.ink);
       RB(90, 60, 140, 70, PAL.yellow);
       drawText(ctx, 'PAUSED', 160, 66, PAL.yellow, { align: 'center', scale: 2 });
+      drawGoalsPanel(60, 18);
       drawButtons(this.buttons());
     }
   },
 });
+// Tonight's goals with live progress (shown while paused).
+function drawGoalsPanel(x, y) {
+  if (!S.goals.length) return;
+  R(x, y, 200, 8 + S.goals.length * 8, PAL.ink);
+  RB(x, y, 200, 8 + S.goals.length * 8, PAL.lav);
+  S.goals.forEach((g, i) => {
+    const d = goalDef(g.id);
+    const prog = d.atEnd ? (g.done ? 'DONE' : 'AT CLOCK-OUT') : g.done ? 'DONE' : goalProgress(g) + '/' + d.target;
+    drawText(ctx, goalText(g), x + 4, y + 4 + i * 8, g.done ? PAL.lime : PAL.white);
+    drawText(ctx, prog, x + 196, y + 4 + i * 8, g.done ? PAL.lime : PAL.lav, { align: 'right' });
+  });
+}

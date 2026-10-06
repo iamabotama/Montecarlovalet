@@ -50,6 +50,7 @@ function endJob(j) {
   j.worker = null;
   releaseJob(j);
   if (!j.aborted) {
+    if (v.memberId) v.jobsDone++;
     const actual = S.t - j.startT;
     const rec = {
       type: j.type,

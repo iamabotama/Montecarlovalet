@@ -10,6 +10,8 @@ function stepSim(dt) {
     runValet(dt);
     updateMovers(dt);
     updateHeli(dt);
+    updateGoals();
+    updateVipHold(dt);
     if (S.tutorial) tutUpdate(dt);
     S.meltdown = [...S.guests.values()].some(g => g.stage === 5);
     Sound.music.speed = 1 + CONFIG.fx.musicSpeedPerHour * Math.floor(hourNow() - CONFIG.clock.startHour);

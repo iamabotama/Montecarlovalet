@@ -2,7 +2,7 @@
 /* Title screen. */
 defineScreen('title', {
   buttons: () => [
-    button(120, 118, 80, 'START', () => (SAVE.tutorialSeen ? startGame() : startTutorial())),
+    button(120, 118, 80, 'START', () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
     button(120, 132, 80, 'TUTORIAL', startTutorial),
     button(120, 146, 80, 'SETTINGS', () => goScreen('settings')),
     button(4, 164, 40, Sound.muted ? 'UNMUTE' : 'MUTE', toggleMute, PAL.lgrey),
@@ -31,15 +31,8 @@ defineScreen('title', {
     const cx = ((UI.t * 40) % 400) - 40;
     drawCarSprite(ctx, carSprite('whale', 1, 0), cx, 150);
     drawCarSprite(ctx, carSprite('limo', 1, 2), 360 - ((UI.t * 25) % 420), 160);
-    R(70, 102, 180, 11, PAL.ink);
-    drawText(
-      ctx,
-      'HI-SCORE ' + fmtMoney(SAVE.highScore) + '   RANK: ' + CONFIG.career.ranks[SAVE.rank || 0].name,
-      160,
-      106,
-      PAL.yellow,
-      { align: 'center' },
-    );
+    R(56, 101, 208, 14, PAL.ink);
+    drawCareerBar(60, 103, 200);
     drawText(ctx, 'V' + CONFIG.version, 2, 2, PAL.dgrey);
     drawButtons(this.buttons());
   },

@@ -28,7 +28,7 @@ function renderHUD() {
     } else RB(x, 1, 9, 8, PAL.dgrey);
   }
   for (let i = 0; i < Math.min(S.stars, 4); i++) drawIcon(ctx, 'star', 240 + i * 6, 3, PAL.yellow);
-  drawText(ctx, 'HI ' + fmtMoney(SAVE.highScore), 318, 3, PAL.lav, { align: 'right' });
+  drawText(ctx, 'HI ' + fmtMoney(hotelHighScore(HOTEL.id)), 318, 3, PAL.lav, { align: 'right' });
   // bottom strip: queue
   R(0, 172, 320, 8, PAL.ink);
   drawText(

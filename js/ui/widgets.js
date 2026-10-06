@@ -3,8 +3,10 @@
 function button(x, y, w, label, fn, col = PAL.yellow) {
   return { x, y, w, h: 12, label, fn, col };
 }
+// Buttons with hidden:true are hit areas only (the screen draws them itself, e.g. hotel cards).
 function drawButtons(bs) {
   for (const b of bs) {
+    if (b.hidden) continue;
     R(b.x, b.y, b.w, b.h, PAL.ink);
     RB(b.x, b.y, b.w, b.h, b.col);
     drawText(ctx, b.label, b.x + b.w / 2, b.y + 4, b.col, { align: 'center' });
@@ -24,4 +26,20 @@ function goFullscreen() {
     } catch (e) {
       /* not supported */
     }
+}
+// Rank name + XP progress toward the next rank.
+function drawCareerBar(x, y, w) {
+  const nr = nextRank(),
+    cur = RANKS[SAVE.rank].xp;
+  const f = nr ? clamp((SAVE.careerXP - cur) / (nr.xp - cur), 0, 1) : 1;
+  drawText(ctx, rankName(), x, y, PAL.white);
+  drawText(ctx, nr ? SAVE.careerXP + ' / ' + nr.xp + ' XP' : SAVE.careerXP + ' XP - MAX RANK', x + w, y, PAL.lav, {
+    align: 'right',
+  });
+  R(x, y + 6, w, 2, PAL.dgrey);
+  R(x, y + 6, Math.round(w * f), 2, PAL.lime);
+}
+// Three stars centred on cx, `n` of them lit.
+function drawStars(cx, y, n) {
+  for (let i = 0; i < 3; i++) drawIcon(ctx, 'star', cx - 10 + i * 7, y, i < n ? PAL.yellow : PAL.dgrey);
 }

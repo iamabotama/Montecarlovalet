@@ -3,10 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Monte Carlo Valet</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#12192e"><link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}</style>
 </head><body><canvas id="c" width="960" height="540"></canvas>
 <!-- Module load order lives in js/modules.js (shared with the service worker). async=false keeps execution in order. -->
 <script src="js/modules.js"></script>
 <script>for (const m of MCV_MODULES) { const s = document.createElement('script'); s.src = 'js/' + m; s.async = false; document.body.appendChild(s); }</script>
+<!-- Offline play: sw.js caches the game (only over http(s), not file://). -->
+<script>if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
 </body></html>

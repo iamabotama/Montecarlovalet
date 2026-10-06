@@ -26,6 +26,13 @@ function selectionOptions() {
         const job = { type: car.loc.t === 'temp' ? 'move' : 'park', carId: car.id, lane: l, side, bags: sel.bags };
         stalls.push({ lane: l, side, idx: e.idx, depth: e.depth, est: estimateFor(job), job });
       }
+  const vip = canPark && vipStallOption(car, g, sel);
+  if (vip) {
+    // the held row end shows as 'full' for everyone else; replace that marker with the VIP choice
+    const k = stalls.findIndex(s => s.bad && s.lane === vip.lane && s.side === vip.side);
+    if (k >= 0) stalls.splice(k, 1);
+    stalls.push(vip);
+  }
   if (car.loc.t === 'curb' && g && g.state === 'curbDrop') {
     if (g.tier === 'limo')
       menu.push({

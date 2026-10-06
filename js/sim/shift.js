@@ -18,29 +18,34 @@ function clockOut() {
   Sound.stopMusic();
   Sound.sfx('shiftover');
 }
+// Shift is over (fired or clocked out): settle goals, bank everything into the career, show results.
 function finishRun() {
   const kind = S.phase;
   const st = S.stats;
-  const xp = Math.round((st.tips + st.pay) * CONFIG.career.xpPerDollar);
-  const isHigh = S.money > SAVE.highScore;
-  if (isHigh) SAVE.highScore = Math.round(S.money);
-  SAVE.careerXP += xp;
-  const best = SAVE.bestStats;
-  best.biggestTip = Math.max(best.biggestTip || 0, st.biggestTip);
-  best.longestShift = Math.max(best.longestShift || 0, S.t);
-  best.whalesServed = Math.max(best.whalesServed || 0, st.whalesServed);
-  writeSave();
+  const goals = settleGoals(kind === 'clockout');
+  const career = awardShift({
+    kind,
+    hotel: HOTEL.id,
+    money: S.money,
+    earned: st.tips + st.pay,
+    goalXP: goals.xp,
+    goalsDone: goals.done,
+    st,
+    t: S.t,
+    crewJobs: crewJobsThisShift(),
+  });
   RESULT = {
     kind,
+    hotel: HOTEL,
     money: S.money,
-    xp,
-    isHigh,
     hour: hourNow(),
     reason: S.lastHeatReason,
     line: S.firedLine,
     st: { ...st },
     t: S.t,
+    goals: S.goals.map(g => ({ text: goalText(g), xp: goalDef(g.id).xp, done: g.done })),
+    ...career, // xp, isHigh, highScore, promotions
   };
-  UI.screen = 'summary';
+  goScreen(RESULT.promotions.length ? 'promotion' : 'summary');
 }
 let RESULT = null;

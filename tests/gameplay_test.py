@@ -12,7 +12,7 @@ async def main():
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
         await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(600)
         await pg.screenshot(path='/tmp/n_title.png'); await pg.evaluate('SAVE.tutorialSeen=true')
-        await pg.mouse.click(640, 498); await pg.wait_for_timeout(300)
+        await pg.evaluate("startGame('monte_carlo')"); await pg.wait_for_timeout(300)
         await pg.evaluate(BOT); await pg.evaluate('MCV.DEBUG.scale=4')
         for i,secs in enumerate([10, 25, 30]):
             await pg.wait_for_timeout(secs*1000)

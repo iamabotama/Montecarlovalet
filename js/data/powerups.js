@@ -7,7 +7,7 @@ const POWER_INFO = {
   ignore: { short: 'I', name: 'IGNORE', color: PAL.lav, target: 'guest' },
   bags: { short: 'B', name: 'BAGS & CART', color: PAL.orange, target: 'curbWhale' },
   hustle: { short: 'H', name: 'HUSTLE', color: PAL.yellow, target: 'self' },
-  reserved: { short: 'R', name: 'RESERVED', color: PAL.pink, target: 'none' },
+  reserved: { short: 'R', name: 'RESERVED', color: PAL.pink, target: 'self' }, // sim/reserved.js
   spareKeys: { short: 'K', name: 'SPARE KEYS', color: PAL.peach, target: 'self' },
   bribe: { short: '$', name: 'BRIBE', color: PAL.cream, target: 'curbLimo' },
   fakeSmile: { short: 'S', name: 'FAKE SMILE', color: PAL.salmon || PAL.pink, target: 'guest' },

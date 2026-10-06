@@ -3,22 +3,37 @@
 
 /* ---- crew: hire / wages / send home ---- */
 const HC = CONFIG.helpers;
+// Who answers the next hire call (career/roster.js keeps the regulars between shifts).
+const hireCandidate = () => rosterCandidate(S.helpers.map(w => w.memberId));
+// Jobs each regular finished this shift, banked into the roster at shift end.
+function crewJobsThisShift() {
+  const out = {};
+  for (const w of S.crewLog) out[w.memberId] = (out[w.memberId] || 0) + w.jobsDone;
+  return out;
+}
 function hireValet() {
   if (S.helpers.length >= HC.max) {
     toast('CREW IS FULL (' + HC.max + ' HELPERS)');
     Sound.sfx('deny');
     return;
   }
-  if (S.money < HC.costPerHour) {
-    toast('NEED ' + fmtMoney(HC.costPerHour) + ' TO HIRE A VALET');
+  const m = hireCandidate();
+  const wage = memberWage(m);
+  if (S.money < wage) {
+    toast('NEED ' + fmtMoney(wage) + ' TO HIRE ' + m.name);
     Sound.sfx('deny');
     return;
   }
-  S.money -= HC.costPerHour;
-  S.stats.wages = (S.stats.wages || 0) + HC.costPerHour;
+  rosterEnlist(m);
+  S.money -= wage;
+  S.stats.wages += wage;
   const w = {
     id: S.nextWid++,
-    speed: HC.speed,
+    memberId: m.id,
+    name: m.name,
+    wage,
+    jobsDone: 0,
+    speed: memberSpeed(m),
     x: MAP.standX,
     y: 30,
     loc: { t: 'stand' },
@@ -32,8 +47,9 @@ function hireValet() {
     arriveT: 1.2,
   };
   S.helpers.push(w);
+  S.crewLog.push(w); // stays after he goes home, for roster XP
   S.activeW = w.id;
-  floater('-' + fmtMoney(HC.costPerHour) + ' NEW VALET', MAP.standX, 40, PAL.orange);
+  floater('-' + fmtMoney(wage) + ' ' + m.name, MAP.standX, 40, PAL.orange);
   Sound.sfx('power');
   toast(workerName(w) + ' IS ON - YOUR NEXT JOBS GO TO HIM');
 }
@@ -70,11 +86,11 @@ function updateCrew(dt) {
     if (S.tutorial || w.leaving) continue;
     w.paidT -= dt;
     if (w.paidT <= 0) {
-      if (S.money >= HC.costPerHour) {
-        S.money -= HC.costPerHour;
-        S.stats.wages = (S.stats.wages || 0) + HC.costPerHour;
+      if (S.money >= w.wage) {
+        S.money -= w.wage;
+        S.stats.wages += w.wage;
         w.paidT += CONFIG.clock.realSecPerGameHour;
-        floater('-' + fmtMoney(HC.costPerHour) + ' WAGES', w.x, w.y - 12, PAL.orange);
+        floater('-' + fmtMoney(w.wage) + ' WAGES', w.x, w.y - 12, PAL.orange);
       } else {
         toast(workerName(w) + ' QUIT - NO MONEY FOR WAGES');
         sendHome(w);

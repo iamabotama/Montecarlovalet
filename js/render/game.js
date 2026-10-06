@@ -21,7 +21,8 @@ function renderGame() {
   // reserved (restow) stalls
   S.lanes.forEach((L, i) =>
     L.res.forEach((r, j) => {
-      if (r !== null && L.cars[j] === null) RB(MAP.lotX + j * SW + 2, MAP.lotY + i * SH + 2, SW - 3, SH - 3, PAL.dgrey);
+      if (r !== null && L.cars[j] === null)
+        RB(MAP.lotX + j * SW + 2, MAP.lotY + i * SH + 2, SW - 3, SH - 3, r === VIP_HOLD ? PAL.pink : PAL.dgrey);
     }),
   );
   // podium
@@ -72,7 +73,7 @@ function renderGame() {
       x: n.kind === 'newbie' ? PAL.lime : PAL.lav,
     });
   // valet
-  const uni = { h: PAL.ink, s: PAL.peach, c: PAL.red, p: PAL.ink, k: PAL.ink, x: PAL.red };
+  const uni = valetColors();
   const crew = S.helpers.length > 0;
   for (const w of workers()) {
     const wx = w.x + (w.off || 0);
@@ -86,6 +87,7 @@ function renderGame() {
         w === S.valet ? uni : { ...uni, h: PAL.brown },
         w.dir === 2,
       );
+    if (w === S.valet && !w.inCar) drawNametag(Math.round(wx - 2), Math.round(w.y - 8 + tutValetOffset()));
     const hx = w.inCar ? w.x : wx,
       hy = w.inCar ? w.y - 4 : w.y;
     if (w.job && w.job.est > 0) {
@@ -151,4 +153,13 @@ function renderGame() {
   }
   tutRender();
   if (DEBUG.on) renderDebug();
+}
+// The player's look comes from the career cosmetics (data/cosmetics.js); helpers wear the same uniform.
+function valetColors() {
+  const U = UNIFORMS[SAVE.cosmetic.uniform] || UNIFORMS.red;
+  return { h: PAL.ink, s: PAL.peach, c: U.shirt, p: PAL.ink, k: PAL.ink, x: U.hat, g: U.hands };
+}
+function drawNametag(x, y) {
+  const tag = NAMETAGS[SAVE.cosmetic.nametag];
+  if (tag && tag.color) R(x + 3, y + 4, 1, 1, tag.color);
 }

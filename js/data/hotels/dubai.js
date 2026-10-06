@@ -18,6 +18,7 @@ defineHotel({
     ],
   },
   event: { name: 'THE ROYAL WEDDING', short: 'ROYAL' },
+  starTarget: 1000,
   arrivals: { intervalMult: 1, mixMult: [0.3, 0.6, 1.2, 2, 2.2, 1.2] },
   mods: { tipMult: 1.25 },
   theme: {

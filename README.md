@@ -3,26 +3,17 @@
 8-bit valet-stand management game. Vanilla JS + Canvas, no build step, no external assets.
 Open `index.html` (double-click works offline) or play the GitHub Pages build.
 
-## Code map (load order = dependency order)
-
-| File | What lives there |
-| --- | --- |
-| `js/config.js` | **All tuning numbers** (`CONFIG`): lot, map layout, speeds, tiers, heat, pay, power-ups, career, arrivals, gala, text lines |
-| `js/art.js` | Palette, 3x5 bitmap font, car/people/icon pixel maps, model roster, power-up metadata |
-| `js/audio.js` | Web Audio SFX + looping chiptune music |
-| `js/world.js` | Map geometry, routing graph, save/load, run state, lot model (stacks, depth), job planner + valet runner |
-| `js/sim.js` | Game rules: guests & patience, arrivals/gala, heat & repair, power-ups, rival steal, shift end |
-| `js/ui.js` | Rendering, HUD, input/hit-testing, screens (title, how-to, settings, pause, summary), debug overlay, main loop |
-| `docs/` | Original spec and reference art |
+## Code map
+The code is split into small modules by responsibility (`js/core`, `data`, `art`, `audio`, `world`, `career`, `sim`, `tutorial`, `render`, `ui`, `screens`, `app`). Load order lives in `js/modules.js`. **See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** for the layer rules and a "where does a new thing go" table. All tuning is in `js/data/config.js`; each hotel is one file in `js/data/hotels/`.
 
 ## Debug
 Add `?debug=1` to the URL (or set `CONFIG.debug = true`), then press backtick. Time scale, heat, spawns, gala, fill lot, grant power-ups, hit boxes, patience %. Job planned vs actual times log to the console; `MCV.JOBLOG` holds them.
 
 ## Deploy
-Push to `main` here. `.github/workflows/deploy.yml` syntax-checks the JS, then copies `index.html` + `js/` (plus `CNAME` = `www.montecarlovalet.com`) into **iamabotama/Montecarlovalet.com**, which serves GitHub Pages. Needs the `DEPLOY_TOKEN` repo secret (a token with push access to that repo). Never edit the `.com` repo by hand; it is overwritten on every deploy.
+Push to `main` here. `.github/workflows/deploy.yml` syntax-checks every module and the module list, then copies `index.html`, `sw.js`, `manifest.webmanifest`, `icons/` + `js/` (plus `CNAME` = `www.montecarlovalet.com`) into **iamabotama/Montecarlovalet.com**, which serves GitHub Pages. Needs the `DEPLOY_TOKEN` repo secret (a token with push access to that repo). Never edit the `.com` repo by hand; it is overwritten on every deploy.
 
 ## Status
-Stage 1 (playable core) done. Stage 2: career ranks/promotion screen, loadout, nightly goals, cosmetics, interactive tutorial, shuffle mode, Reserved Sign.
+Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - see below. Next: cloud save + real payments (Stage 3).
 
 ## v1.1 changes
 - **Tutorial** (`js/tutorial.js`): 19 scripted steps - hotel drops in, the valet appears, first guest, parking choices, limo greet, ticket pickup via the board, digging out a blocked car, then score / heat / power-ups. Plays automatically on a first START; replay any time from the title (TUTORIAL). Edit `TUT_STEPS` to change the script.
@@ -42,3 +33,14 @@ Stage 1 (playable core) done. Stage 2: career ranks/promotion screen, loadout, n
 - Lot is now 3 stalls per side (6 per row, 36 total) - `CONFIG.lot.stallsPerLane`.
 - **VIP helicopter** (`CONFIG.helo`): once per shift (5.5-7 min in), lands on the helipad right of the lot. Tap the pad to send the active valet. Be there within 10 s of touchdown: $1,000 tip + $50 pay. Miss it: +12 heat.
 - Stage 2 plan: `docs/STAGE2.md`.
+
+## v2.0: Stage 2 - career, hotels, offline
+- **Code restructure**: the 6 big files became ~68 focused modules (see `docs/ARCHITECTURE.md`); Prettier formatting; CI checks the module list.
+- **Career** (`js/career/`): every shift banks XP ($1 = 1 XP, fired or not) plus nightly-goal XP. Ranks Rookie -> Valet -> Senior Valet -> Head Valet -> Valet Captain -> Legend of the Riviera, each unlocking power-ups, a bigger loadout, uniforms and hotels. **Promotion screen** with badge when you rank up. Versioned save with migration (old v1 saves keep their XP and high score).
+- **Hotels = levels** (`js/data/hotels/`): Monte Carlo (start), Las Vegas (Valet: big lot, fight night, tips x1.1), Dubai (Head Valet: small lot, 3 helicopters, tips x1.25), Swiss Chalet (Valet Captain: rows open on one end only, snow slows driving). Each has its own theme, high score and **3-star rating** (survive the rush / clock out / clock out with the hotel's target).
+- **Shift prep**: pick tonight's power-up loadout and uniform, see the 3 nightly goals (also on the pause screen, with live progress).
+- **Crew roster**: hired valets are named regulars who return next shift, get faster with experience and earn a bit more per hour.
+- **RESERVED** power-up: holds an empty row-end stall for a whale; parked there it can never be blocked in.
+- **Offline / installable** (PWA): `sw.js` + manifest; play with no connection, add to home screen.
+- **Paid-feature hooks** (`js/career/store.js`, `js/data/products.js`): hotel pack + supporter edition defined; the store is switched off (`CONFIG.store.enabled = false`), so everything is free until a payment backend exists.
+- Tests in `tests/` (Playwright): tutorial, gameplay, crew, helicopter, career, reserved, all hotels.

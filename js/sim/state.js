@@ -6,7 +6,8 @@ let S = null;
 function hourNow() {
   return CONFIG.clock.startHour + S.t / CONFIG.clock.realSecPerGameHour;
 }
-function newRun() {
+// opts: { loadout: [powerupIds], goals: [{id, done}] } - chosen on the shift-prep screen.
+function newRun(opts = {}) {
   S = {
     t: 0,
     money: 0,
@@ -37,6 +38,8 @@ function newRun() {
       stepT: 0,
       anim: 0,
     },
+    crewLog: [],
+    vipHold: null, // RESERVED power-up, sim/reserved.js
     helpers: [],
     activeW: 0,
     nextWid: 1,
@@ -84,7 +87,8 @@ function newRun() {
       eventsSurvived: 0,
     },
   };
-  for (const t of CONFIG.career.defaultLoadout.slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);
+  S.goals = opts.goals || [];
+  for (const t of (opts.loadout || CONFIG.career.defaultLoadout).slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);
   prefillLot();
 }
 const nid = () => S.nextId++;

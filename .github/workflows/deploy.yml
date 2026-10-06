@@ -17,7 +17,7 @@ jobs:
       - name: Stage site
         run: |
           mkdir site
-          cp -r index.html js site/
+          cp -r index.html sw.js manifest.webmanifest icons js site/
           echo "www.montecarlovalet.com" > site/CNAME
           printf '# montecarlovalet.com\nDeployed automatically from iamabotama/Montecarlovalet. Do not edit here.\n' > site/README.md
       # 3. Push to the Pages repo
