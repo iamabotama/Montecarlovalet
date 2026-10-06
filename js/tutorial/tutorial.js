@@ -27,7 +27,7 @@ const HL = {
   board: [221, 92, 98, 56],
   podium: [CONFIG.podium.x - 9, 30, 20, 14],
   valet: () => [S.valet.x - 6, S.valet.y - 11, 12, 14],
-  laneC: [MAP.lotX - 2, MAP.lotY + 2 * SH, NS * SW + 4, SH],
+  laneC: () => [MAP.lotX - 2, MAP.lotY + 2 * SH, NS * SW + 4, SH],
 };
 
 const TUT_STEPS = [
@@ -67,7 +67,7 @@ const TUT_STEPS = [
   },
   {
     pos: 'R',
-    hl: [MAP.lotX - 2, MAP.lotY - 1, NS * SW + 4, NL * SH + 2],
+    hl: () => [MAP.lotX - 2, MAP.lotY - 1, NS * SW + 4, NL * SH + 2],
     text: 'GLOWING STALLS ARE YOUR CHOICES. ROWS FILL FROM THE MIDDLE OUT. D = HOW DEEP (CARS PARKED LATER WILL BLOCK IT IN). THE NUMBER = SECONDS TO PARK.',
   },
   {
@@ -144,7 +144,7 @@ const TUT_STEPS = [
   },
   {
     pos: 'R',
-    hl: [PAD.x - 19, PAD.y - 19, 38, 38],
+    hl: () => [PAD.x - 19, PAD.y - 19, 38, 38],
     text: 'ONCE A SHIFT A VIP FLIES IN. WHEN THE HELICOPTER IS INBOUND, TAP THE PAD. BE THERE BEFORE THE RING RUNS OUT FOR A $1,000 TIP.',
   },
   {
@@ -175,6 +175,7 @@ function tutSetupBlocked() {
   TUT.bg = g.id;
 }
 function startTutorial() {
+  loadHotel('monte_carlo'); // the tutorial script is written for this lot
   newRun();
   S.tutorial = true;
   Object.assign(TUT, {

@@ -7,6 +7,7 @@
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
   version: '1.3.0',
+  // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
     lanes: 6,
@@ -21,7 +22,7 @@ const CONFIG = {
     tempOverstayHeat: 1,
   },
   map: {
-    // Monte Carlo layout (internal px). A future hotel = another entry like this.
+    // Shared layout (internal px). Each hotel overrides lotX/lotY in data/hotels/*.
     lotX: 46,
     lotY: 81,
     curbY: 50,
@@ -194,15 +195,14 @@ const CONFIG = {
   },
   // Extra valets: tap HIRE (left panel), tap a valet to make him active; new jobs go to the active valet.
   // VIP helicopter: once per shift, lands on the pad right of the lot. A valet must be at the pad within meetSec of touchdown.
+  // VIP helicopter timing. Where the pad is and how many landings a night belong to the hotel.
   helo: {
-    atSec: [330, 420],
     descendSec: 6,
     meetSec: 10,
     greetSec: 2,
     tip: 1000,
     pay: 50,
     missHeat: 12,
-    pad: { x: 190, y: 148 },
   },
   helpers: { max: 3, costPerHour: 100, speed: 1.0, idleOffsets: [0, 8, -8, 16] },
   podium: { x: 172, handSec: 0.6, boardRows: 5 },

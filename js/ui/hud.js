@@ -49,7 +49,7 @@ function renderHUD() {
   drawIcon(ctx, Sound.muted ? 'spkoff' : 'spk', 298, 173, PAL.white);
   renderBoard();
   if (!S.tutorial || TUT_STEPS[TUT.i].crew) renderCrewPanel();
-  if (S.galaActive) drawText(ctx, 'GALA ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 84, PAL.pink);
+  if (S.galaActive) drawText(ctx, HOTEL.event.short + ' ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 84, PAL.pink);
   const sel = S.selected && S.cars.get(S.selected.carId);
   if (sel) drawText(ctx, carName(sel), 222, 150, PAL.yellow);
   else if (S.armed !== null && S.cards[S.armed])

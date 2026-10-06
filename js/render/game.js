@@ -117,6 +117,7 @@ function renderGame() {
     if (S.manager) bubbles.push({ x: mx + 1, y: 29, b: { text: S.manager.line, kind: 'w' }, order: 1e9 });
   }
   drawBubbles(bubbles);
+  drawWeather();
   for (const p of S.particles) R(p.x, p.y, 1, 1, p.c);
   for (const f of S.floaters) drawText(ctx, f.text, f.x, f.y, f.color, { align: 'center', shadow: PAL.ink });
   renderSelection();

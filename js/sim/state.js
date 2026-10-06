@@ -40,7 +40,7 @@ function newRun() {
     helpers: [],
     activeW: 0,
     nextWid: 1,
-    heli: { phase: 'wait', at: rnd(...CONFIG.helo.atSec), t: 0, greeting: false, ok: null, vipT: 0 },
+    heli: newHeliState(),
     spawnT: CONFIG.arrivals.firstSec,
     galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours,
     galaEnd: 0,
@@ -78,6 +78,10 @@ function newRun() {
       limos: 0,
       comped: 0,
       grawlix: 0,
+      wages: 0,
+      heliMet: 0,
+      heliMissed: 0,
+      eventsSurvived: 0,
     },
   };
   for (const t of CONFIG.career.defaultLoadout.slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);

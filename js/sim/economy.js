@@ -18,3 +18,5 @@ function earn(amt, kind, g) {
     Sound.sfx(amt >= 40 ? 'bigcoin' : 'coin');
   }
 }
+// Hotel tip multiplier for ordinary tips (fixed amounts like the jackpot and VIP tip are not scaled).
+const hotelTip = amt => Math.round(amt * HOTEL.mods.tipMult);

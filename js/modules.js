@@ -11,6 +11,12 @@ const MCV_MODULES = [
   'data/config.js',
   'data/vehicles.js',
   'data/powerups.js',
+  // hotels (levels): registry first, then one file per hotel in menu order
+  'data/hotels/registry.js',
+  'data/hotels/monte_carlo.js',
+  'data/hotels/las_vegas.js',
+  'data/hotels/swiss_chalet.js',
+  'data/hotels/dubai.js',
   // art + audio
   'art/sprites.js',
   'art/cars.js',

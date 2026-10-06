@@ -9,7 +9,7 @@ function blockedAt(lane, j) {
 }
 function freeRun(lane, side) {
   let c = 0;
-  for (let p = 0; p < (side === 'west' ? HALF : NS - HALF); p++) {
+  for (let p = 0; p < sideSize(side); p++) {
     const j = side === 'west' ? p : NS - 1 - p;
     if (blockedAt(lane, j)) break;
     c++;
@@ -35,7 +35,7 @@ function entryIndex(lane, side, pending = 0) {
 }
 function lotFull() {
   for (let l = 0; l < NL; l++)
-    for (const s of ['west', 'east']) if (entryIndex(l, s, pendingParks(l, s)) !== null) return false;
+    for (const s of LOT_SIDES) if (entryIndex(l, s, pendingParks(l, s)) !== null) return false;
   return true;
 }
 function freeStalls() {
@@ -49,6 +49,9 @@ function liveDepth(lane, idx) {
     e = 0;
   for (let j = 0; j < idx; j++) if (L.cars[j] !== null) w++;
   for (let j = idx + 1; j < NS; j++) if (L.cars[j] !== null) e++;
+  // a closed row end can never be dug out from
+  if (!sideOpen('west')) w = Infinity;
+  if (!sideOpen('east')) e = Infinity;
   return { west: w, east: e, best: Math.min(w, e), side: w <= e ? 'west' : 'east' };
 }
 function freeTemps(exceptRes) {
@@ -71,7 +74,7 @@ function placeInStall(car, lane, idx) {
   car.loc = { t: 'stall', lane, idx };
   car.x = stallX(idx);
   car.y = laneY(lane);
-  car.dir = idx < HALF ? 2 : 0;
+  car.dir = sideOfIdx(idx) === 'west' ? 2 : 0;
 }
 function placeInTemp(car, i) {
   S.temps[i].car = car.id;

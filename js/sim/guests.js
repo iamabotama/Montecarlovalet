@@ -40,7 +40,10 @@ function reachCarAtCurb(car, g, bags) {
   g.claimed = true;
   if (isWhale(g.tier)) {
     const T = CONFIG.tiers[g.tier];
-    let tip = jackpot(g, Math.round(rnd(...T.arrivalTip) * Math.max(0, 1 - g.wait / g.patience)) * (bags ? 2 : 1));
+    let tip = jackpot(
+      g,
+      Math.round(hotelTip(rnd(...T.arrivalTip)) * Math.max(0, 1 - g.wait / g.patience)) * (bags ? 2 : 1),
+    );
     if (tip > 0) {
       earn(tip, 'tip', g);
       if (g.stage <= CONFIG.heat.repairMaxStage) repairHeat(tip * CONFIG.heat.repairPerDollar);
@@ -49,7 +52,7 @@ function reachCarAtCurb(car, g, bags) {
 }
 function greetLimo(car, g) {
   earn(CONFIG.pay.limo, 'pay', g);
-  earn(rndi(...CONFIG.tiers.limo.greetTip), 'tip', g);
+  earn(hotelTip(rndi(...CONFIG.tiers.limo.greetTip)), 'tip', g);
   S.stats.limos++;
   departCar(car);
   guestGone(g);
@@ -73,7 +76,7 @@ function carAtCurbForPickup(car, g, k) {
     S.stats.comped++;
   } else {
     earn(CONFIG.pay[g.tier], 'pay', g);
-    const base = rndi(...T.pickupTip);
+    const base = hotelTip(rndi(...T.pickupTip));
     const f = isWhale(g.tier)
       ? Math.max(0, 1 - (CONFIG.tips.whalePickupDecayPer10s * w) / 10)
       : 1 - (1 - CONFIG.tips.otherDecayFloor) * clamp(w / g.patience, 0, 1);

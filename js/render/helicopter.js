@@ -9,6 +9,7 @@ function ell(x, y, rx, ry, c, rot) {
   ctx.fill();
 }
 function drawPad() {
+  if (!PAD) return;
   const x = PAD.x,
     y = PAD.y;
   R(x - 18, y - 18, 36, 36, PAL.dgrey);

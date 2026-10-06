@@ -16,7 +16,7 @@ function selectionOptions() {
   const canPark = car.loc.t === 'temp' || (car.loc.t === 'curb' && g && g.state === 'curbDrop' && g.tier !== 'limo');
   if (canPark)
     for (let l = 0; l < NL; l++)
-      for (const side of ['west', 'east']) {
+      for (const side of LOT_SIDES) {
         const e = entryIndex(l, side, pendingParks(l, side));
         if (!e) {
           const j = side === 'west' ? 0 : NS - 1;

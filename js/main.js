@@ -33,8 +33,7 @@ function frame(now) {
 function boot() {
   loadSave();
   Sound.muted = !!SAVE.muted;
-  buildGraph();
-  buildBG();
+  loadHotel(HOTEL_ORDER[0]);
   resize();
   requestAnimationFrame(frame);
   window.MCV = {

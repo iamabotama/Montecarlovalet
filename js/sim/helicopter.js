@@ -1,7 +1,12 @@
 'use strict';
-/* VIP helicopter event. */
-
-/* ---- VIP helicopter (once per shift) ---- */
+/* VIP helicopter event. The hotel decides how many landings a night (HOTEL.helo.times) and where the
+   pad is (PAD). Per landing: wait -> incoming (descend) -> landed (meet window) -> leaving -> next/gone.
+   A valet standing at the pad when it is 'landed' greets the VIP (planner job type 'heli'). */
+function newHeliState() {
+  if (!PAD || !HOTEL.helo || !HOTEL.helo.times.length) return null;
+  const schedule = HOTEL.helo.times.map(r => rnd(...r)).sort((a, b) => a - b);
+  return { phase: 'wait', at: schedule.shift(), schedule, t: 0, greeting: false, ok: null, vipT: 0 };
+}
 function heliAlt() {
   const H = S.heli,
     D = CONFIG.helo.descendSec;
@@ -11,7 +16,7 @@ function heliAlt() {
   return 1;
 }
 function heliVisible() {
-  return S.heli && ['incoming', 'landed', 'leaving'].includes(S.heli.phase);
+  return !!S.heli && ['incoming', 'landed', 'leaving'].includes(S.heli.phase);
 }
 function heliJob() {
   return S.jobs.find(j => j.type === 'heli' && !j.aborted);
@@ -36,9 +41,23 @@ function heliGreet() {
   H.vipT = 2.5;
   H.greeting = false;
   S.stats.heli = 'MET';
+  S.stats.heliMet++;
   S.banners.push({ text: 'VIP MET! ' + fmtMoney(C.tip) + ' TIP!', t: 3 });
   Sound.sfx('gala');
   S.shake = 0.2;
+}
+function heliMissed() {
+  const H = S.heli;
+  H.phase = 'leaving';
+  H.t = 0;
+  H.ok = false;
+  S.stats.heli = 'MISSED';
+  S.stats.heliMissed++;
+  const j = heliJob();
+  if (j && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1);
+  addHeat(CONFIG.helo.missHeat, 'A VIP STEPPED OFF A HELICOPTER AND NOBODY WAS THERE.');
+  floater('NOBODY MET THE VIP!', PAD.x, PAD.y - 22, PAL.red);
+  Sound.sfx('deny');
 }
 function updateHeli(dt) {
   const H = S.heli,
@@ -49,6 +68,7 @@ function updateHeli(dt) {
     if (S.t >= H.at) {
       H.phase = 'incoming';
       H.t = 0;
+      H.ok = null;
       S.banners.push({ text: 'VIP HELICOPTER INBOUND!', t: 3 });
       toast('TAP THE HELIPAD - MEET THE VIP AS THEY LAND');
       Sound.sfx('whistle');
@@ -66,15 +86,9 @@ function updateHeli(dt) {
     H.phase = 'landed';
     H.t = 0;
     S.shake = 0.15;
-  } else if (H.phase === 'landed' && !H.greeting && H.t >= C.meetSec) {
-    H.phase = 'leaving';
-    H.t = 0;
-    H.ok = false;
-    S.stats.heli = 'MISSED';
-    const j = heliJob();
-    if (j && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1);
-    addHeat(C.missHeat, 'A VIP STEPPED OFF A HELICOPTER AND NOBODY WAS THERE.');
-    floater('NOBODY MET THE VIP!', PAD.x, PAD.y - 22, PAL.red);
-    Sound.sfx('deny');
-  } else if (H.phase === 'leaving' && H.t >= C.descendSec) H.phase = 'gone';
+  } else if (H.phase === 'landed' && !H.greeting && H.t >= C.meetSec) heliMissed();
+  else if (H.phase === 'leaving' && H.t >= C.descendSec) {
+    if (H.schedule.length) Object.assign(H, { phase: 'wait', at: Math.max(S.t + 30, H.schedule.shift()), t: 0 });
+    else H.phase = 'gone';
+  }
 }

@@ -65,7 +65,7 @@ function debugButtons() {
       'FILL',
       () => {
         for (let l = 0; l < NL; l++)
-          for (const s of ['west', 'east']) {
+          for (const s of LOT_SIDES) {
             let e;
             while ((e = entryIndex(l, s))) {
               const g = makeGuest('beater', 0);

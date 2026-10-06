@@ -18,6 +18,7 @@ function chainNodes(pts) {
 }
 function buildGraph() {
   NODES.clear();
+  pathCache.clear();
   const xs = [...new Set([MAP.mouthL, ...MAP.curbX, MAP.standX, MAP.mouthR])].sort((a, b) => a - b);
   chainNodes(xs.map(x => [x, MAP.curbY]));
   chainNodes([
@@ -34,12 +35,12 @@ function buildGraph() {
     [MAP.mouthR, MAP.streetY],
     [aisleX('east'), MAP.streetY],
   ]);
-  for (const side of ['west', 'east']) {
+  for (const side of SIDES) {
     const ax = aisleX(side);
     const ys = new Set([MAP.streetY]);
     for (let i = 0; i < NL; i++) ys.add(laneY(i));
     TEMPS.filter(t => t.side === side).forEach(t => ys.add(t.y));
-    if (side === 'east') ys.add(PAD.y);
+    if (side === 'east' && PAD) ys.add(PAD.y);
     chainNodes([...ys].sort((a, b) => a - b).map(y => [ax, y]));
     TEMPS.filter(t => t.side === side).forEach(t =>
       chainNodes([
@@ -48,7 +49,7 @@ function buildGraph() {
       ]),
     );
   }
-  chainNodes([[aisleX('east'), PAD.y], PAD_MEET]);
+  if (PAD) chainNodes([[aisleX('east'), PAD.y], PAD_MEET]);
 }
 const pathCache = new Map();
 function graphPath(a, b) {
@@ -98,7 +99,7 @@ function locEnds(loc) {
   if (loc.t === 'stall') {
     const y = laneY(loc.lane),
       x = stallX(loc.idx);
-    return ['west', 'east'].map(side => ({ side, node: nk(aisleX(side), y), tail: [[x, y]] }));
+    return LOT_SIDES.map(side => ({ side, node: nk(aisleX(side), y), tail: [[x, y]] }));
   }
   throw new Error('bad loc');
 }
@@ -132,5 +133,7 @@ function speedMult() {
   return m;
 }
 const tiles = len => len / SPD.tilePx;
-const driveSec = (len, m = 1) => (SPD.driveBaseSec + SPD.drivePerTileSec * tiles(len)) / m;
+// Driving is also scaled by the hotel (snow in the Alps); walking is not.
+const driveMult = () => HOTEL.mods.driveMult;
+const driveSec = (len, m = 1) => (SPD.driveBaseSec + SPD.drivePerTileSec * tiles(len)) / (m * driveMult());
 const walkSec = (len, m = 1) => (SPD.walkPerTileSec * tiles(len)) / m;

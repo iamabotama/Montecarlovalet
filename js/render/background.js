@@ -1,9 +1,12 @@
 'use strict';
-/* Static world: pre-rendered background + animated facade. */
-
-/* ---- static background (pre-rendered once) ---- */
+/* Static world for the active hotel: a background pre-rendered once per hotel (buildBG) plus the
+   animated parts drawn every frame (drawWorldStatic). Everything hotel-specific comes from
+   HOTEL.theme = { facade, trim, pillar, sign, signOff, awning:[a,b], ground:[a,b], fountain, decor, weather }. */
 let BG = null;
+const theme = () => HOTEL.theme;
+
 function buildBG() {
+  const T = theme();
   BG = document.createElement('canvas');
   BG.width = 320;
   BG.height = 180;
@@ -12,32 +15,41 @@ function buildBG() {
     g.fillStyle = c;
     g.fillRect(x, y, w, h);
   };
+  // facade + steps
   r(0, 0, 320, 180, PAL.asph);
-  r(0, 10, 320, 28, PAL.plum);
-  r(0, 10, 320, 2, PAL.wine);
-  for (let x = 0; x < 320; x += 40) r(x, 12, 2, 26, PAL.mauve);
+  r(0, 10, 320, 28, T.facade);
+  r(0, 10, 320, 2, T.trim);
+  for (let x = 0; x < 320; x += 40) r(x, 12, 2, 26, T.pillar);
   r(0, 38, 320, 6, PAL.lgrey);
   for (let x = 0; x < 320; x += 8) r(x, 38, 1, 6, PAL.khaki);
   r(0, 43, 320, 1, PAL.white);
-  r(0, 44, 320, 22, PAL.night); // gardens either side
+  // gardens either side of the drive
+  r(0, 44, 320, 22, PAL.night);
   for (let x = 0; x < 320; x += 3) {
     if (x > 90 && x < 230) continue;
-    r(x, 58 + (x % 2), 3, 8, x % 6 ? PAL.green : PAL.teal);
+    r(x, 58 + (x % 2), 3, 8, x % 6 ? T.ground[0] : T.ground[1]);
   }
   r(92, 44, 136, 22, PAL.asph2); // drive
-  g.fillStyle = PAL.green;
-  for (let y = 0; y < 10; y++) {
-    const hw = Math.round(42 * Math.sqrt(1 - Math.pow((10 - y) / 10, 2)));
-    g.fillRect(160 - hw, 56 + y, hw * 2, 1);
+  if (T.fountain) {
+    g.fillStyle = T.ground[0];
+    for (let y = 0; y < 10; y++) {
+      const hw = Math.round(42 * Math.sqrt(1 - Math.pow((10 - y) / 10, 2)));
+      g.fillRect(160 - hw, 56 + y, hw * 2, 1);
+    }
+    r(154, 60, 12, 5, PAL.lgrey);
+    r(156, 61, 8, 3, PAL.royal);
   }
-  r(154, 60, 12, 5, PAL.lgrey);
-  r(156, 61, 8, 3, PAL.royal);
+  // street
   r(0, 66, 320, 12, PAL.asph);
   r(0, 66, 320, 1, PAL.lgrey);
   r(0, 77, 320, 1, PAL.lgrey);
   for (let x = 0; x < 320; x += 12) r(x, 71, 6, 1, PAL.yellow);
+  // lot: surround, aisles, stalls
   r(0, 78, 320, 102, PAL.night);
+  if (T.weather === 'snow') for (let i = 0; i < 400; i++) r((i * 37) % 320, 78 + ((i * 53) % 102), 1, 1, PAL.lgrey);
+  const aisleBottom = Math.max(LOT_B, PAD ? PAD.y + 4 : 0);
   r(aisleX('west') - 8, 78, LOT_R - MAP.lotX + 32, LOT_B - 78, PAL.asph);
+  r(aisleX('east') - 8, 78, 16, aisleBottom - 78, PAL.asph);
   r(MAP.lotX, MAP.lotY, NS * SW, NL * SH, PAL.asph2);
   for (let i = 0; i <= NL; i++) r(MAP.lotX, MAP.lotY + i * SH, NS * SW, 1, PAL.asph3);
   for (let i = 0; i < NL; i++)
@@ -45,7 +57,14 @@ function buildBG() {
       r(MAP.lotX + j * SW, MAP.lotY + i * SH, 1, 3, PAL.dgrey);
       r(MAP.lotX + j * SW, MAP.lotY + i * SH + SH - 3, 1, 3, PAL.dgrey);
     }
-  r(MAP.lotX + HALF * SW, MAP.lotY, 1, NL * SH, PAL.dgrey);
+  if (LOT_SIDES.length === 2) r(MAP.lotX + HALF * SW, MAP.lotY, 1, NL * SH, PAL.dgrey);
+  // a closed row end gets a wall (snowbank in the Alps)
+  for (const side of SIDES)
+    if (!sideOpen(side)) {
+      const x = side === 'west' ? MAP.lotX - 3 : LOT_R;
+      r(x, MAP.lotY, 3, NL * SH, T.weather === 'snow' ? PAL.white : PAL.lgrey);
+      r(x + (side === 'west' ? 2 : 0), MAP.lotY, 1, NL * SH, PAL.lgrey);
+    }
   TEMPS.forEach(t => {
     g.fillStyle = PAL.orange;
     g.fillRect(t.x - 10, t.y - 6, 20, 1);
@@ -56,6 +75,7 @@ function buildBG() {
   r(222, 82, 92, 9, PAL.green);
   r(234, 91, 1, 6, PAL.lgrey);
 }
+
 function drawPalm(x, y) {
   R(x, y, 1, 14, PAL.brown);
   R(x - 4, y - 1, 9, 1, PAL.emer);
@@ -63,7 +83,15 @@ function drawPalm(x, y) {
   R(x + 4, y, 2, 1, PAL.green);
   R(x - 2, y - 2, 5, 1, PAL.leaf);
 }
+function drawPine(x, y) {
+  R(x, y + 10, 1, 4, PAL.brown);
+  for (let k = 0; k < 5; k++) R(x - k, y + k * 2, k * 2 + 1, 2, k % 2 ? PAL.teal : PAL.green);
+  R(x - 1, y, 3, 1, PAL.white);
+}
+const DECOR = { palms: drawPalm, pines: drawPine };
+
 function drawWorldStatic() {
+  const T = theme();
   ctx.drawImage(BG, 0, 0);
   const t = UI.t;
   for (let row = 0; row < 2; row++)
@@ -74,20 +102,30 @@ function drawWorldStatic() {
       const lit = (seed + Math.floor(t / 4 + seed)) % 5;
       R(x, 16 + row * 10, 4, 4, lit === 0 ? PAL.navy : lit === 1 ? PAL.orange : PAL.yellow);
     }
-  const neon = Math.sin(t * 9) > -0.9 ? PAL.pink : PAL.plum;
-  RB(120, 11, 80, 9, neon);
-  drawText(ctx, 'HOTEL MONTE CARLO', 160, 13, neon, { align: 'center' });
+  const neon = Math.sin(t * 9) > -0.9 ? T.sign : T.signOff;
+  const signW = Math.max(80, textW(HOTEL.name) + 8);
+  RB(160 - signW / 2, 11, signW, 9, neon);
+  drawText(ctx, HOTEL.name, 160, 13, neon, { align: 'center' });
   R(150, 26, 20, 12, PAL.navy);
   R(150, 26, 1, 12, PAL.orange);
   R(169, 26, 1, 12, PAL.orange);
   R(160, 26, 1, 12, PAL.orange);
-  for (let x = 146; x < 174; x += 4) (R(x, 23, 2, 3, PAL.red), R(x + 2, 23, 2, 3, PAL.white));
-  for (const px of [12, 52, 268, 308]) drawPalm(px, 46);
-  for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((t * 6 + i * 2) % 4), 1, 1, PAL.blue);
-  for (let i = 0; i < NL; i++) {
-    drawText(ctx, LANE_NAMES[i], aisleX('west') - 1, laneY(i) - 2, PAL.asph3);
-    drawText(ctx, LANE_NAMES[i], aisleX('east') - 1, laneY(i) - 2, PAL.asph3);
-  }
+  for (let x = 146; x < 174; x += 4) (R(x, 23, 2, 3, T.awning[0]), R(x + 2, 23, 2, 3, T.awning[1]));
+  const decor = DECOR[T.decor];
+  if (decor) for (const px of [12, 52, 268, 308]) decor(px, 46);
+  if (T.fountain) for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((t * 6 + i * 2) % 4), 1, 1, PAL.blue);
+  for (let i = 0; i < NL; i++)
+    for (const side of LOT_SIDES) drawText(ctx, LANE_NAMES[i], aisleX(side) - 1, laneY(i) - 2, PAL.asph3);
   TEMPS.forEach(tp => drawText(ctx, tp.name, tp.x - 3, tp.y - 2, PAL.orange));
   drawText(ctx, 'GENERAL PARK >', 225, 84, PAL.white);
+}
+
+// Weather overlay, drawn above cars and people.
+function drawWeather() {
+  if (theme().weather !== 'snow') return;
+  for (let i = 0; i < 70; i++) {
+    const x = (i * 47 + UI.t * (6 + (i % 5))) % 320;
+    const y = (i * 29 + UI.t * (14 + (i % 7) * 2)) % 180;
+    R(x, y, 1, 1, i % 3 ? PAL.white : PAL.lgrey);
+  }
 }

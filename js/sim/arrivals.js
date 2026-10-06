@@ -47,7 +47,7 @@ function prefillLot() {
     const car = S.cars.get(g.carId);
     for (let tries = 0; tries < 30; tries++) {
       const l = rndi(0, NL - 1),
-        s = pick(['west', 'east']);
+        s = pick(LOT_SIDES);
       const e = entryIndex(l, s);
       if (e) {
         placeInStall(car, l, e.idx);
@@ -68,12 +68,12 @@ function scheduleRow() {
 }
 function spawnArrival(forceTier) {
   const row = scheduleRow();
-  let mix = row.mix.slice();
+  let mix = row.mix.map((w, i) => w * HOTEL.arrivals.mixMult[i]); // hotel crowd bias
   if (S.galaActive) {
     const hi = [3, 4, 5],
       sh = CONFIG.gala.highShare;
     const hs = hi.reduce((a, i) => a + mix[i], 0) || 1,
-      ls = 100 - hs || 1;
+      ls = mix.reduce((a, w) => a + w, 0) - hs || 1;
     mix = mix.map((w, i) => (hi.includes(i) ? (w / hs) * sh : (w / ls) * (1 - sh)));
   }
   const tier = forceTier || TIERS[weightedIndex(mix)];
@@ -86,7 +86,7 @@ function nextInterval() {
   const r = scheduleRow();
   let iv = rnd(...r.interval);
   if (r.perHourDec) iv = Math.max(r.floor, iv - r.perHourDec * (hourNow() - r.fromHour));
-  return iv;
+  return rampRow() ? iv : iv * HOTEL.arrivals.intervalMult; // the learning ramp is the same everywhere
 }
 function updateArrivals(dt) {
   const rr = rampRow();
@@ -106,13 +106,14 @@ function updateArrivals(dt) {
     S.galaDone = true;
     S.galaActive = true;
     S.galaEnd = S.t + CONFIG.gala.durationSec;
-    S.banners.push({ text: 'THE GALA HAS BEGUN!', t: 3 });
+    S.banners.push({ text: HOTEL.event.name + ' HAS BEGUN!', t: 3 });
     Sound.sfx('gala');
     S.spawnT = 1;
   }
   if (S.galaActive && S.t >= S.galaEnd) {
     S.galaActive = false;
-    S.banners.push({ text: 'GALA OVER', t: 2 });
+    S.banners.push({ text: HOTEL.event.short + ' OVER', t: 2 });
+    S.stats.eventsSurvived++;
   }
   // street queue -> curb
   if (S.streetQueue.length) {
