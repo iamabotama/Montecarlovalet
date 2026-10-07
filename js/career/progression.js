@@ -54,11 +54,11 @@ function rankUnlockLines(i) {
   for (const id of HOTEL_ORDER) if (HOTELS[id].unlockRank === i && i > 0) out.push('NEW HOTEL: ' + HOTELS[id].city);
   return out;
 }
-/* Hotel rating for one shift: 1 star = survived to the rush event, 2 = clocked out,
-   3 = clocked out with at least the hotel's starTarget in the bank. Best rating is kept per hotel. */
+/* Hotel rating for one shift: 1 star = clocked out early or survived the rush event, 2 = completed the
+   whole night, 3 = completed it with at least the hotel's starTarget in the bank. Best rating is kept. */
 function shiftStars(r) {
-  const out = r.kind === 'clockout';
-  return out ? (r.money >= hotelById(r.hotel).starTarget ? 3 : 2) : r.st.eventsSurvived > 0 ? 1 : 0;
+  if (r.complete) return r.money >= hotelById(r.hotel).starTarget ? 3 : 2;
+  return r.kind === 'clockout' || r.st.eventsSurvived > 0 ? 1 : 0;
 }
 const hotelStars = id => (SAVE.hotels[id] ? SAVE.hotels[id].stars || 0 : 0);
 /* Bank one finished shift into the career. Returns what changed (for the summary/promotion screens).

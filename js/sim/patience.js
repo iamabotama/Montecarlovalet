@@ -1,17 +1,5 @@
 'use strict';
-/* Learning curve: early-shift overrides for arrivals, patience and pickups. */
-
-function rampRow() {
-  const R = CONFIG.ramp;
-  if (!R || !R.enabled || S.tutorial || S.t >= R.endSec) return null;
-  let row = null;
-  for (const r of R.steps) if (S.t >= r.fromSec) row = r;
-  return row;
-}
-const patienceMult = () => {
-  const r = rampRow();
-  return r ? r.patienceMult : 1;
-};
+/* Guest patience (scaled by the current phase, sim/waves.js) and the pickup counter. */
 function dropPatience(tier) {
   const T = CONFIG.tiers[tier];
   if (tier === 'limo') return T.greetPatience * patienceMult();

@@ -29,9 +29,9 @@ function debugButtons() {
       },
     ],
     [
-      'GALA',
+      'EVENT',
       () => {
-        S.galaAt = 0;
+        S.t = phaseStart(PHASES().findIndex(p => p.event)); // jump to the rush-event wave
       },
     ],
   ]);

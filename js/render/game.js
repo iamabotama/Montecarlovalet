@@ -119,10 +119,13 @@ function renderGame() {
     RB(0, 0, 320, 180, PAL.red);
     RB(1, 1, 318, 178, PAL.red);
   }
-  for (const b of S.banners) {
-    R(60, 64, 200, 14, PAL.ink);
-    RB(60, 64, 200, 14, PAL.yellow);
+  const b = S.banners[0]; // queued: one at a time, optional second line
+  if (b) {
+    const h = b.sub ? 21 : 14;
+    R(50, 64, 220, h, PAL.ink);
+    RB(50, 64, 220, h, PAL.yellow);
     drawText(ctx, b.text, 160, 69, PAL.yellow, { align: 'center' });
+    if (b.sub) drawText(ctx, b.sub, 160, 77, PAL.white, { align: 'center' });
   }
   S.toasts.forEach((o, i) => {
     const w = textW(o.msg) + 8;

@@ -32,10 +32,12 @@ function finishRun() {
     goalsDone: goals.done,
     st,
     t: S.t,
+    complete: S.shiftComplete,
     crewJobs: crewJobsThisShift(),
   });
   RESULT = {
     kind,
+    complete: S.shiftComplete,
     hotel: HOTEL,
     money: S.money,
     hour: hourNow(),

@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.1.0',
+  version: '2.2.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -140,26 +140,25 @@ const CONFIG = {
     saveVersion: 2, // bump + add a migration in career/save.js when the save shape changes
   },
   stay: { minSec: 45, maxSec: 150, prefillMinSec: 15, prefillMaxSec: 140 },
-  clock: { realSecPerGameHour: 120, startHour: 18, clockOutHour: 22 },
+  clock: { realSecPerGameHour: 120, startHour: 18 }, // the shift ends when CONFIG.shift.phases run out (midnight)
   arrivals: {
     firstSec: 3,
-    // mix order: beater, standard, premium, whale, ultra, limo
-    schedule: [
-      { fromHour: 18, interval: [9, 12], mix: [30, 35, 20, 10, 0, 5] },
-      { fromHour: 19, interval: [7, 9], mix: [20, 30, 25, 15, 5, 5] },
-      { fromHour: 21, interval: [5, 7], mix: [15, 25, 25, 20, 8, 7] },
-      { fromHour: 23, interval: [4, 6], mix: [10, 20, 25, 25, 12, 8], perHourDec: 0.2, floor: 2.5 },
-    ],
     prefillMix: [55, 35, 10, 0, 0, 0],
   },
-  // Learning curve: overrides the hourly schedule until endSec. patienceMult scales every guest's patience;
-  // maxPickups caps how many guests can be waiting for their car at once (0 = arrivals only).
-  ramp: {
-    enabled: true,
-    endSec: 480,
-    steps: [
+  // The night (sim/waves.js): arrival WAVES that get harder, a BREAK after each, then LAST CALL.
+  //   sec: phase length. interval: seconds between arrivals (waves only; hotels scale waves 2+).
+  //   mix: weights for beater, standard, premium, whale, ultra, limo. patienceMult: scales guest patience.
+  //   maxPickups: guests waiting for their car at once (0 = arrivals only). stayRate: how fast guests
+  //   finish inside (>1 sends them out during breaks). event: this wave is the hotel's rush event.
+  //   callOutSec (last call): everyone still inside comes out within this many seconds.
+  shift: {
+    completeBonus: 150, // $ for surviving the whole night
+    clockOutFromWave: 2, // clocking out early is allowed during breaks once this many waves are done
+    phases: [
       {
-        fromSec: 0,
+        kind: 'wave',
+        name: 'EARLY DINNER',
+        sec: 110,
         interval: [16, 20],
         mix: [50, 50, 0, 0, 0, 0],
         patienceMult: 3,
@@ -167,28 +166,61 @@ const CONFIG = {
         banner: 'PARK THE ARRIVALS',
       },
       {
-        fromSec: 120,
-        interval: [14, 18],
-        mix: [35, 45, 20, 0, 0, 0],
-        patienceMult: 2.5,
+        kind: 'break',
+        sec: 40,
+        patienceMult: 3,
         maxPickups: 1,
+        stayRate: 2,
         banner: 'GUESTS LEAVING - CHECK THE BOARD',
       },
       {
-        fromSec: 240,
+        kind: 'wave',
+        name: 'DINNER RUSH',
+        sec: 120,
         interval: [12, 15],
-        mix: [25, 40, 25, 10, 0, 0],
-        patienceMult: 2,
+        mix: [30, 45, 25, 0, 0, 0],
+        patienceMult: 2.4,
         maxPickups: 2,
-        banner: 'WHALE SPOTTED - BIG TIPS, PARK FAST',
+        banner: 'PARK AND RETURN - JUGGLE BOTH',
+      },
+      { kind: 'break', sec: 50, patienceMult: 2.4, maxPickups: 3, stayRate: 2.5, banner: 'CATCH UP ON THE BOARD' },
+      {
+        kind: 'wave',
+        name: 'HIGH ROLLERS',
+        sec: 120,
+        interval: [10, 12],
+        mix: [20, 35, 25, 15, 0, 5],
+        patienceMult: 1.8,
+        maxPickups: 3,
+        banner: 'WHALES TONIGHT - BIG TIPS, PARK FAST',
       },
       {
-        fromSec: 360,
-        interval: [9, 12],
-        mix: [20, 35, 25, 12, 3, 5],
-        patienceMult: 1.5,
-        maxPickups: 3,
-        banner: 'LIMOS AND ULTRAS TONIGHT',
+        kind: 'break',
+        sec: 50,
+        patienceMult: 1.8,
+        maxPickups: 4,
+        stayRate: 2.5,
+        banner: 'LAST BREATHER BEFORE THE BIG ONE',
+      },
+      {
+        kind: 'wave',
+        event: true,
+        sec: 130,
+        interval: [7, 9],
+        mix: [10, 20, 25, 25, 12, 8],
+        patienceMult: 1.3,
+        maxPickups: 4,
+        banner: 'HIGH ROLLERS EVERYWHERE',
+      },
+      {
+        kind: 'last',
+        name: 'LAST CALL',
+        sec: 100,
+        patienceMult: 1.3,
+        maxPickups: 6,
+        stayRate: 1,
+        callOutSec: 60,
+        banner: 'RETURN EVERY CAR BY MIDNIGHT',
       },
     ],
   },
@@ -219,7 +251,6 @@ const CONFIG = {
   // Store (career/store.js). Off = no paywall; every product counts as owned.
   store: { enabled: false },
   podium: { x: 172, handSec: 0.6, boardRows: 5 },
-  gala: { hour: 22, jitterHours: 0.3, durationSec: 60, interval: [2, 3], highShare: 0.5 },
   fx: { shakeSec: 0.35, toastSec: 2.6, musicSpeedPerHour: 0.05, musicBpm: 116 },
   lines: {
     murmur: ['...', 'HMM', 'AHEM'],

@@ -40,7 +40,8 @@ const MCV_MODULES = [
   // simulation rules (one shift)
   'sim/state.js',
   'sim/fx.js',
-  'sim/ramp.js',
+  'sim/waves.js',
+  'sim/patience.js',
   'sim/economy.js',
   'sim/heat.js',
   'sim/powerups.js',

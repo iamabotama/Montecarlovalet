@@ -9,7 +9,7 @@ defineHotel({
   lot: { lanes: 6, stallsPerLane: 6, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 190, y: 148 },
-  helo: { times: [[330, 420]] },
+  helo: { times: [[380, 420]] }, // late in the HIGH ROLLERS wave (CONFIG.shift.phases)
   event: { name: 'THE GALA', short: 'GALA' },
   starTarget: 600,
   theme: {

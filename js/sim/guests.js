@@ -183,14 +183,8 @@ function updateGuests(dt) {
         g.stay = S.tutorial ? 1e9 : rnd(CONFIG.stay.minSec, CONFIG.stay.maxSec);
       }
     } else if (g.state === 'inside') {
-      g.stay -= dt;
-      const rr = rampRow();
-      if (
-        g.stay <= 0 &&
-        car &&
-        (car.loc.t === 'stall' || car.loc.t === 'temp') &&
-        !(rr && pickupsActive() >= rr.maxPickups)
-      ) {
+      g.stay -= dt * stayRate();
+      if (g.stay <= 0 && car && (car.loc.t === 'stall' || car.loc.t === 'temp') && pickupsActive() < maxPickups()) {
         g.state = 'pickWalk';
         g.phase = 'pick';
         g.wait = 0;

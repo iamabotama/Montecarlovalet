@@ -5,6 +5,7 @@ function stepSim(dt) {
   if (S.phase === 'play') {
     S.t += dt;
     for (const k of ['hustle', 'coffee']) if (S.boost[k] > 0) S.boost[k] -= dt;
+    updateWaves();
     updateArrivals(dt);
     updateGuests(dt);
     runValet(dt);
@@ -30,7 +31,9 @@ function stepSim(dt) {
     p.y += p.vy * dt;
   }
   S.particles = S.particles.filter(p => p.t > 0);
-  for (const a of [S.toasts, S.banners, S.npcs]) for (const o of a) o.t -= dt;
+  for (const a of [S.toasts, S.npcs]) for (const o of a) o.t -= dt;
+  if (S.banners.length > 3) S.banners.splice(0, S.banners.length - 3); // never lag far behind events
+  if (S.banners.length) S.banners[0].t -= dt; // banners queue: one at a time
   S.toasts = S.toasts.filter(o => o.t > 0).slice(-2);
   S.banners = S.banners.filter(o => o.t > 0);
   S.npcs = S.npcs.filter(o => o.t > 0);

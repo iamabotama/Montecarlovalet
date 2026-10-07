@@ -12,9 +12,9 @@ defineHotel({
   pad: { x: 196, y: 150 },
   helo: {
     times: [
-      [240, 300],
-      [460, 520],
-      [660, 720],
+      [190, 240], // dinner rush
+      [380, 420], // high rollers
+      [520, 580], // the royal wedding
     ],
   },
   event: { name: 'THE ROYAL WEDDING', short: 'ROYAL' },

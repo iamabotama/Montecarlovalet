@@ -7,8 +7,8 @@
      lot:  { lanes, stallsPerLane, openSides, tempSlots:{west,east} }   merged over CONFIG.lot
      map:  { lotX, lotY }                            merged over CONFIG.map
      pad:  { x, y } | null                           helipad position (null = no helipad)
-     helo: { times: [[minSec, maxSec], ...] }        one VIP landing per entry (needs a pad)
-     event:{ name, short }                           the nightly rush (CONFIG.gala timing)
+     helo: { times: [[minSec, maxSec], ...] }        one VIP landing per entry, seconds into the shift (needs a pad)
+     event:{ name, short }                           the final, hardest wave (event: true in CONFIG.shift.phases)
      arrivals: { intervalMult, mixMult[6] }          busier / richer crowds (mix order = TIERS)
      mods: { tipMult, driveMult }                    economy + handling
      starTarget                                      $ for the 3rd star (see career/progression.js shiftStars)

@@ -49,7 +49,7 @@ function renderHUD() {
   drawIcon(ctx, Sound.muted ? 'spkoff' : 'spk', 298, 173, PAL.white);
   renderBoard();
   if (!S.tutorial || TUT_STEPS[TUT.i].crew) renderCrewPanel();
-  if (S.galaActive) drawText(ctx, HOTEL.event.short + ' ' + Math.ceil(S.galaEnd - S.t) + 'S', 280, 84, PAL.pink);
+  renderPhasePill();
   const sel = S.selected && S.cars.get(S.selected.carId);
   if (sel) drawText(ctx, carName(sel), 222, 150, PAL.yellow);
   else if (S.armed !== null && S.cards[S.armed])
@@ -57,10 +57,24 @@ function renderHUD() {
   if (canClockOut()) {
     R(226, 158, 88, 12, PAL.green);
     RB(226, 158, 88, 12, PAL.lime);
-    drawText(ctx, 'CLOCK OUT', 270, 162, PAL.white, { align: 'center' });
+    drawText(ctx, 'CLOCK OUT EARLY', 270, 162, PAL.white, { align: 'center' });
   }
 }
-const canClockOut = () => S.phase === 'play' && hourNow() >= CONFIG.clock.clockOutHour;
+// Wave / break / last-call pill under the top bar, with time left and a progress bar.
+function renderPhasePill() {
+  const p = curPhase();
+  if (!p) return;
+  const i = phaseIndexAt(S.t),
+    left = Math.max(0, Math.ceil(phaseLeftSec()));
+  const label =
+    p.kind === 'wave' ? 'WAVE ' + waveNumber(i) + '/' + waveCount() : p.kind === 'break' ? 'BREAK' : 'LAST CALL';
+  const col = p.kind === 'break' ? PAL.lime : p.event || p.kind === 'last' ? PAL.pink : PAL.yellow;
+  const time = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+  R(2, 12, 66, 10, PAL.ink);
+  drawText(ctx, label, 4, 13, col);
+  drawText(ctx, time, 66, 13, PAL.white, { align: 'right' });
+  R(4, 19, Math.round(62 * (1 - phaseLeftSec() / p.sec)), 1, col);
+}
 function queueItems() {
   let x = S.helpers.length && S.activeW === 0 ? 32 : 28;
   const out = [];

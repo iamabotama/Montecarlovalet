@@ -27,7 +27,7 @@ Each hotel is a **config entry** (lot shape, curb, temp slots, tier mix, special
 | **Dubai Tower** | Head Valet | Small, deep lot; supercars everywhere; helicopters several times a night. |
 | **Swiss Chalet** | Valet Captain | Lanes open on one side only (no second entry); snow slows driving. |
 
-Each hotel keeps its own high score and a 3-star rating (survive / clock out / beat target).
+Each hotel keeps its own high score and a 3-star rating (clock out early or survive the event / complete the night / complete it above the hotel's target).
 
 ## 3. Offline
 

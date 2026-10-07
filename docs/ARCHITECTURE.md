@@ -13,7 +13,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | `art/`, `audio/` | Palette, pixel font, procedural car and people sprites, sound | Read game state |
 | `world/` | The active lot's geometry, the routing graph, the lot model (stalls, temps, curb), and planning and running valet jobs | Award money or heat |
 | `career/` | Everything that **persists between shifts**: save and migrations, XP and ranks, unlocks, crew roster, store ownership | Run during a shift (except roster and wage lookups) |
-| `sim/` | The rules of **one shift**: run state `S`, arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
+| `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`), arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
 | `render/` | Drawing the world: themed background, people, crowd spacing (`crowd.js`), helicopter, the game frame | Change state |
 | `ui/` | In-game HUD, board, selection, crew panel, input hit-targets, debug overlay, widgets | Hold rules |
@@ -34,6 +34,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | You want to add... | Touch |
 | --- | --- |
 | A hotel | New `data/hotels/<id>.js` plus one line in `js/modules.js` |
+| A wave, break or difficulty change | `CONFIG.shift.phases` (data only; `sim/waves.js` reads it). Helicopter timing is `helo.times` in the hotel file |
 | A nightly goal | One entry in `data/goals.js` (count any new stat in `S.stats`) |
 | A power-up | `data/powerups.js` (info) and `CONFIG.power`. Logic goes in `sim/powerups.js#useCard`, or its own `sim/<name>.js` if it has state (see `sim/reserved.js`). Unlock it in `CONFIG.career.ranks` |
 | A uniform or name tag | `data/cosmetics.js`, plus an unlock key in a rank |
@@ -53,6 +54,7 @@ python3 hotels_test.py     # every hotel plays 10 sim-minutes without errors
 python3 career_test.py     # v1 save migration, hotel locks, prep, promotion, roster, persistence
 python3 reserved_test.py   # RESERVED power-up
 python3 crowd_test.py      # standing characters never overlap
+python3 waves_test.py      # a full night: waves, breaks, last call, shift complete
 python3 tutorial_test.py   # full scripted tutorial
 python3 gameplay_test.py; python3 crew_test.py; python3 heli_test.py
 ```

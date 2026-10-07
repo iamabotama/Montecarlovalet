@@ -1,5 +1,5 @@
 'use strict';
-/* Arrivals: guest creation, schedule, gala, street queue -> curb. */
+/* Arrivals: guest creation, spawning on the current wave's pace, street queue -> curb. */
 
 const GUEST_COLORS = {
   beater: [PAL.khaki, PAL.olive, PAL.dgrey],
@@ -58,62 +58,25 @@ function prefillLot() {
     g.stay = rnd(CONFIG.stay.prefillMinSec, CONFIG.stay.prefillMaxSec);
   }
 }
-function scheduleRow() {
-  const rr = rampRow();
-  if (rr) return rr;
-  const h = hourNow();
-  let row = CONFIG.arrivals.schedule[0];
-  for (const r of CONFIG.arrivals.schedule) if (h >= r.fromHour) row = r;
-  return row;
-}
 function spawnArrival(forceTier) {
-  const row = scheduleRow();
-  let mix = row.mix.map((w, i) => w * HOTEL.arrivals.mixMult[i]); // hotel crowd bias
-  if (S.galaActive) {
-    const hi = [3, 4, 5],
-      sh = CONFIG.gala.highShare;
-    const hs = hi.reduce((a, i) => a + mix[i], 0) || 1,
-      ls = mix.reduce((a, w) => a + w, 0) - hs || 1;
-    mix = mix.map((w, i) => (hi.includes(i) ? (w / hs) * sh : (w / ls) * (1 - sh)));
-  }
+  const mix = arrivalMix().map((w, i) => w * HOTEL.arrivals.mixMult[i]); // hotel crowd bias
   const tier = forceTier || TIERS[weightedIndex(mix)];
   const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1));
   S.streetQueue.push(g.carId);
   return g;
 }
-function nextInterval() {
-  if (S.galaActive) return rnd(...CONFIG.gala.interval);
-  const r = scheduleRow();
-  let iv = rnd(...r.interval);
-  if (r.perHourDec) iv = Math.max(r.floor, iv - r.perHourDec * (hourNow() - r.fromHour));
-  return rampRow() ? iv : iv * HOTEL.arrivals.intervalMult; // the learning ramp is the same everywhere
-}
+// Pace and mix come from the current wave (sim/waves.js); breaks and last call have no arrivals.
 function updateArrivals(dt) {
-  const rr = rampRow();
-  if (rr && rr !== S.rampRow) {
-    S.rampRow = rr;
-    if (rr.banner) S.banners.push({ text: rr.banner, t: 3 });
-  }
   if (!S.tutorial) {
     S.spawnT -= dt;
     if (S.spawnT <= 0) {
-      spawnArrival();
-      S.spawnT = nextInterval();
+      const iv = nextInterval();
+      if (iv === null) S.spawnT = 0.5;
+      else {
+        spawnArrival();
+        S.spawnT = iv;
+      }
     }
-  }
-  const h = hourNow();
-  if (!S.tutorial && !S.galaDone && h >= S.galaAt) {
-    S.galaDone = true;
-    S.galaActive = true;
-    S.galaEnd = S.t + CONFIG.gala.durationSec;
-    S.banners.push({ text: HOTEL.event.name + ' HAS BEGUN!', t: 3 });
-    Sound.sfx('gala');
-    S.spawnT = 1;
-  }
-  if (S.galaActive && S.t >= S.galaEnd) {
-    S.galaActive = false;
-    S.banners.push({ text: HOTEL.event.short + ' OVER', t: 2 });
-    S.stats.eventsSurvived++;
   }
   // street queue -> curb
   if (S.streetQueue.length) {

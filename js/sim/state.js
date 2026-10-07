@@ -45,10 +45,8 @@ function newRun(opts = {}) {
     nextWid: 1,
     heli: newHeliState(),
     spawnT: CONFIG.arrivals.firstSec,
-    galaAt: CONFIG.gala.hour + Math.random() * CONFIG.gala.jitterHours,
-    galaEnd: 0,
-    galaDone: false,
-    galaActive: false,
+    phaseI: -1, // index into CONFIG.shift.phases (sim/waves.js)
+    shiftComplete: false,
     floaters: [],
     particles: [],
     toasts: [],
@@ -60,7 +58,6 @@ function newRun(opts = {}) {
     boost: { hustle: 0, coffee: 0, spareKeys: 0 },
     lastHeatReason: 'THE GUESTS COMPLAINED.',
     ticketNo: 1,
-    rampRow: null,
     heatFloat: 0,
     meltdown: false,
     npcs: [],
@@ -85,6 +82,7 @@ function newRun(opts = {}) {
       heliMet: 0,
       heliMissed: 0,
       eventsSurvived: 0,
+      wavesCleared: 0,
     },
   };
   S.goals = opts.goals || [];

@@ -7,7 +7,7 @@ Open `index.html` (double-click works offline) or play the GitHub Pages build.
 The code is split into small modules by responsibility (`js/core`, `data`, `art`, `audio`, `world`, `career`, `sim`, `tutorial`, `render`, `ui`, `screens`, `app`). Load order lives in `js/modules.js`. **See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** for the layer rules and a "where does a new thing go" table. All tuning is in `js/data/config.js`; each hotel is one file in `js/data/hotels/`.
 
 ## Debug
-Add `?debug=1` to the URL (or set `CONFIG.debug = true`), then press backtick. Time scale, heat, spawns, gala, fill lot, grant power-ups, hit boxes, patience %. Job planned vs actual times log to the console; `MCV.JOBLOG` holds them.
+Add `?debug=1` to the URL (or set `CONFIG.debug = true`), then press backtick. Time scale, heat, spawns, jump to the event wave, fill lot, grant power-ups, hit boxes, patience %. Job planned vs actual times log to the console; `MCV.JOBLOG` holds them.
 
 ## Deploy
 Push to `main` here. `.github/workflows/deploy.yml` syntax-checks every module and the module list, then copies `index.html`, `sw.js`, `manifest.webmanifest`, `icons/` + `js/` (plus `CNAME` = `www.montecarlovalet.com`) into **iamabotama/Montecarlovalet.com**, which serves GitHub Pages. Needs the `DEPLOY_TOKEN` repo secret (a token with push access to that repo). Never edit the `.com` repo by hand; it is overwritten on every deploy.
@@ -17,7 +17,7 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 
 ## v1.1 changes
 - **Tutorial** (`js/tutorial.js`): 19 scripted steps - hotel drops in, the valet appears, first guest, parking choices, limo greet, ticket pickup via the board, digging out a blocked car, then score / heat / power-ups. Plays automatically on a first START; replay any time from the title (TUTORIAL). Edit `TUT_STEPS` to change the script.
-- **Learning curve** (`CONFIG.ramp`): the first 2 minutes are arrivals only, then pickups unlock one at a time, whales at 4 min, limos and ultras at 6 min. Patience starts at 3x and tapers to normal by 8 min.
+- **Waves and breaks** (`CONFIG.shift`, `js/sim/waves.js`): the night (6 PM to midnight) is 4 arrival waves that get harder (Early Dinner, Dinner Rush, High Rollers, then the hotel's event), each followed by a break with no new cars while guests come out for theirs, then Last Call. Survive to midnight for the full-shift bonus, or clock out early during a break after wave 2.
 - **Podium + retrieve board**: leaving guests hand a ticket in at the podium; it appears on the board (ticket, car type, stall, depth, seconds waiting), most urgent first. Tap a ticket to fetch.
 - **Hi-res cars** (`js/cars.js`): procedural sprites drawn at 3x the game grid (canvas is 960x540). Distinct bodies per class; exotics get canopies, intakes, wings, glow halos.
 - **Tips**: whales $50-150 on arrival / $50-200 on pickup; whales and ultras served super fast have a 1-in-10 chance of a $500 jackpot (`CONFIG.tips.jackpot`).
@@ -48,3 +48,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 ## v2.1: vehicle guide + no overlapping characters
 - **VEHICLES** on the title menu (`js/screens/vehicle_guide.js`): three tabs (Everyday, High Rollers, VIP Arrivals) showing every car model with the in-game sprites, the limo and the helicopter. Every number (tips, pay, patience, jackpot, helicopter tip/pay/meet window/heat, landings per hotel, hotel tip bonuses) is read live from `CONFIG` and the hotel files, so the guide always matches the game.
 - **No overlapping characters** (`js/render/crowd.js`): everyone on the sidewalk (guests, valets, VIP, NPCs) is laid out each frame so sprites keep at least 2px apart, held tickets count toward width, and nobody stands inside the podium. Presentation only - the simulation is untouched; tap targets follow the drawn positions. Covered by `tests/crowd_test.py`.
+
+## v2.2: waves and breaks
+- The endless late-night escalation and the 60-second gala spike are gone. A night is now a fixed sequence in `CONFIG.shift.phases`: **4 waves** (each faster, with richer cars and less patience), a **break** after each (no arrivals, guests leave faster so you can work the board), then **Last Call** (everyone inside comes out; return every car by midnight).
+- **Shift complete** at midnight: +$150 bonus and the 2-3 star ratings. Clocking out early (a break after wave 2) keeps your money, earns 1 star.
+- Hotel event (Gala, Fight Night, Royal Wedding...) is the 4th wave. Helicopters land at set points in the waves (`helo.times` per hotel).
+- HUD pill (top left) shows WAVE n/4, BREAK or LAST CALL with time left. Banners now queue instead of drawing on top of each other.

@@ -13,10 +13,17 @@ defineScreen('summary', {
     const r = RESULT;
     R(0, 0, 320, 180, PAL.night);
     const fired = r.kind === 'fired';
-    drawText(ctx, fired ? 'FIRED' : 'CLOCKED OUT', 160, 4, fired ? PAL.red : PAL.lime, { align: 'center', scale: 2 });
+    const title = fired ? 'FIRED' : r.complete ? 'SHIFT COMPLETE' : 'CLOCKED OUT';
+    drawText(ctx, title, 160, 4, fired ? PAL.red : PAL.lime, { align: 'center', scale: 2 });
     const msg = fired
       ? 'THE MOMENT: ' + r.reason
-      : 'YOU CLOCKED OUT AT ' + fmtClock(r.hour) + '. NICE NIGHT AT ' + r.hotel.name + '.';
+      : r.complete
+        ? 'YOU MADE IT TO MIDNIGHT AT ' +
+          r.hotel.name +
+          '. FULL-SHIFT BONUS ' +
+          fmtMoney(CONFIG.shift.completeBonus) +
+          '.'
+        : 'YOU LEFT AT ' + fmtClock(r.hour) + ' AFTER WAVE ' + r.st.wavesCleared + ' OF ' + waveCount() + '.';
     wrapText(msg.trim(), 76)
       .slice(0, 2)
       .forEach((l, i) => drawText(ctx, l, 160, 19 + i * 7, PAL.white, { align: 'center' }));
@@ -37,7 +44,7 @@ function renderShiftColumn(r, x, y) {
     ['WHALES SERVED', s.whalesServed],
     ['BIGGEST TIP', fmtMoney(s.biggestTip)],
     ['ANGRY / STOLEN', s.angry + ' / ' + s.stolen],
-    ['TIME SURVIVED', Math.floor(r.t / 60) + 'M ' + Math.floor(r.t % 60) + 'S'],
+    ['TIME SURVIVED', Math.floor(r.t / 60) + 'M ' + String(Math.floor(r.t % 60)).padStart(2, '0') + 'S'],
     ['HOTEL BEST', fmtMoney(r.highScore)],
     ['RATING', r.stars + ' / 3 STARS'],
   ];

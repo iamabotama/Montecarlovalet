@@ -20,7 +20,7 @@ MIN_GAP = """() => { const STAND = new Set(['curbDrop', 'handTicket', 'pickWait'
 async def main():
     async with Game() as g:
         await g.start('monte_carlo')
-        await g.js("() => { window.rampRow = () => null; for (let i = 0; i < 10; i++) spawnArrival(['standard','premium','whale','beater','limo'][i % 5]); }")
+        await g.js("() => { MCV.S.t = phaseStart(4); for (let i = 0; i < 10; i++) spawnArrival(['standard','premium','whale','beater','limo'][i % 5]); }")
         samples, bad, worst, passing = 0, 0, 99, 0
         for step in range(40):
             await g.js(PARK_ALL)

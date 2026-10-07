@@ -24,14 +24,7 @@ function renderBoard() {
   R(222, 100, 96, 1, PAL.dgrey);
   const { rows, more } = boardRows();
   if (!rows.length)
-    drawText(
-      ctx,
-      S.t < (CONFIG.ramp.enabled ? CONFIG.ramp.steps[1].fromSec : 0) ? 'NO PICKUPS YET' : 'NO TICKETS',
-      270,
-      118,
-      PAL.dgrey,
-      { align: 'center' },
-    );
+    drawText(ctx, pickupsAllowed() ? 'NO TICKETS' : 'NO PICKUPS YET', 270, 118, PAL.dgrey, { align: 'center' });
   for (const { g, y } of rows) {
     const car = S.cars.get(g.carId);
     if (!car) continue;
