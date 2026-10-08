@@ -1,7 +1,7 @@
 /* Offline support (PWA). Network-first: when online you always get the latest deploy; every response is
    cached so the game keeps working with no connection. The precache list is the same js/modules.js
    list index.html loads, so a new module can never be forgotten here. */
-const CACHE = 'mcvalet-v2.2.0';
+const CACHE = 'mcvalet-v2.3.0';
 importScripts('js/modules.js'); // defines MCV_MODULES
 const PRECACHE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'fonts/PressStart2P-Regular.ttf', 'js/modules.js', ...MCV_MODULES.map(m => 'js/' + m)];
 
