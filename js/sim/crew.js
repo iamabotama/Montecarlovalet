@@ -13,14 +13,14 @@ function crewJobsThisShift() {
 }
 function hireValet() {
   if (S.helpers.length >= HC.max) {
-    toast('CREW IS FULL (' + HC.max + ' HELPERS)');
+    toast(t('toast.crewFull', { n: HC.max }));
     Sound.sfx('deny');
     return;
   }
   const m = hireCandidate();
   const wage = memberWage(m);
   if (S.money < wage) {
-    toast('NEED ' + fmtMoney(wage) + ' TO HIRE ' + m.name);
+    toast(t('toast.needToHire', { money: fmtMoney(wage), name: m.name }));
     Sound.sfx('deny');
     return;
   }
@@ -51,14 +51,14 @@ function hireValet() {
   S.activeW = w.id;
   floater('-' + fmtMoney(wage) + ' ' + m.name, MAP.standX, 40, PAL.orange);
   Sound.sfx('power');
-  toast(workerName(w) + ' IS ON - YOUR NEXT JOBS GO TO HIM');
+  toast(t('toast.helperOn', { name: workerName(w) }));
 }
 function sendHome(w) {
   if (!w || w.id === 0) return;
   w.leaving = true;
   for (const j of S.jobs) if (j.wid === w.id && !j.worker) j.wid = 0; // hand his queue back to you
   if (S.activeW === w.id) S.activeW = 0;
-  toast(workerName(w) + ' IS GOING HOME' + (w.job ? ' AFTER THIS JOB' : ''));
+  toast(t(w.job ? 'toast.goingHomeAfter' : 'toast.goingHome', { name: workerName(w) }));
   Sound.sfx('click');
 }
 function selectWorker(w) {
@@ -80,7 +80,7 @@ function updateCrew(dt) {
     if (w.leaving && !w.job) {
       for (const j of S.jobs) if (j.wid === w.id) j.wid = 0;
       S.helpers.splice(S.helpers.indexOf(w), 1);
-      floater('BYE!', w.x, w.y - 10, PAL.lgrey);
+      floater(t('float.bye'), w.x, w.y - 10, PAL.lgrey);
       continue;
     }
     if (S.tutorial || w.leaving) continue;
@@ -90,9 +90,9 @@ function updateCrew(dt) {
         S.money -= w.wage;
         S.stats.wages += w.wage;
         w.paidT += CONFIG.clock.realSecPerGameHour;
-        floater('-' + fmtMoney(w.wage) + ' WAGES', w.x, w.y - 12, PAL.orange);
+        floater(t('float.wages', { money: fmtMoney(w.wage) }), w.x, w.y - 12, PAL.orange);
       } else {
-        toast(workerName(w) + ' QUIT - NO MONEY FOR WAGES');
+        toast(t('toast.quitNoWages', { name: workerName(w) }));
         sendHome(w);
       }
     }

@@ -24,8 +24,8 @@ function updateMovers(dt) {
       c.tempHeatT += dt;
       if (c.tempHeatT >= LOT.tempOverstayEverySec) {
         c.tempHeatT = 0;
-        addHeat(LOT.tempOverstayHeat, 'A CAR SAT IN THE FIRE LANE.');
-        floater('FIRE LANE!', TEMPS[i].x, TEMPS[i].y - 8, PAL.red);
+        addHeat(LOT.tempOverstayHeat, t('heat.fireLane'));
+        floater(t('float.fireLane'), TEMPS[i].x, TEMPS[i].y - 8, PAL.red);
       }
     }
   }

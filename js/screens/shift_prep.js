@@ -28,7 +28,7 @@ defineScreen('prep', {
         8,
         122,
         150,
-        'UNIFORM: ' + UNIFORMS[SAVE.cosmetic.uniform].name,
+        t('prep.uniform', { name: UNIFORMS[SAVE.cosmetic.uniform].name }),
         () => cycleCosmetic('uniform', uniforms),
         uniforms.length > 1 ? PAL.lav : PAL.dgrey,
       ),
@@ -40,12 +40,12 @@ defineScreen('prep', {
     return [
       ...tiles,
       ...cos,
-      button(6, 160, 70, 'BACK', () => goScreen('hotels'), PAL.lgrey),
+      button(6, 160, 70, t('btn.back'), () => goScreen('hotels'), PAL.lgrey),
       button(
         214,
         160,
         100,
-        'START SHIFT',
+        t('prep.start'),
         () => startGame(P.hotel.id, { loadout: P.loadout, goals: P.goals }),
         PAL.lime,
       ),
@@ -55,15 +55,17 @@ defineScreen('prep', {
     const P = UI.prep;
     R(0, 0, 320, 180, PAL.night);
     drawText(ctx, P.hotel.city, 160, 4, P.hotel.theme.sign, { align: 'center', scale: 2, shadow: PAL.ink });
-    drawText(ctx, P.hotel.name + '  -  ' + P.hotel.event.name + ' TONIGHT', 160, 19, PAL.lgrey, { align: 'center' });
-    drawText(ctx, "TONIGHT'S GOALS", 8, 30, PAL.yellow);
+    drawText(ctx, t('prep.tonight', { hotel: P.hotel.name, event: P.hotel.event.name }), 160, 19, PAL.lgrey, {
+      align: 'center',
+    });
+    drawText(ctx, t('prep.goals'), 8, 30, PAL.yellow);
     P.goals.forEach((g, i) => {
       drawText(ctx, '- ' + goalTextFor(g, P.hotel), 8, 39 + i * 8, PAL.white);
-      drawText(ctx, '+' + goalDef(g.id).xp + ' XP', 312, 39 + i * 8, PAL.lime, { align: 'right' });
+      drawText(ctx, t('prep.xp', { n: goalDef(g.id).xp }), 312, 39 + i * 8, PAL.lime, { align: 'right' });
     });
-    drawText(ctx, 'POWER-UPS IN HAND  ' + P.loadout.length + '/' + loadoutPicks(), 8, 74, PAL.yellow);
-    drawText(ctx, 'MORE UNLOCK AS YOU RANK UP', 312, 74, PAL.dgrey, { align: 'right' });
-    drawText(ctx, 'LOOK', 8, 134, PAL.yellow);
+    drawText(ctx, t('prep.powerups', { n: P.loadout.length, max: loadoutPicks() }), 8, 74, PAL.yellow);
+    drawText(ctx, t('prep.moreUnlock'), 312, 74, PAL.dgrey, { align: 'right' });
+    drawText(ctx, t('prep.look'), 8, 134, PAL.yellow);
     drawPerson(ctx, 30, 130, 'idle', valetColors(), false);
     drawButtons(this.buttons());
   },

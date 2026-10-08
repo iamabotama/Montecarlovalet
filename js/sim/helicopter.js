@@ -23,7 +23,7 @@ function heliJob() {
 }
 function tapHeli() {
   if (heliJob()) {
-    toast('A VALET IS ALREADY ON THE WAY');
+    toast(t('toast.valetOnWay'));
     Sound.sfx('deny');
     return;
   }
@@ -40,9 +40,9 @@ function heliGreet() {
   H.t = 0;
   H.vipT = 2.5;
   H.greeting = false;
-  S.stats.heli = 'MET';
+  S.stats.heli = 'MET'; // i18n-ignore: outcome id
   S.stats.heliMet++;
-  S.banners.push({ text: 'VIP MET! ' + fmtMoney(C.tip) + ' TIP!', t: 3 });
+  S.banners.push({ text: t('banner.vipMet', { money: fmtMoney(C.tip) }), t: 3 });
   Sound.sfx('gala');
   S.shake = 0.2;
 }
@@ -51,12 +51,12 @@ function heliMissed() {
   H.phase = 'leaving';
   H.t = 0;
   H.ok = false;
-  S.stats.heli = 'MISSED';
+  S.stats.heli = 'MISSED'; // i18n-ignore: outcome id, not shown
   S.stats.heliMissed++;
   const j = heliJob();
   if (j && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1);
-  addHeat(CONFIG.helo.missHeat, 'A VIP STEPPED OFF A HELICOPTER AND NOBODY WAS THERE.');
-  floater('NOBODY MET THE VIP!', PAD.x, PAD.y - 22, PAL.red);
+  addHeat(CONFIG.helo.missHeat, t('heat.heliMissed'));
+  floater(t('float.nobodyMetVip'), PAD.x, PAD.y - 22, PAL.red);
   Sound.sfx('deny');
 }
 function updateHeli(dt) {
@@ -69,8 +69,8 @@ function updateHeli(dt) {
       H.phase = 'incoming';
       H.t = 0;
       H.ok = null;
-      S.banners.push({ text: 'VIP HELICOPTER INBOUND!', t: 3 });
-      toast('TAP THE HELIPAD - MEET THE VIP AS THEY LAND');
+      S.banners.push({ text: t('banner.heliInbound'), t: 3 });
+      toast(t('toast.tapHelipad'));
       Sound.sfx('whistle');
     }
     return;

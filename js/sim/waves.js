@@ -65,12 +65,12 @@ function enterPhase(p, prev) {
   if (prev && prev.event) S.stats.eventsSurvived++;
   if (p.kind === 'wave') {
     const n = waveNumber(S.phaseI);
-    S.banners.push({ text: 'WAVE ' + n + '/' + waveCount() + ': ' + phaseName(p), sub: p.banner, t: 3 });
+    S.banners.push({ text: t('banner.wave', { n, total: waveCount(), name: phaseName(p) }), sub: p.banner, t: 3 });
     if (p.event) Sound.sfx('gala');
     S.spawnT = Math.min(S.spawnT, rnd(1, 3));
   } else if (p.kind === 'break') {
-    const sub = canClockOut() ? 'CLOCK OUT NOW, OR STAY FOR A HARDER WAVE' : p.banner;
-    S.banners.push({ text: 'BREAK - NO NEW CARS', sub, t: 3 });
+    const sub = canClockOut() ? t('banner.clockOutOrStay') : p.banner;
+    S.banners.push({ text: t('banner.break'), sub, t: 3 });
   } else {
     // last call: everyone still inside comes out within callOutSec
     for (const g of S.guests.values()) if (g.state === 'inside') g.stay = Math.min(g.stay, rnd(2, p.callOutSec));

@@ -85,7 +85,7 @@ function renderGame() {
       R(hx - 6, hy - 12, 12, 2, PAL.ink);
       R(hx - 6, hy - 12, Math.round(12 * f), 2, PAL.lime);
     }
-    if (w.waitLabel === 'BAGS') drawIcon(ctx, 'cart', hx + 3, hy - 6, PAL.orange);
+    if (w.waitLabel === 'bags') drawIcon(ctx, 'cart', hx + 3, hy - 6, PAL.orange);
     if (S.boost.hustle > 0 || S.boost.coffee > 0) R(hx - 3, hy + 1, 1, 1, PAL.yellow);
     if (crew) {
       const tag = w.id === 0 ? '1' : String(S.helpers.indexOf(w) + 2);
@@ -97,7 +97,7 @@ function renderGame() {
       }
       R(hx - 2, hy - 19, 5, 7, act ? PAL.yellow : PAL.ink);
       drawText(ctx, tag, hx, hy - 18, act ? PAL.ink : PAL.white, { align: 'center' });
-      if (w.leaving) drawText(ctx, 'BYE', hx, hy - 24, PAL.lgrey, { align: 'center' });
+      if (w.leaving) drawText(ctx, t('crew.bye'), hx, hy - 24, PAL.lgrey, { align: 'center' });
     }
   }
   drawVip();
@@ -135,14 +135,14 @@ function renderGame() {
   });
   if (S.phase === 'fired' && S.endT > 1.2) {
     R(0, 60, 320, 50, PAL.ink);
-    drawText(ctx, "YOU'RE FIRED!", 160, 66, PAL.red, { align: 'center', scale: 3, shadow: PAL.crimson });
+    drawText(ctx, t('hud.fired'), 160, 66, PAL.red, { align: 'center', scale: 3, shadow: PAL.crimson });
     wrapText(S.firedLine, 60).forEach((l, i) => drawText(ctx, l, 160, 90 + i * 7, PAL.white, { align: 'center' }));
     const hy = 40 - (S.endT - 1.2) * 30;
     R(S.valet.x + (S.endT - 1.2) * 20, hy, 4, 2, PAL.red);
   }
   if (S.phase === 'clockout') {
     R(0, 66, 320, 30, PAL.ink);
-    drawText(ctx, 'SHIFT OVER', 160, 72, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
+    drawText(ctx, t('hud.shiftOver'), 160, 72, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
   }
   tutRender();
   if (DEBUG.on) renderDebug();

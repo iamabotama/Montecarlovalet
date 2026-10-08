@@ -17,14 +17,16 @@ function boardRows() {
 function renderBoard() {
   R(221, 92, 98, 56, PAL.ink);
   RB(221, 92, 98, 56, PAL.lgrey);
-  drawText(ctx, 'TICKETS', 224, 94, PAL.yellow);
+  drawText(ctx, t('board.tickets'), 224, 94, PAL.yellow);
   if (lotFull()) {
-    if (Math.floor(UI.t * 3) % 2) drawText(ctx, 'LOT FULL', 316, 94, PAL.red, { align: 'right' });
-  } else drawText(ctx, 'FREE ' + freeStalls(), 316, 94, PAL.lgrey, { align: 'right' });
+    if (Math.floor(UI.t * 3) % 2) drawText(ctx, t('board.lotFull'), 316, 94, PAL.red, { align: 'right' });
+  } else drawText(ctx, t('board.free', { n: freeStalls() }), 316, 94, PAL.lgrey, { align: 'right' });
   R(222, 100, 96, 1, PAL.dgrey);
   const { rows, more } = boardRows();
   if (!rows.length)
-    drawText(ctx, pickupsAllowed() ? 'NO TICKETS' : 'NO PICKUPS YET', 270, 118, PAL.dgrey, { align: 'center' });
+    drawText(ctx, pickupsAllowed() ? t('board.noTickets') : t('board.noPickups'), 270, 118, PAL.dgrey, {
+      align: 'center',
+    });
   for (const { g, y } of rows) {
     const car = S.cars.get(g.carId);
     if (!car) continue;
@@ -52,7 +54,7 @@ function renderBoard() {
           : '..';
     drawText(ctx, loc, 254, y + 2, PAL.lgrey);
     const fetching = S.jobs.some(j => j.type === 'fetch' && j.carId === g.carId && !j.aborted);
-    if (fetching) drawText(ctx, 'FETCH', 316, y + 2, PAL.lime, { align: 'right' });
+    if (fetching) drawText(ctx, t('board.fetch'), 316, y + 2, PAL.lime, { align: 'right' });
     else {
       if (car.loc.t === 'stall') {
         const d = liveDepth(car.loc.lane, car.loc.idx).best;
@@ -61,5 +63,5 @@ function renderBoard() {
       drawText(ctx, String(Math.floor(g.wait)), 316, y + 2, c, { align: 'right' });
     }
   }
-  if (more) drawText(ctx, '+' + more + ' MORE', 270, 143, PAL.orange, { align: 'center' });
+  if (more) drawText(ctx, t('board.more', { n: more }), 270, 143, PAL.orange, { align: 'center' });
 }

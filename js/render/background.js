@@ -8,9 +8,10 @@ const theme = () => HOTEL.theme;
 function buildBG() {
   const T = theme();
   BG = document.createElement('canvas');
-  BG.width = 320;
-  BG.height = 180;
+  BG.width = DISPLAY.w * DISPLAY.hi;
+  BG.height = DISPLAY.h * DISPLAY.hi;
   const g = BG.getContext('2d');
+  g.scale(DISPLAY.hi, DISPLAY.hi); // the layout below is in game px; addDetail() works in detail px
   const r = (x, y, w, h, c) => {
     g.fillStyle = c;
     g.fillRect(x, y, w, h);
@@ -74,6 +75,57 @@ function buildBG() {
   });
   r(222, 82, 92, 9, PAL.green);
   r(234, 91, 1, 6, PAL.lgrey);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  addDetail(g, T);
+}
+/* 16-bit pass, in detail pixels (2 per game px): stonework and light edges on the facade, step edges,
+   dithered grass, asphalt grain and kerb lips. Translucent, so it reads on every hotel's colours. */
+function addDetail(g, T) {
+  const k = DISPLAY.hi;
+  const px = (x, y, w, h, c) => {
+    g.fillStyle = c;
+    g.fillRect(x, y, w, h);
+  };
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let y = 13 * k; y < 38 * k; y += 6) {
+    px(0, y, 320 * k, 1, 'rgba(0,0,0,0.16)');
+    for (let x = (y / 6) % 2 ? 0 : 8; x < 320 * k; x += 16) px(x, y - 5, 1, 5, 'rgba(0,0,0,0.12)');
+  }
+  for (let x = 0; x < 320 * k; x += 40 * k) {
+    px(x, 12 * k, 1, 26 * k, 'rgba(255,255,255,0.22)');
+    px(x + 3, 12 * k, 1, 26 * k, 'rgba(0,0,0,0.25)');
+  }
+  px(0, 10 * k, 320 * k, 1, 'rgba(255,255,255,0.3)');
+  px(0, 12 * k - 1, 320 * k, 1, 'rgba(0,0,0,0.3)');
+  for (let y = 38 * k; y < 44 * k; y += 3) px(0, y, 320 * k, 1, 'rgba(255,255,255,0.18)');
+  for (let i = 0; i < 2600; i++) {
+    const x = (rnd() * 320 * k) | 0,
+      y = 58 * k + ((rnd() * 8 * k) | 0);
+    if (x > 91 * k && x < 229 * k) continue; // not on the drive
+    px(x, y, 1, 1, rnd() < 0.5 ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.18)');
+  }
+  const grain = (y0, y1, n) => {
+    for (let i = 0; i < n; i++)
+      px(
+        (rnd() * 320 * k) | 0,
+        y0 * k + ((rnd() * (y1 - y0) * k) | 0),
+        1,
+        1,
+        rnd() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.12)',
+      );
+  };
+  grain(44, 66, 2600);
+  grain(66, 78, 1800);
+  grain(78, 180, 9000);
+  px(0, 66 * k + 1, 320 * k, 1, 'rgba(255,255,255,0.25)');
+  px(0, 77 * k, 320 * k, 1, 'rgba(0,0,0,0.3)');
+  void T;
+}
+// Blit part of the background (game-px rectangle) to the screen; used by the tutorial's hotel drop.
+function drawBGRegion(sx, sy, sw, sh, dx, dy) {
+  const k = DISPLAY.hi;
+  ctx.drawImage(BG, sx * k, sy * k, sw * k, sh * k, dx, dy, sw, sh);
 }
 
 function drawPalm(x, y) {
@@ -92,17 +144,17 @@ const DECOR = { palms: drawPalm, pines: drawPine };
 
 function drawWorldStatic() {
   const T = theme();
-  ctx.drawImage(BG, 0, 0);
-  const t = UI.t;
+  ctx.drawImage(BG, 0, 0, DISPLAY.w, DISPLAY.h);
+  const time = UI.t;
   for (let row = 0; row < 2; row++)
     for (let x = 6; x < 316; x += 10) {
       if (x > 118 && x < 202 && row === 0) continue;
       if (x > 146 && x < 174) continue;
       const seed = (x * 7 + row * 13) % 17;
-      const lit = (seed + Math.floor(t / 4 + seed)) % 5;
+      const lit = (seed + Math.floor(time / 4 + seed)) % 5;
       R(x, 16 + row * 10, 4, 4, lit === 0 ? PAL.navy : lit === 1 ? PAL.orange : PAL.yellow);
     }
-  const neon = Math.sin(t * 9) > -0.9 ? T.sign : T.signOff;
+  const neon = Math.sin(time * 9) > -0.9 ? T.sign : T.signOff;
   const signW = Math.max(80, textW(HOTEL.name) + 8);
   RB(160 - signW / 2, 11, signW, 9, neon);
   drawText(ctx, HOTEL.name, 160, 13, neon, { align: 'center' });
@@ -113,11 +165,11 @@ function drawWorldStatic() {
   for (let x = 146; x < 174; x += 4) (R(x, 23, 2, 3, T.awning[0]), R(x + 2, 23, 2, 3, T.awning[1]));
   const decor = DECOR[T.decor];
   if (decor) for (const px of [12, 52, 268, 308]) decor(px, 46);
-  if (T.fountain) for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((t * 6 + i * 2) % 4), 1, 1, PAL.blue);
+  if (T.fountain) for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((time * 6 + i * 2) % 4), 1, 1, PAL.blue);
   for (let i = 0; i < NL; i++)
     for (const side of LOT_SIDES) drawText(ctx, LANE_NAMES[i], aisleX(side) - 1, laneY(i) - 2, PAL.asph3);
   TEMPS.forEach(tp => drawText(ctx, tp.name, tp.x - 3, tp.y - 2, PAL.orange));
-  drawText(ctx, 'GENERAL PARK >', 225, 84, PAL.white);
+  drawText(ctx, t('hud.generalPark'), 225, 84, PAL.white);
 }
 
 // Weather overlay, drawn above cars and people.

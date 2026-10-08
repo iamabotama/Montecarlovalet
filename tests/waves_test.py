@@ -9,7 +9,7 @@ PROBE = '''() => { window._w = { phases: [], spawns: {}, banners: [] }; const W 
     W.spawns[i] = (W.spawns[i] || 0) + 1; return orig(t); };
   setInterval(() => { const S = MCV.S; if (!S) return; S.heat = 0;
     if (S.phaseI !== last) { last = S.phaseI; W.phases.push([S.phaseI, Math.round(S.t)]); }
-    const b = S.banners[0]; if (b && W.banners[W.banners.length - 1] !== b.text) W.banners.push(b.text); }, 100); }'''
+    const b = S.banners[0]; if (b && W.banners[W.banners.length - 1] !== String(b.text)) W.banners.push(String(b.text)); }, 100); }'''
 
 
 def check(name, ok, detail=''):
@@ -41,7 +41,7 @@ async def main():
         ok &= check('no arrivals on breaks / last call', all(int(k) not in breaks for k in W['spawns']), W['spawns'])
         ok &= check('every wave had arrivals', all(str(i) in W['spawns'] or i in W['spawns'] for i, k in enumerate(info['kinds']) if k == 'wave'))
         ok &= check('clock-out only on breaks after wave 2', bool(offered) and set(offered) <= {3, 5}, sorted(set(offered)))
-        ok &= check('wave banners queued', sum(b.startswith('WAVE ') for b in W['banners']) == 4, W['banners'])
+        ok &= check('wave banners queued', sum(b.startswith('Wave ') for b in W['banners']) == 4, W['banners'])
         await g.shot('waves_summary')
         res = await g.js('() => RESULT && { kind: RESULT.kind, complete: RESULT.complete, stars: RESULT.stars, waves: RESULT.st.wavesCleared, pay: RESULT.st.pay, events: RESULT.st.eventsSurvived }')
         ok &= check('shift completed', bool(res) and res['complete'] and res['kind'] == 'clockout', res)

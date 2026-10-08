@@ -9,7 +9,7 @@ function activeWorker() {
   return workers().find(w => w.id === S.activeW) || S.valet;
 }
 function workerName(w) {
-  return w.id === 0 ? 'YOU' : w.name;
+  return w.id === 0 ? t('crew.you') : w.name;
 }
 function jobLanes(j) {
   const car = S.cars.get(j.carId);

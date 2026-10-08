@@ -22,13 +22,13 @@ defineScreen('hotels', {
     }));
     return [
       ...cards,
-      button(6, 160, 70, 'BACK', () => goScreen('title'), PAL.lgrey),
-      button(214, 160, 100, 'NEXT >', () => goScreen('prep')),
+      button(6, 160, 70, t('btn.back'), () => goScreen('title'), PAL.lgrey),
+      button(214, 160, 100, t('btn.next'), () => goScreen('prep')),
     ];
   },
   render() {
     R(0, 0, 320, 180, PAL.night);
-    drawText(ctx, 'CHOOSE YOUR HOTEL', 160, 4, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.orange });
+    drawText(ctx, t('hotels.title'), 160, 4, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.orange });
     drawCareerBar(60, 19, 200);
     HOTEL_ORDER.forEach((id, i) => drawHotelCard(HOTELS[id], cardX(i), CARD.y, id === UI.hotelSel));
     drawButtons(this.buttons());
@@ -48,18 +48,25 @@ function drawHotelCard(h, x, y, selected) {
   drawLotPreview(h, cx, y + 20, acc.ok);
   const lot = h.lot;
   const info = [
-    lot.lanes * lot.stallsPerLane + ' STALLS',
-    lot.openSides.length === 2 ? 'BOTH ENDS OPEN' : 'ONE END OPEN',
-    h.helo ? h.helo.times.length + ' VIP HELI' + (h.helo.times.length > 1 ? 'S' : '') : 'NO HELIPAD',
-    h.mods.tipMult !== 1 ? 'TIPS X' + h.mods.tipMult : 'STANDARD TIPS',
+    t('hotels.stalls', { n: lot.lanes * lot.stallsPerLane }),
+    lot.openSides.length === 2 ? t('hotels.bothEnds') : t('hotels.oneEnd'),
+    h.helo
+      ? t(h.helo.times.length > 1 ? 'hotels.helis' : 'hotels.heli', { n: h.helo.times.length })
+      : t('hotels.noHelipad'),
+    h.mods.tipMult !== 1 ? t('hotels.tipsX', { n: h.mods.tipMult }) : t('hotels.standardTips'),
   ];
   info.forEach((l, i) => drawText(ctx, l, cx, y + 58 + i * 7, acc.ok ? PAL.lav : PAL.dgrey, { align: 'center' }));
   if (acc.ok) {
     const best = hotelHighScore(h.id);
     drawStars(cx, y + 80, hotelStars(h.id));
-    drawText(ctx, 'BEST ' + fmtMoney(best), cx, y + 88, best ? PAL.lime : PAL.dgrey, { align: 'center' });
-    if (selected) drawText(ctx, 'SELECTED', cx, y + 100, PAL.yellow, { align: 'center' });
-    else drawText(ctx, '3RD STAR ' + fmtMoney(h.starTarget), cx, y + 100, PAL.dgrey, { align: 'center' });
+    drawText(ctx, t('hotels.best', { money: fmtMoney(best) }), cx, y + 88, best ? PAL.lime : PAL.dgrey, {
+      align: 'center',
+    });
+    if (selected) drawText(ctx, t('hotels.selected'), cx, y + 100, PAL.yellow, { align: 'center' });
+    else
+      drawText(ctx, t('hotels.thirdStar', { money: fmtMoney(h.starTarget) }), cx, y + 100, PAL.dgrey, {
+        align: 'center',
+      });
   } else {
     drawIcon(ctx, 'lock', cx - 2, y + 86, PAL.orange);
     wrapText(acc.reason, 17).forEach((l, i) => drawText(ctx, l, cx, y + 94 + i * 7, PAL.orange, { align: 'center' }));

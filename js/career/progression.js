@@ -5,7 +5,7 @@
 const RANKS = CONFIG.career.ranks;
 
 const rankForXP = xp => RANKS.reduce((r, k, i) => (xp >= k.xp ? i : r), 0);
-const rankName = (i = SAVE.rank) => RANKS[i].name.toUpperCase();
+const rankName = (i = SAVE.rank) => String(RANKS[i].name);
 const nextRank = () => RANKS[SAVE.rank + 1] || null;
 function syncRank() {
   SAVE.rank = rankForXP(SAVE.careerXP);
@@ -34,10 +34,13 @@ function loadoutPicks() {
 }
 // { ok, reason } for the hotel-select screen.
 function hotelAccess(h) {
-  if (SAVE.rank < h.unlockRank) return { ok: false, reason: 'REACH ' + rankName(h.unlockRank) };
+  if (SAVE.rank < h.unlockRank) return { ok: false, reason: t('hotels.reach', { rank: rankName(h.unlockRank) }) };
   const granted = unlockKeys().has('hotel:' + h.id) || unlockKeys().has('hotel:*');
   if (h.product && !storeOwns(h.product) && !granted)
-    return { ok: false, reason: PRODUCTS[h.product].price + ' ' + PRODUCTS[h.product].name };
+    return {
+      ok: false,
+      reason: t('hotels.buy', { price: PRODUCTS[h.product].price, product: PRODUCTS[h.product].name }),
+    };
   return { ok: true };
 }
 // Describe what a rank unlocks, for the promotion screen.
@@ -45,13 +48,14 @@ function rankUnlockLines(i) {
   const out = [];
   for (const k of RANKS[i].unlock) {
     const [kind, id] = k.includes(':') ? k.split(':') : ['power', k];
-    if (kind === 'power') out.push('POWER-UP: ' + POWER_INFO[id].name);
-    if (kind === 'uniform') out.push('UNIFORM: ' + UNIFORMS[id].name);
-    if (kind === 'nametag') out.push(NAMETAGS[id].name);
+    if (kind === 'power') out.push(t('unlock.power', { name: POWER_INFO[id].name }));
+    if (kind === 'uniform') out.push(t('unlock.uniform', { name: UNIFORMS[id].name }));
+    if (kind === 'nametag') out.push(String(NAMETAGS[id].name));
   }
   if (RANKS[i].loadoutPicks && (i === 0 || RANKS[i].loadoutPicks > (RANKS[i - 1].loadoutPicks || 0)))
-    out.push('START WITH ' + RANKS[i].loadoutPicks + ' POWER-UPS');
-  for (const id of HOTEL_ORDER) if (HOTELS[id].unlockRank === i && i > 0) out.push('NEW HOTEL: ' + HOTELS[id].city);
+    out.push(t('unlock.loadout', { n: RANKS[i].loadoutPicks }));
+  for (const id of HOTEL_ORDER)
+    if (HOTELS[id].unlockRank === i && i > 0) out.push(t('unlock.hotel', { city: HOTELS[id].city }));
   return out;
 }
 /* Hotel rating for one shift: 1 star = clocked out early or survived the rush event, 2 = completed the

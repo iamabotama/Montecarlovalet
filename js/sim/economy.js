@@ -4,7 +4,7 @@
 function jackpot(g, tip) {
   const J = CONFIG.tips.jackpot;
   if (!isWhale(g.tier) || g.wait > J.maxWaitFrac * g.patience || Math.random() >= J.chance) return tip;
-  S.banners.push({ text: 'JACKPOT! $' + J.amount + ' TIP!', t: 2.5 });
+  S.banners.push({ text: t('banner.jackpot', { money: fmtMoney(J.amount) }), t: 2.5 });
   Sound.sfx('gala');
   S.shake = 0.2;
   return J.amount;

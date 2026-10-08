@@ -5,7 +5,7 @@ function renderHUD() {
   R(0, 0, 320, 10, PAL.ink);
   drawText(ctx, fmtMoney(S.money), 2, 3, PAL.yellow);
   drawText(ctx, fmtClock(hourNow()), 38, 3, PAL.white);
-  drawText(ctx, 'MANAGER', 72, 3, PAL.lgrey);
+  drawText(ctx, t('hud.manager'), 72, 3, PAL.lgrey);
   const hf = S.heat / CONFIG.heat.max;
   const hc = hf < 0.5 ? PAL.lime : hf < 0.75 ? PAL.yellow : Math.floor(UI.t * 4) % 2 ? PAL.red : PAL.crimson;
   R(102, 2, 70, 6, PAL.asph3);
@@ -28,12 +28,16 @@ function renderHUD() {
     } else RB(x, 1, 9, 8, PAL.dgrey);
   }
   for (let i = 0; i < Math.min(S.stars, 4); i++) drawIcon(ctx, 'star', 240 + i * 6, 3, PAL.yellow);
-  drawText(ctx, 'HI ' + fmtMoney(hotelHighScore(HOTEL.id)), 318, 3, PAL.lav, { align: 'right' });
+  drawText(ctx, t('hud.hi', { money: fmtMoney(hotelHighScore(HOTEL.id)) }), 318, 3, PAL.lav, { align: 'right' });
   // bottom strip: queue
   R(0, 172, 320, 8, PAL.ink);
   drawText(
     ctx,
-    S.helpers.length ? (S.activeW === 0 ? 'V1 YOU:' : 'V' + (S.helpers.indexOf(activeWorker()) + 2) + ':') : 'QUEUE:',
+    S.helpers.length
+      ? S.activeW === 0
+        ? t('hud.you')
+        : t('hud.helper', { n: S.helpers.indexOf(activeWorker()) + 2 })
+      : t('hud.queue'),
     2,
     174,
     S.helpers.length ? PAL.yellow : PAL.lgrey,
@@ -53,11 +57,11 @@ function renderHUD() {
   const sel = S.selected && S.cars.get(S.selected.carId);
   if (sel) drawText(ctx, carName(sel), 222, 150, PAL.yellow);
   else if (S.armed !== null && S.cards[S.armed])
-    drawText(ctx, POWER_INFO[S.cards[S.armed].type].name + ': TAP TARGET', 222, 150, PAL.white);
+    drawText(ctx, t('hud.tapTarget', { power: POWER_INFO[S.cards[S.armed].type].name }), 222, 150, PAL.white);
   if (canClockOut()) {
     R(226, 158, 88, 12, PAL.green);
     RB(226, 158, 88, 12, PAL.lime);
-    drawText(ctx, 'CLOCK OUT EARLY', 270, 162, PAL.white, { align: 'center' });
+    drawText(ctx, t('hud.clockOut'), 270, 162, PAL.white, { align: 'center' });
   }
 }
 // Wave / break / last-call pill under the top bar, with time left and a progress bar.
@@ -67,7 +71,11 @@ function renderPhasePill() {
   const i = phaseIndexAt(S.t),
     left = Math.max(0, Math.ceil(phaseLeftSec()));
   const label =
-    p.kind === 'wave' ? 'WAVE ' + waveNumber(i) + '/' + waveCount() : p.kind === 'break' ? 'BREAK' : 'LAST CALL';
+    p.kind === 'wave'
+      ? t('hud.wave', { n: waveNumber(i), total: waveCount() })
+      : p.kind === 'break'
+        ? t('hud.break')
+        : t('hud.lastCall');
   const col = p.kind === 'break' ? PAL.lime : p.event || p.kind === 'last' ? PAL.pink : PAL.yellow;
   const time = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
   R(2, 12, 66, 10, PAL.ink);

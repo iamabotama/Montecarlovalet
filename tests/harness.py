@@ -34,13 +34,14 @@ class Game:
         self._p = await async_playwright().start()
         self.browser = await self._p.chromium.launch(executable_path=CHROME)
         self.page = await self.browser.new_page(viewport={'width': self.viewport[0], 'height': self.viewport[1]})
-        self.page.on('pageerror', lambda e: self.errors.append(str(e)))
+        self.page.on('pageerror', lambda e: self.errors.append(str(e) + ' @ ' + (e.stack or '').split(chr(10))[1:3].__str__()))
         self.page.on('console', lambda m: m.type == 'error' and self.errors.append(m.text))
         if self.save is not None:  # seed localStorage before boot
             await self.page.goto(URL)
             await self.page.evaluate('s => localStorage.setItem("mcvalet.save", JSON.stringify(s))', self.save)
         await self.page.goto(URL)
-        await self.page.wait_for_timeout(500)
+        await self.page.wait_for_function('() => !!window.MCV', timeout=10000)  # boot waits for the pixel font
+        await self.page.wait_for_timeout(300)
         return self
 
     async def __aexit__(self, *a):

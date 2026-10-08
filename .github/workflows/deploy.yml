@@ -12,12 +12,14 @@ jobs:
       - name: Syntax + module list check
         run: |
           find js -name '*.js' -print0 | xargs -0 -n1 node --check
+          npm i --no-save --silent acorn@8
           node tools/check_modules.js
+          node tools/check_i18n.js
       # 2. Stage only what the site needs (no docs/spec/art)
       - name: Stage site
         run: |
           mkdir site
-          cp -r index.html sw.js manifest.webmanifest icons js site/
+          cp -r index.html sw.js manifest.webmanifest icons fonts js site/
           echo "www.montecarlovalet.com" > site/CNAME
           printf '# montecarlovalet.com\nDeployed automatically from iamabotama/Montecarlovalet. Do not edit here.\n' > site/README.md
       # 3. Push to the Pages repo

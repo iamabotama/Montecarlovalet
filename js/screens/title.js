@@ -2,12 +2,12 @@
 /* Title screen. */
 defineScreen('title', {
   buttons: () => [
-    button(120, 118, 80, 'START', () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
-    button(120, 132, 80, 'TUTORIAL', startTutorial),
-    button(120, 146, 80, 'VEHICLES', () => goScreen('guide')),
-    button(120, 160, 80, 'SETTINGS', () => goScreen('settings')),
-    button(4, 164, 40, Sound.muted ? 'UNMUTE' : 'MUTE', toggleMute, PAL.lgrey),
-    button(256, 164, 60, 'FULLSCREEN', goFullscreen, PAL.lgrey),
+    button(120, 118, 80, t('title.start'), () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
+    button(120, 132, 80, t('title.tutorial'), startTutorial),
+    button(120, 146, 80, t('title.vehicles'), () => goScreen('guide')),
+    button(120, 160, 80, t('title.settings'), () => goScreen('settings')),
+    button(4, 164, 40, Sound.muted ? t('btn.unmute') : t('btn.mute'), toggleMute, PAL.lgrey),
+    button(256, 164, 60, t('title.fullscreen'), goFullscreen, PAL.lgrey),
   ],
   render() {
     R(0, 0, 320, 180, PAL.night);
@@ -25,8 +25,8 @@ defineScreen('title', {
       for (let x = 76; x < 246; x += 10) R(x, y, 4, 4, (x * y) % 7 ? PAL.yellow : PAL.orange);
     R(44, 46, 232, 44, PAL.ink);
     RB(44, 46, 232, 44, Math.sin(UI.t * 7) > -0.8 ? PAL.pink : PAL.plum);
-    drawText(ctx, 'MONTE CARLO', 160, 52, PAL.pink, { align: 'center', scale: 3, shadow: PAL.crimson });
-    drawText(ctx, 'VALET', 160, 70, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
+    drawText(ctx, t('title.line1'), 160, 52, PAL.pink, { align: 'center', scale: 3, shadow: PAL.crimson });
+    drawText(ctx, t('title.line2'), 160, 70, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
     R(0, 136, 320, 4, PAL.lgrey);
     R(0, 140, 320, 40, PAL.asph);
     const cx = ((UI.t * 40) % 400) - 40;
@@ -34,7 +34,7 @@ defineScreen('title', {
     drawCarSprite(ctx, carSprite('limo', 1, 2), 360 - ((UI.t * 25) % 420), 160);
     R(56, 101, 208, 14, PAL.ink);
     drawCareerBar(60, 103, 200);
-    drawText(ctx, 'V' + CONFIG.version, 2, 2, PAL.dgrey);
+    drawText(ctx, t('title.version', { v: CONFIG.version }), 2, 2, PAL.dgrey);
     drawButtons(this.buttons());
   },
 });

@@ -72,7 +72,7 @@ function carAtCurbForPickup(car, g, k) {
     }
   }
   if (g.comped) {
-    floater('COMPED!', g.x, g.y - 6, PAL.red);
+    floater(t('float.comped'), g.x, g.y - 6, PAL.red);
     S.stats.comped++;
   } else {
     earn(CONFIG.pay[g.tier], 'pay', g);
@@ -87,11 +87,11 @@ function carAtCurbForPickup(car, g, k) {
 function leaveAngry(g, why) {
   const car = S.cars.get(g.carId);
   S.stats.angry++;
-  floater('HMPH!', g.x, g.y - 6, PAL.red);
+  floater(t('float.hmph'), g.x, g.y - 6, PAL.red);
   removeQueuedJobsFor(g.carId);
   const T = CONFIG.tiers[g.tier];
   const heat = g.tier === 'limo' ? T.ignoredHeat : T.angryHeat;
-  addHeat(heat, 'A ' + carName(car) + ' OWNER ' + why + '.', g.x, g.y);
+  addHeat(heat, t('heat.' + why, { car: carName(car) }), g.x, g.y);
   const qi = S.streetQueue.indexOf(car.id);
   if (qi >= 0) S.streetQueue.splice(qi, 1);
   if (car.loc.t === 'stall' || car.loc.t === 'temp') {
@@ -106,10 +106,9 @@ function stageOf(g) {
   return f < 0.2 ? 0 : f < 0.45 ? 1 : f < 0.7 ? 2 : f < 0.9 ? 3 : 4;
 }
 function bubbleLine(g, st) {
-  const L = CONFIG.lines,
-    posh = isWhale(g.tier);
-  if (st === 1) return pick(posh ? L.poshMurmur : L.murmur);
-  if (st === 2) return pick(posh ? L.poshAnnoyed : L.annoyed);
+  const posh = isWhale(g.tier);
+  if (st === 1) return pick(tlist(posh ? 'lines.poshMurmur' : 'lines.murmur'));
+  if (st === 2) return pick(tlist(posh ? 'lines.poshAnnoyed' : 'lines.annoyed'));
   return '';
 }
 const WAITING = new Set(['queued', 'curbDrop', 'toSpot', 'pickWait']);
@@ -137,13 +136,10 @@ function updateGuests(dt) {
           const rate = T.escalateStart + T.escalateStep * Math.floor(g.over / T.escalateEverySec);
           addHeat(
             rate * dt,
-            'A ' +
-              carName(car) +
-              ' OWNER WAITED ' +
-              Math.round(g.wait) +
-              'S ' +
-              (g.phase === 'pick' ? 'AT PICKUP' : 'AT THE CURB') +
-              '.',
+            t(g.phase === 'pick' ? 'heat.waitedPickup' : 'heat.waitedCurb', {
+              car: carName(car),
+              sec: Math.round(g.wait),
+            }),
           );
           if (Math.random() < dt * 2) S.shake = 0.15;
         } else if (g.phase === 'pick') {
@@ -151,12 +147,12 @@ function updateGuests(dt) {
           if (a) {
             if (!g.comped) {
               g.comped = true;
-              addHeat(CONFIG.tiers[g.tier].angryHeat, 'A ' + carName(car) + ' OWNER WAITED TOO LONG.');
+              addHeat(CONFIG.tiers[g.tier].angryHeat, t('heat.waitedTooLong', { car: carName(car) }));
             }
-          } else leaveAngry(g, 'TOOK A CAB');
+          } else leaveAngry(g, 'tookCab');
           continue;
         } else {
-          leaveAngry(g, g.tier === 'limo' ? 'LIMO WAS IGNORED' : 'GAVE UP AT THE CURB');
+          leaveAngry(g, g.tier === 'limo' ? 'limoIgnored' : 'gaveUp');
           continue;
         }
       }
@@ -166,7 +162,7 @@ function updateGuests(dt) {
       if (S.jobs.some(j => j.type === 'park' && j.carId === g.carId)) g.claimed = true;
       else if (g.claimT >= CONFIG.power.rivalClaimSec) {
         S.stats.stolen++;
-        floater('STOLEN!', g.x, g.y - 6, PAL.lav);
+        floater(t('float.stolen'), g.x, g.y - 6, PAL.lav);
         Sound.sfx('steal');
         S.npcs.push({ kind: 'senior', x: MAP.curbX[car.loc.k] - 2, y: 34, t: 1 });
         departCar(car);
@@ -205,7 +201,7 @@ function updateGuests(dt) {
       if (g.handT <= 0) {
         g.ticket = S.ticketNo++;
         g.ticketAt = S.t;
-        floater('TICKET ' + g.ticket, CONFIG.podium.x + 2, 30, PAL.yellow);
+        floater(t('float.ticket', { n: g.ticket }), CONFIG.podium.x + 2, 30, PAL.yellow);
         Sound.sfx('blip', 3);
         const si = S.spots.indexOf(null);
         if (si >= 0) S.spots[si] = g.id;

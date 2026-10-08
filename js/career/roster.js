@@ -15,7 +15,7 @@ function rosterCandidate(onShiftIds) {
   const free = SAVE.roster.find(m => !onShiftIds.includes(m.id));
   if (free) return free;
   const used = SAVE.roster.map(m => m.name);
-  const name = RC.names.find(n => !used.includes(n)) || 'VALET ' + (SAVE.roster.length + 2);
+  const name = RC.names.find(n => !used.includes(n)) || t('crew.fallbackName', { n: SAVE.roster.length + 2 });
   return { id: 'v' + (SAVE.roster.length + 1), name, jobs: 0 };
 }
 // Hiring makes a recruit a permanent regular.

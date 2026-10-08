@@ -2,9 +2,9 @@
 /* Level 4: small lot, the richest crowd, three VIP helicopters a night. */
 defineHotel({
   id: 'dubai',
-  name: 'DUBAI TOWER',
-  city: 'DUBAI',
-  blurb: ['SMALL LOT, SUPERCARS EVERYWHERE.', 'THREE VIP HELICOPTERS A NIGHT.'],
+  name: tl('hotel.dubai.name'),
+  city: tl('hotel.dubai.city'),
+  blurb: [tl('hotel.dubai.blurb1'), tl('hotel.dubai.blurb2')],
   unlockRank: 3,
   product: 'hotel_pack_1',
   lot: { lanes: 4, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
@@ -17,7 +17,7 @@ defineHotel({
       [520, 580], // the royal wedding
     ],
   },
-  event: { name: 'THE ROYAL WEDDING', short: 'ROYAL' },
+  event: { name: tl('hotel.dubai.event'), short: tl('hotel.dubai.eventShort') },
   starTarget: 1000,
   arrivals: { intervalMult: 1, mixMult: [0.3, 0.6, 1.2, 2, 2.2, 1.2] },
   mods: { tipMult: 1.25 },

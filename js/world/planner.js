@@ -36,7 +36,7 @@ function plan(j, from, dry, w) {
     const k = car.loc.k;
     walk({ t: 'curb', k });
     act(() => reachCarAtCurb(car, g, j.bags));
-    if (j.bags) wait(SPD.bagsExtraSec, 'BAGS');
+    if (j.bags) wait(SPD.bagsExtraSec, 'bags'); // step label (id, not shown)
     drive(
       car.id,
       { t: 'stall', lane: j.lane, idx: e.idx },
@@ -82,17 +82,17 @@ function plan(j, from, dry, w) {
     act(() => {
       g.state = 'greeting';
     });
-    wait(SPD.greetSec, 'GREET');
+    wait(SPD.greetSec, 'greet');
     act(() => greetLimo(car, g));
   } else if (j.type === 'heli') {
     const H = S.heli;
     if (!H || (H.phase !== 'incoming' && H.phase !== 'landed') || H.greeting) return { refuse: '' };
     walk({ t: 'pad' });
-    steps.push({ k: 'until', fn: () => S.heli.phase !== 'incoming', label: 'HELI' });
+    steps.push({ k: 'until', fn: () => S.heli.phase !== 'incoming', label: 'heli' });
     act(() => {
       if (S.heli.phase === 'landed') S.heli.greeting = true;
     });
-    steps.push({ k: 'wait', sec: CONFIG.helo.greetSec / m, label: 'GREET', skip: () => !S.heli.greeting });
+    steps.push({ k: 'wait', sec: CONFIG.helo.greetSec / m, label: 'greet', skip: () => !S.heli.greeting });
     est += CONFIG.helo.greetSec / m;
     act(() => {
       if (S.heli.greeting) heliGreet();
@@ -101,7 +101,7 @@ function plan(j, from, dry, w) {
   } else if (j.type === 'fetch') {
     if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
     const k = freeCurb(j.id);
-    if (k < 0) return { wait: 'CURB FULL' };
+    if (k < 0) return { wait: t('wait.curbFull') };
     if (car.loc.t === 'temp') {
       const i = car.loc.i;
       if (!dry) S.curb[k].res = j.id;
@@ -131,7 +131,7 @@ function plan(j, from, dry, w) {
         for (let x = NS - 1; x > idx; x--) if (L.cars[x] !== null) blockers.push(x);
       }
       const free = freeTemps(j.id);
-      if (blockers.length > free.length) return { refuse: 'NO ROOM TO DIG OUT - FREE A TEMP SLOT' };
+      if (blockers.length > free.length) return { refuse: t('toast.noRoomDigOut') };
       const endNode = NODES.get(nk(aisleX(side), laneY(lane)));
       const chosen = free
         .map(i => ({ i, d: pathLen(graphPath(nk(endNode.x, endNode.y), nk(TEMPS[i].x, TEMPS[i].y))) }))
@@ -202,7 +202,7 @@ function plan(j, from, dry, w) {
           }
           e.done = true;
         }
-        floater('SPARE KEYS!', MAP.standX, 60, PAL.peach);
+        floater(t('float.spareKeys'), MAP.standX, 60, PAL.peach);
       });
       return { steps, est: 0 };
     }
@@ -240,4 +240,4 @@ function parkTarget(j, dry) {
   return j.vip ? vipHoldTarget() : entryIndex(j.lane, j.side, dry ? pendingParks(j.lane, j.side, j) : 0);
 }
 const parkRefusal = j =>
-  j.vip ? 'THE VIP SPOT WAS RELEASED' : 'LANE ' + LANE_NAMES[j.lane] + ' ' + j.side.toUpperCase() + ' IS FULL';
+  j.vip ? t('wait.vipReleased') : t('wait.laneFull', { lane: LANE_NAMES[j.lane], side: t('side.' + j.side) });

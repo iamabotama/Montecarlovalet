@@ -6,7 +6,7 @@ function fire() {
   if (S.phase !== 'play') return;
   S.phase = 'fired';
   S.endT = 0;
-  S.firedLine = pick(CONFIG.lines.fired);
+  S.firedLine = pick(tlist('lines.fired'));
   Sound.stopMusic();
   Sound.sfx('fired');
   S.shake = 0.5;

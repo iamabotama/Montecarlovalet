@@ -23,10 +23,9 @@ function fmtMoney(n) {
 function fmtClock(h) {
   const hh = Math.floor(h) % 24,
     mm = Math.floor((h % 1) * 60);
-  const ap = hh >= 12 ? 'PM' : 'AM';
-  let d = hh % 12;
-  if (d === 0) d = 12;
-  return d + ':' + (mm < 10 ? '0' : '') + mm + ap;
+  const h12 = hh % 12 || 12;
+  // the language picks 12h or 24h: clock.am / clock.pm patterns with {h} (12h), {h24} and {m}
+  return t(hh >= 12 ? 'clock.pm' : 'clock.am', { h: h12, h24: hh, m: String(mm).padStart(2, '0') });
 }
 function pathLen(pts) {
   let l = 0;

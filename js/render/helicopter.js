@@ -51,7 +51,7 @@ function drawHeli() {
     });
   }
   if (H.phase === 'incoming' && !heliJob() && Math.floor(UI.t * 4) % 2)
-    drawText(ctx, 'TAP!', x, y - 26, PAL.yellow, { align: 'center' });
+    drawText(ctx, t('hud.tap'), x, y - 26, PAL.yellow, { align: 'center' });
 }
 // The airframe + spinning rotors centred at (hx, hy), scaled by s; ang = rotor angle. Also used by the vehicle guide.
 function drawHeliBody(hx, hy, s, ang) {

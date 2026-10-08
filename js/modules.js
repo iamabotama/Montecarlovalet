@@ -6,6 +6,10 @@
 const MCV_MODULES = [
   // core + data (no game state)
   'core/util.js',
+  'core/display.js',
+  // text: language module, then one table per language (en = master). Data files below use tl().
+  'i18n/i18n.js',
+  'i18n/en.js',
   'art/palette.js',
   'art/font.js',
   'data/config.js',

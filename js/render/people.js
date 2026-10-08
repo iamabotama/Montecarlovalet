@@ -26,13 +26,13 @@ function guestPose(g) {
 }
 function bubbleFor(g) {
   if (!WAITING.has(g.state) && g.state !== 'greeting') return null;
-  if (g.ignoreT > 0) return { text: 'ON CALL', kind: 'phone' };
+  if (g.ignoreT > 0) return { text: t('bubble.onCall'), kind: 'phone' };
   const s = g.stage;
   if (s === 0) return null;
   if (s <= 2) return { text: g.line || '...', kind: 'w' };
   if (s === 3) {
     const f = (g.wait / g.patience - 0.7) / 0.2;
-    return { text: CONFIG.lines.angry[clamp(Math.floor(f * 3), 0, 2)], kind: 'r' };
+    return { text: tlist('lines.angry')[clamp(Math.floor(f * 3), 0, 2)], kind: 'r' };
   }
   const n = s === 5 ? 6 + Math.min(4, Math.floor(g.over / 5)) : 5;
   const ch = CONFIG.lines.grawlixChars;

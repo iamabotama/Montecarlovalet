@@ -10,7 +10,7 @@ function startNextJob(v) {
     }
     if (j.worker || j.wid !== v.id) continue;
     if (laneBusy(j, v)) {
-      j.waitMsg = 'LANE BUSY';
+      j.waitMsg = t('wait.laneBusy');
       continue;
     }
     const p = plan(j, v.loc, false, v);

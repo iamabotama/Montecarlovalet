@@ -2,10 +2,10 @@
 /* RESERVED power-up: hold the outermost stall of one row end empty for a whale, for CONFIG.power.reservedSec.
    While held, that row end is closed to other cars (L.res[idx] = VIP_HOLD). A whale parked into it is always
    depth 0 - nothing can ever block it in. Park/move jobs flagged vip:true target the hold instead of entryIndex. */
-const VIP_HOLD = 'VIP';
+const VIP_HOLD = 'VIP'; // i18n-ignore: lot marker id
 
 function holdVipStall() {
-  if (S.vipHold) return (toast('A VIP SPOT IS ALREADY HELD'), false);
+  if (S.vipHold) return (toast(t('toast.vipAlreadyHeld')), false);
   // the open row end with the longest free run costs the least capacity
   let best = null;
   for (let l = 0; l < NL; l++)
@@ -13,11 +13,11 @@ function holdVipStall() {
       const run = freeRun(l, side);
       if (run > 0 && pendingParks(l, side) === 0 && (!best || run > best.run)) best = { lane: l, side, run };
     }
-  if (!best) return (toast('NO EMPTY ROW END TO HOLD'), false);
+  if (!best) return (toast(t('toast.noRowEnd')), false);
   const idx = best.side === 'west' ? 0 : NS - 1;
   S.lanes[best.lane].res[idx] = VIP_HOLD;
   S.vipHold = { lane: best.lane, side: best.side, idx, t: CONFIG.power.reservedSec };
-  floater('VIP SPOT HELD', stallX(idx), laneY(best.lane) - 8, PAL.pink);
+  floater(t('float.vipSpotHeld'), stallX(idx), laneY(best.lane) - 8, PAL.pink);
   return true;
 }
 const vipHoldTarget = () => (S.vipHold ? { idx: S.vipHold.idx, depth: 0 } : null);
@@ -35,7 +35,7 @@ function updateVipHold(dt) {
   h.t -= dt;
   if (h.t <= 0) {
     takeVipHold();
-    toast('VIP SPOT RELEASED');
+    toast(t('toast.vipReleased'));
   }
 }
 // Extra stall choice offered when a whale's car is selected (ui/selection.js).

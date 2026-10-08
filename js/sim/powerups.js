@@ -12,7 +12,7 @@ function enforceSlots() {
       if (c.at > S.cards[mi].at) mi = i;
     });
     S.cards.splice(mi, 1);
-    toast('POWER-UP SLOT LOST');
+    toast(t('toast.slotLost'));
   }
   tryGrantStars();
 }
@@ -62,13 +62,13 @@ function useCard(idx, g) {
   } else if (type === 'pawnOff') {
     removeQueuedJobsFor(car.id);
     S.npcs.push({ kind: 'newbie', x: g.x, y: 34, t: 1.2 });
-    floater('PAWNED!', g.x, g.y - 6, PAL.lime);
+    floater(t('float.pawned'), g.x, g.y - 6, PAL.lime);
     departCar(car);
     guestGone(g);
   } else if (type === 'directAway') {
     removeQueuedJobsFor(car.id);
     S.stats.waved++;
-    floater('GENERAL PARKING >', g.x, g.y - 6, PAL.lime);
+    floater(t('float.generalParking'), g.x, g.y - 6, PAL.lime);
     departCar(car);
     guestGone(g);
   } else if (type === 'ignore') {

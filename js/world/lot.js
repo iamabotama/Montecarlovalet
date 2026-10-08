@@ -2,7 +2,7 @@
 /* Lot model: stall occupancy, stack depth, temp/curb slots, placing cars. */
 
 /* ------------------------------ LOT MODEL ------------------------------ */
-const sideLabel = s => (s === 'west' ? 'W' : 'E');
+const sideLabel = s => t(s === 'west' ? 'side.westShort' : 'side.eastShort');
 function blockedAt(lane, j) {
   const L = S.lanes[lane];
   return L.cars[j] !== null || L.res[j] !== null;

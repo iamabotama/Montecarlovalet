@@ -7,7 +7,7 @@ defineScreen('promotion', {
     Sound.sfx('gala');
   },
   buttons: () => [
-    button(110, 160, 100, 'CONTINUE', () => {
+    button(110, 160, 100, t('btn.continue'), () => {
       if (++UI.promoI < RESULT.promotions.length) ((UI.promoT = 0), Sound.sfx('gala'));
       else goScreen('summary');
     }),
@@ -26,7 +26,7 @@ defineScreen('promotion', {
         i % 2 ? PAL.yellow : PAL.pink,
       );
     }
-    drawText(ctx, 'PROMOTED!', 160, 10, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
+    drawText(ctx, t('promo.title'), 160, 10, PAL.yellow, { align: 'center', scale: 3, shadow: PAL.orange });
     // badge: drops in, then shines
     const by = Math.min(48, -20 + UI.promoT * 140);
     R(148, by, 24, 26, PAL.yellow);
@@ -35,9 +35,9 @@ defineScreen('promotion', {
     R(162, by + 26, 4, 6, PAL.red);
     drawIcon(ctx, 'star', 158, by + 10, PAL.yellow);
     drawText(ctx, rankName(rank), 160, 86, PAL.white, { align: 'center', scale: 2 });
-    drawText(ctx, 'THE MANAGER PINS ON YOUR NEW BADGE.', 160, 102, PAL.lgrey, { align: 'center' });
+    drawText(ctx, t('promo.badge'), 160, 102, PAL.lgrey, { align: 'center' });
     rankUnlockLines(rank).forEach((l, i) =>
-      drawText(ctx, 'UNLOCKED: ' + l, 160, 116 + i * 9, PAL.lime, { align: 'center' }),
+      drawText(ctx, t('promo.unlocked', { what: l }), 160, 116 + i * 9, PAL.lime, { align: 'center' }),
     );
     drawButtons(this.buttons());
   },

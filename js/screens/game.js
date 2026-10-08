@@ -4,11 +4,11 @@ defineScreen('game', {
   buttons: () =>
     UI.paused
       ? [
-          button(120, 80, 80, 'RESUME', () => {
+          button(120, 80, 80, t('pause.resume'), () => {
             UI.paused = false;
           }),
-          button(120, 96, 80, Sound.muted ? 'UNMUTE' : 'MUTE', toggleMute),
-          button(120, 112, 80, 'QUIT SHIFT', () => {
+          button(120, 96, 80, Sound.muted ? t('btn.unmute') : t('btn.mute'), toggleMute),
+          button(120, 112, 80, t('pause.quit'), () => {
             UI.paused = false;
             goScreen('title');
             Sound.stopMusic();
@@ -21,7 +21,7 @@ defineScreen('game', {
     if (UI.paused) {
       R(90, 60, 140, 70, PAL.ink);
       RB(90, 60, 140, 70, PAL.yellow);
-      drawText(ctx, 'PAUSED', 160, 66, PAL.yellow, { align: 'center', scale: 2 });
+      drawText(ctx, t('pause.title'), 160, 66, PAL.yellow, { align: 'center', scale: 2 });
       drawGoalsPanel(60, 18);
       drawButtons(this.buttons());
     }
@@ -34,7 +34,13 @@ function drawGoalsPanel(x, y) {
   RB(x, y, 200, 8 + S.goals.length * 8, PAL.lav);
   S.goals.forEach((g, i) => {
     const d = goalDef(g.id);
-    const prog = d.atEnd ? (g.done ? 'DONE' : 'AT CLOCK-OUT') : g.done ? 'DONE' : goalProgress(g) + '/' + d.target;
+    const prog = d.atEnd
+      ? g.done
+        ? t('pause.done')
+        : t('pause.atClockOut')
+      : g.done
+        ? t('pause.done')
+        : goalProgress(g) + '/' + d.target;
     drawText(ctx, goalText(g), x + 4, y + 4 + i * 8, g.done ? PAL.lime : PAL.white);
     drawText(ctx, prog, x + 196, y + 4 + i * 8, g.done ? PAL.lime : PAL.lav, { align: 'right' });
   });

@@ -11,7 +11,11 @@ function drawGoals(hotel, n = CONFIG.career.goalsPerNight) {
   return out.map(id => ({ id, done: false }));
 }
 const goalProgress = g => Math.min(goalDef(g.id).target, goalDef(g.id).value(S));
-const goalTextFor = (g, hotel) => goalDef(g.id).text.replace('THE RUSH EVENT', hotel.event.name);
+// Wording lives in i18n (goal.<id>); {n} and {money} are the target, {event} the hotel's rush event.
+const goalTextFor = (g, hotel) => {
+  const n = goalDef(g.id).target;
+  return t('goal.' + g.id, { n, money: fmtMoney(n), event: hotel.event.name });
+};
 const goalText = g => goalTextFor(g, HOTEL);
 
 function updateGoals() {
@@ -20,8 +24,8 @@ function updateGoals() {
     const d = goalDef(g.id);
     if (g.done || d.atEnd || d.value(S) < d.target) continue;
     g.done = true;
-    S.banners.push({ text: 'GOAL! ' + goalText(g), t: 3 });
-    floater('+' + d.xp + ' XP', 160, 30, PAL.lime);
+    S.banners.push({ text: t('banner.goal', { goal: goalText(g) }), t: 3 });
+    floater(t('float.xp', { n: d.xp }), 160, 30, PAL.lime);
     Sound.sfx('power');
   }
 }

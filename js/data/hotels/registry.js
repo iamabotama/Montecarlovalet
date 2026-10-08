@@ -22,7 +22,7 @@ const HOTEL_DEFAULTS = {
   blurb: [],
   pad: null,
   helo: null,
-  event: { name: 'THE GALA', short: 'GALA' },
+  event: { name: tl('hotel.monte_carlo.event'), short: tl('hotel.monte_carlo.eventShort') },
   arrivals: { intervalMult: 1, mixMult: [1, 1, 1, 1, 1, 1] },
   mods: { tipMult: 1, driveMult: 1 },
 };

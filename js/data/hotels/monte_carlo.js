@@ -2,15 +2,15 @@
 /* Level 1: the original. Balanced lot, open at both ends, one VIP helicopter. */
 defineHotel({
   id: 'monte_carlo',
-  name: 'HOTEL MONTE CARLO',
-  city: 'MONTE CARLO',
-  blurb: ['THE RIVIERA CLASSIC.', 'BOTH ROW ENDS OPEN, ONE VIP HELICOPTER.'],
+  name: tl('hotel.monte_carlo.name'),
+  city: tl('hotel.monte_carlo.city'),
+  blurb: [tl('hotel.monte_carlo.blurb1'), tl('hotel.monte_carlo.blurb2')],
   unlockRank: 0,
   lot: { lanes: 6, stallsPerLane: 6, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 190, y: 148 },
   helo: { times: [[380, 420]] }, // late in the HIGH ROLLERS wave (CONFIG.shift.phases)
-  event: { name: 'THE GALA', short: 'GALA' },
+  event: { name: tl('hotel.monte_carlo.event'), short: tl('hotel.monte_carlo.eventShort') },
   starTarget: 600,
   theme: {
     facade: PAL.plum,

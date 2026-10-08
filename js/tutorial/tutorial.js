@@ -33,7 +33,7 @@ const HL = {
 const TUT_STEPS = [
   {
     pos: 'mid',
-    text: 'WELCOME TO THE HOTEL MONTE CARLO - WHERE THE RICHEST GUESTS ON THE RIVIERA LEAVE THEIR CARS.',
+    text: tl('tut.welcome'),
     enter() {
       TUT.hotelDrop = 0;
       TUT.showValet = false;
@@ -42,7 +42,7 @@ const TUT_STEPS = [
   {
     pos: 'mid',
     hl: HL.valet,
-    text: 'THIS IS YOU: THE NEW VALET. YOU PARK THE CARS, BRING THEM BACK, AND KEEP EVERY GUEST HAPPY.',
+    text: tl('tut.you'),
     enter() {
       TUT.showValet = true;
       TUT.valetDrop = 0;
@@ -50,7 +50,7 @@ const TUT_STEPS = [
   },
   {
     pos: 'mid',
-    text: 'HERE COMES YOUR FIRST GUEST...',
+    text: tl('tut.firstGuest'),
     enter() {
       TUT.g1 = spawnArrival('standard').id;
     },
@@ -62,25 +62,25 @@ const TUT_STEPS = [
   {
     pos: 'mid',
     hl: () => tutCarRect(TUT.g1),
-    text: 'TAP THEIR CAR TO TAKE THE KEYS.',
+    text: tl('tut.tapCar'),
     until: () => S.selected && tutGuest(TUT.g1) && S.selected.carId === tutGuest(TUT.g1).carId,
   },
   {
     pos: 'R',
     hl: () => [MAP.lotX - 2, MAP.lotY - 1, NS * SW + 4, NL * SH + 2],
-    text: 'GLOWING STALLS ARE YOUR CHOICES. ROWS FILL FROM THE MIDDLE OUT. D = HOW DEEP (CARS PARKED LATER WILL BLOCK IT IN). THE NUMBER = SECONDS TO PARK.',
+    text: tl('tut.stalls'),
   },
   {
     pos: 'R',
     hl: () => (S.selected ? null : tutCarRect(TUT.g1)),
-    text: 'TAP ANY GLOWING STALL TO PARK. FAR AWAY IS FINE - NOBODY IS IN A HURRY YET.',
+    text: tl('tut.tapStall'),
     until: () => S.stats.carsParked >= 1 && !S.valet.job,
   },
-  { pos: 'mid', text: 'PARKED! YOUR GUEST WENT INSIDE. THEY WILL BE BACK FOR THE CAR LATER.' },
+  { pos: 'mid', text: tl('tut.parked') },
   {
     pos: 'R',
     hl: () => tutCarRect(TUT.limo),
-    text: "A LIMO! LIMOS DON'T PARK. TAP THE LIMO, THEN TAP GREET.",
+    text: tl('tut.limo'),
     enter() {
       TUT.limo = spawnArrival('limo').id;
     },
@@ -89,12 +89,12 @@ const TUT_STEPS = [
   {
     pos: 'mid',
     hl: HL.money,
-    text: 'THE VIP PAID YOU FOR A QUICK HELLO. IGNORE A LIMO AND THE MANAGER HEARS ABOUT IT.',
+    text: tl('tut.limoDone'),
   },
   {
     pos: 'L',
     hl: HL.podium,
-    text: 'YOUR FIRST GUEST IS LEAVING. WATCH THE PODIUM...',
+    text: tl('tut.leaving'),
     enter() {
       const g = tutGuest(TUT.g1);
       if (g) g.stay = 0;
@@ -107,14 +107,14 @@ const TUT_STEPS = [
   {
     pos: 'L',
     hl: HL.board,
-    text: 'THEY HANDED THEIR TICKET IN AT THE PODIUM. IT SHOWS ON THE BOARD: TICKET, CAR TYPE (B S P W U), STALL, DEPTH (D0 = FREE TO DRIVE OUT) AND SECONDS WAITING.',
+    text: tl('tut.board'),
   },
-  { pos: 'L', hl: HL.board, text: 'TAP THE TICKET ON THE BOARD TO FETCH THE CAR.', until: () => !tutGuest(TUT.g1) },
-  { pos: 'mid', hl: HL.money, text: 'DELIVERED - AND THEY TIPPED! FASTER SERVICE = BIGGER TIPS.' },
+  { pos: 'L', hl: HL.board, text: tl('tut.tapTicket'), until: () => !tutGuest(TUT.g1) },
+  { pos: 'mid', hl: HL.money, text: tl('tut.delivered') },
   {
     pos: 'L',
     hl: HL.laneC,
-    text: "NOW A TRICKY ONE. THIS GUEST'S CAR IS BOXED IN ON ROW C...",
+    text: tl('tut.tricky'),
     enter: tutSetupBlocked,
     until: () => {
       const g = tutGuest(TUT.bg);
@@ -124,38 +124,38 @@ const TUT_STEPS = [
   {
     pos: 'L',
     hl: HL.board,
-    text: 'D1 = ONE CAR IN THE WAY. TAP THE TICKET: THE VALET MOVES THE BLOCKER TO A TEMP SLOT (T1-T4), GRABS THE CAR, THEN RE-PARKS THE BLOCKER.',
+    text: tl('tut.blocked'),
     until: () => !tutGuest(TUT.bg) && !S.jobs.length && !S.valet.job && S.temps.every(t => t.car === null),
   },
   {
     pos: 'mid',
     hl: HL.money,
-    text: 'YOUR SCORE = MONEY EARNED (PAY + TIPS). WHALES - THE EXOTIC CARS - TIP HUGE. SERVE ONE FAST AND YOU MIGHT HIT A $500 JACKPOT.',
+    text: tl('tut.money'),
   },
   {
     pos: 'mid',
     hl: HL.heat,
-    text: "THIS BAR IS THE MANAGER'S TEMPER. GUESTS WHO WAIT GET ANGRY: ... THEN !! THEN @#$%. ANGRY GUESTS COMPLAIN AND FILL THE BAR. AT 100, YOU'RE FIRED.",
+    text: tl('tut.heat'),
   },
   {
     pos: 'mid',
     hl: HL.cards,
-    text: 'HAPPY WHALES COOL THE MANAGER DOWN AND EARN STARS. 2 STARS = A POWER-UP CARD UP HERE. HIGH HEAT LOCKS CARD SLOTS.',
+    text: tl('tut.stars'),
   },
   {
     pos: 'R',
     hl: () => [PAD.x - 19, PAD.y - 19, 38, 38],
-    text: 'ONCE A SHIFT A VIP FLIES IN. WHEN THE HELICOPTER IS INBOUND, TAP THE PAD. BE THERE BEFORE THE RING RUNS OUT FOR A $1,000 TIP.',
+    text: tl('tut.heli'),
   },
   {
     pos: 'mid',
     crew: true,
     hl: [2, 124, 28, 44],
-    text: 'SWAMPED? HIRE A VALET FOR $100 PER HOUR (UP TO 3). TAP A VALET TO MAKE HIM ACTIVE - YOUR NEXT JOBS GO TO HIM. WITH HIM ACTIVE, THIS PANEL SENDS HIM HOME.',
+    text: tl('tut.crew'),
   },
   {
     pos: 'mid',
-    text: "THAT'S THE JOB! THE NIGHT COMES IN 4 WAVES WITH BREAKS. SURVIVE TO MIDNIGHT FOR A BONUS - OR CLOCK OUT ON A BREAK. GOOD LUCK, KID.",
+    text: tl('tut.end'),
     last: true,
   },
 ];
@@ -249,7 +249,7 @@ function tutWorldFx() {
   if (!TUT.on || TUT.hotelDrop >= 1) return;
   const off = -(1 - easeBounce(TUT.hotelDrop)) * 48;
   R(0, 10, 320, 28, PAL.night);
-  ctx.drawImage(BG, 0, 10, 320, 28, 0, 10 + off, 320, 28);
+  drawBGRegion(0, 10, 320, 28, 0, 10 + off);
 }
 function tutPanelRect(pos) {
   return pos === 'R' ? [221, 92, 98, 78] : pos === 'L' ? [4, 128, 214, 42] : [50, 84, 220, 44];
@@ -267,14 +267,14 @@ function tutRender() {
   R(x, y, w, h, PAL.ink);
   RB(x, y, w, h, PAL.yellow);
   RB(x + 1, y + 1, w - 2, h - 2, PAL.plum);
-  drawText(ctx, 'STEP ' + (TUT.i + 1) + '/' + TUT_STEPS.length, x + 4, y + 3, PAL.lav);
+  drawText(ctx, t('tut.step', { n: TUT.i + 1, total: TUT_STEPS.length }), x + 4, y + 3, PAL.lav);
   wrapText(st.text, Math.floor((w - 8) / 4)).forEach((l, i) => drawText(ctx, l, x + 4, y + 11 + i * 7, PAL.white));
   if (!st.until && TUT.t > 0.5 && Math.floor(UI.t * 2.5) % 2)
-    drawText(ctx, st.last ? 'TAP TO START YOUR SHIFT >' : 'TAP TO CONTINUE >', x + w - 4, y + h - 8, PAL.yellow, {
+    drawText(ctx, st.last ? t('tut.startShift') : t('tut.continue'), x + w - 4, y + h - 8, PAL.yellow, {
       align: 'right',
     });
-  if (st.until) drawText(ctx, 'YOUR TURN', x + w - 4, y + 3, PAL.lime, { align: 'right' });
+  if (st.until) drawText(ctx, t('tut.yourTurn'), x + w - 4, y + 3, PAL.lime, { align: 'right' });
   R(290, 12, 28, 10, PAL.ink);
   RB(290, 12, 28, 10, PAL.lgrey);
-  drawText(ctx, 'SKIP', 304, 15, PAL.lgrey, { align: 'center' });
+  drawText(ctx, t('tut.skip'), 304, 15, PAL.lgrey, { align: 'center' });
 }

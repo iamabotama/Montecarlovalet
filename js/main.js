@@ -4,7 +4,7 @@ function resize() {
   const w = Math.min(innerWidth, (innerHeight * 16) / 9);
   cv.style.width = w + 'px';
   cv.style.height = (w * 9) / 16 + 'px';
-} // canvas is 960x540 (3x game grid)
+} // canvas is DISPLAY.scale x the 320x180 game grid (index.html)
 addEventListener('resize', resize);
 let last = performance.now(),
   acc = 0;
@@ -21,17 +21,18 @@ function frame(now) {
       if (UI.screen !== 'game') break;
     }
   } else acc = 0;
-  ctx.setTransform(CAR_RES, 0, 0, CAR_RES, 0, 0);
+  ctx.setTransform(DISPLAY.scale, 0, 0, DISPLAY.scale, 0, 0);
   ctx.imageSmoothingEnabled = false;
   SCREENS[UI.screen].render();
   if (innerHeight > innerWidth) {
     R(0, 0, 320, 180, PAL.ink);
-    drawText(ctx, 'ROTATE YOUR DEVICE', 160, 86, PAL.yellow, { align: 'center', scale: 2 });
+    drawText(ctx, t('app.rotate'), 160, 86, PAL.yellow, { align: 'center', scale: 2 });
   }
   requestAnimationFrame(frame);
 }
 function boot() {
   loadSave();
+  setLanguage(chooseLanguage(SAVE.lang));
   Sound.muted = !!SAVE.muted;
   loadHotel(HOTEL_ORDER[0]);
   resize();
@@ -56,4 +57,5 @@ function boot() {
     SAVE: () => SAVE,
   };
 }
-boot();
+// Wait (briefly) for the pixel font so the first frame isn't drawn in the fallback face.
+Promise.race([loadFont(), new Promise(r => setTimeout(r, 1500))]).then(boot);

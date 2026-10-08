@@ -7,8 +7,8 @@ function waveOff(car, g) {
   removeQueuedJobsFor(car.id);
   const heat =
     T.waveOffHeatChance !== undefined ? (Math.random() < T.waveOffHeatChance ? T.waveOffHeat : 0) : T.waveOffHeat;
-  if (heat) addHeat(heat, 'YOU WAVED OFF A ' + carName(car) + '.');
-  floater('GENERAL PARKING >', g.x, g.y - 6, PAL.lime);
+  if (heat) addHeat(heat, t('heat.wavedOff', { car: carName(car) }));
+  floater(t('float.generalParking'), g.x, g.y - 6, PAL.lime);
   departCar(car);
   guestGone(g);
   S.selected = null;
@@ -31,19 +31,19 @@ function tapGuest(g) {
     return;
   }
   if (g.phase === 'pick' && !g.ticket) {
-    toast('WAIT FOR THE TICKET');
+    toast(t('toast.waitTicket'));
     return;
   }
   if (g.phase === 'pick') {
     if (S.jobs.some(j => j.type === 'fetch' && j.carId === g.carId)) {
-      toast('ALREADY FETCHING');
+      toast(t('toast.alreadyFetching'));
       return;
     }
     const car = S.cars.get(g.carId);
     if (car.loc.t === 'stall') {
       const d = liveDepth(car.loc.lane, car.loc.idx);
       if (d.best > freeTemps().length) {
-        toast('NO ROOM TO DIG OUT - FREE A TEMP SLOT');
+        toast(t('toast.noRoomDigOut'));
         Sound.sfx('deny');
         return;
       }
@@ -59,7 +59,7 @@ function tapCar(car, g) {
   if (g.phase === 'pick' && WAITING.has(g.state)) return tapGuest(g);
   if (car.loc.t === 'curb' && g.state === 'curbDrop') {
     if (S.jobs.some(j => j.carId === car.id)) {
-      toast('ALREADY QUEUED');
+      toast(t('toast.alreadyQueued'));
       return;
     }
     S.selected = { carId: car.id, bags: false };
@@ -72,5 +72,5 @@ function tapCar(car, g) {
     Sound.sfx('click');
     return;
   }
-  if (car.loc.t === 'stall') toast('GUEST IS STILL INSIDE');
+  if (car.loc.t === 'stall') toast(t('toast.guestInside'));
 }

@@ -6,21 +6,21 @@ function jobLabel(j) {
   const car = S.cars.get(j.carId);
   switch (j.type) {
     case 'park':
-      return 'PARK ' + LANE_NAMES[j.lane] + '-' + sideLabel(j.side);
+      return t('job.park', { lane: LANE_NAMES[j.lane], side: sideLabel(j.side) });
     case 'move':
-      return 'MOVE ' + LANE_NAMES[j.lane] + '-' + sideLabel(j.side);
+      return t('job.move', { lane: LANE_NAMES[j.lane], side: sideLabel(j.side) });
     case 'fetch':
       return car && car.loc.t === 'stall'
-        ? 'FETCH ' + stallName(car.loc.lane, car.loc.idx)
+        ? t('job.fetchAt', { where: stallName(car.loc.lane, car.loc.idx) })
         : car && car.loc.t === 'temp'
-          ? 'FETCH ' + TEMPS[car.loc.i].name
-          : 'FETCH';
+          ? t('job.fetchAt', { where: TEMPS[car.loc.i].name })
+          : t('job.fetch');
     case 'restow':
-      return 'RESTOW ' + j.list.filter(e => !e.done).length;
+      return t('job.restow', { n: j.list.filter(e => !e.done).length });
     case 'greet':
-      return 'GREET';
+      return t('job.greet');
     case 'heli':
-      return 'HELIPAD';
+      return t('job.helipad');
   }
   return j.type.toUpperCase();
 }
@@ -28,7 +28,7 @@ function enqueue(job) {
   const w = activeWorker();
   if (job.wid === undefined) job.wid = w.id;
   if (queuedCount(job.wid) >= SPD.jobQueueMax) {
-    toast(workerName(w) + ': QUEUE FULL (' + SPD.jobQueueMax + ')');
+    toast(t('toast.queueFull', { name: workerName(w), n: SPD.jobQueueMax }));
     Sound.sfx('deny');
     return false;
   }
@@ -49,7 +49,7 @@ function releaseJob(j) {
 function cancelJob(j) {
   if (j.worker) {
     if (j.carMoved) {
-      toast("CAN'T CANCEL - CAR IN MOTION");
+      toast(t('toast.cantCancel'));
       Sound.sfx('deny');
       return;
     }
@@ -63,7 +63,7 @@ function cancelJob(j) {
         const L = S.lanes[e.lane];
         if (L.res[e.idx] === e.carId) L.res[e.idx] = null;
       }
-    toast('BLOCKERS LEFT IN TEMP - TAP ONE TO RE-PARK');
+    toast(t('toast.blockersLeft'));
   }
   Sound.sfx('click');
 }

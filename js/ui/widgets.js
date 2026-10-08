@@ -33,9 +33,16 @@ function drawCareerBar(x, y, w) {
     cur = RANKS[SAVE.rank].xp;
   const f = nr ? clamp((SAVE.careerXP - cur) / (nr.xp - cur), 0, 1) : 1;
   drawText(ctx, rankName(), x, y, PAL.white);
-  drawText(ctx, nr ? SAVE.careerXP + ' / ' + nr.xp + ' XP' : SAVE.careerXP + ' XP - MAX RANK', x + w, y, PAL.lav, {
-    align: 'right',
-  });
+  drawText(
+    ctx,
+    nr ? t('career.xp', { xp: SAVE.careerXP, next: nr.xp }) : t('career.xpMax', { xp: SAVE.careerXP }),
+    x + w,
+    y,
+    PAL.lav,
+    {
+      align: 'right',
+    },
+  );
   R(x, y + 6, w, 2, PAL.dgrey);
   R(x, y + 6, Math.round(w * f), 2, PAL.lime);
 }

@@ -78,27 +78,59 @@ const PEOPLE = {
   cross: ['.hhh.', '.sss.', '.sss.', 'ccccc', 'cssss', '.ccc.', '.p.p.', '.p.p.', '.k.k.'],
   arms: ['.hhh.', 's.s.s', 's.s.s', 'ccccc', '.ccc.', '.ccc.', '.p.p.', '.p.p.', '.k.k.'],
 };
-function drawPerson(ctx, x, y, pose, colors, flip) {
-  // x,y = top-left; colors {h,s,c,p,k,x?}
+/* People keep their 5x9 game-pixel pattern and colours. On the 16-bit grid they also get a half-pixel
+   outline, eyes, cheeks, edge shading and a hair highlight (each can be switched off here). */
+const PERSON_STYLE = {
+  outline: 'rgba(16,12,28,0.9)',
+  eyes: '#1a1424',
+  cheeks: 'rgba(200,80,80,0.55)',
+  shade: 'rgba(0,0,0,0.28)',
+  hemShade: 'rgba(0,0,0,0.2)',
+  hairLight: 'rgba(255,255,255,0.35)',
+};
+function personCells(pose, colors, flip) {
   const rows = PEOPLE[pose] || PEOPLE.idle;
+  const cells = [];
   for (let ry = 0; ry < 9; ry++)
     for (let rx = 0; rx < 5; rx++) {
       let ch = rows[ry][flip ? 4 - rx : rx];
       if (ch === '.') continue;
       if (ch === 's' && ry === 4 && colors.g) ch = 'g'; // hands: gloves when given
-      if (ry === 0 && colors.x) {
-        ctx.fillStyle = colors.x;
-        ctx.fillRect(x + rx, y + ry, 1, 1);
-        continue;
-      }
-      ctx.fillStyle = colors[ch] || PAL.white;
-      ctx.fillRect(x + rx, y + ry, 1, 1);
+      cells.push({ rx, ry, ch, col: ry === 0 && colors.x ? colors.x : colors[ch] || PAL.white });
     }
   if (colors.x) {
-    ctx.fillStyle = colors.x;
-    ctx.fillRect(x + (flip ? -1 : 4), y, 2, 1);
-    ctx.fillRect(x + 1, y - 1, 3, 1);
+    // cap brim and crown
+    cells.push(
+      { rx: flip ? -1 : 4, ry: 0, ch: 'x', col: colors.x },
+      { rx: flip ? 0 : 5, ry: 0, ch: 'x', col: colors.x },
+    );
+    for (let i = 1; i < 4; i++) cells.push({ rx: i, ry: -1, ch: 'x', col: colors.x });
   }
+  return cells;
+}
+function drawPerson(ctx, x, y, pose, colors, flip) {
+  // x,y = top-left in game px; colors {h,s,c,p,k,x?,g?}
+  const P = PERSON_STYLE,
+    h = HI_PX;
+  x = snapHi(x);
+  y = snapHi(y);
+  const cells = personCells(pose, colors, flip);
+  const at = new Set(cells.map(c => c.rx + ',' + c.ry));
+  const fill = (c, rx, ry, w, hh) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x + rx, y + ry, w, hh);
+  };
+  if (P.outline) for (const c of cells) fill(P.outline, c.rx - h, c.ry - h, 1 + 2 * h, 1 + 2 * h);
+  for (const c of cells) fill(c.col, c.rx, c.ry, 1, 1);
+  for (const c of cells) {
+    if (P.shade && (c.ch === 'c' || c.ch === 'p') && !at.has(c.rx + 1 + ',' + c.ry))
+      fill(P.shade, c.rx + h, c.ry, h, 1);
+    if (P.hemShade && c.ch === 'c' && c.ry === 5) fill(P.hemShade, c.rx, c.ry + h, 1, h);
+    if (P.hairLight && (c.ch === 'h' || c.ch === 'x') && c.ry <= 0 && !at.has(c.rx - 1 + ',' + c.ry))
+      fill(P.hairLight, c.rx, c.ry, h, h);
+  }
+  if (P.eyes) (fill(P.eyes, 1 + h, 1 + h, h, h), fill(P.eyes, 3, 1 + h, h, h));
+  if (P.cheeks) (fill(P.cheeks, 1, 2, h, h), fill(P.cheeks, 3 + h, 2, h, h));
 }
 const ICONS = {
   ticket: ['xxxxx', 'x.x.x', 'xxxxx'],

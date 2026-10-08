@@ -9,6 +9,7 @@ function defaultSave() {
     rank: 0,
     tutorialSeen: false,
     muted: false,
+    lang: null, // language code (i18n/); null = follow the device language
     lastHotel: 'monte_carlo',
     loadout: CONFIG.career.defaultLoadout.slice(),
     cosmetic: { ...DEFAULT_COSMETIC },

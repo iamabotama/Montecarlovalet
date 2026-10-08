@@ -16,7 +16,7 @@ function addHeat(amt, reason, x, y) {
   for (const w of CONFIG.heat.warnings)
     if (S.heat >= w && !S.warned[w]) {
       S.warned[w] = true;
-      S.manager = { line: CONFIG.lines.warnings[w] || 'WATCH IT, KID.', t: 3 };
+      S.manager = { line: t(hasText('manager.warn' + w) ? 'manager.warn' + w : 'manager.watchIt'), t: 3 };
       S.shake = CONFIG.fx.shakeSec;
       Sound.sfx('whistle');
     }
@@ -26,7 +26,7 @@ function addHeat(amt, reason, x, y) {
 function repairHeat(amt) {
   S.heat = Math.max(0, S.heat - amt);
   S.stars++;
-  floater('-' + Math.round(amt) + ' HEAT', 140, 12, PAL.lime);
+  floater(t('float.heatDown', { n: Math.round(amt) }), 140, 12, PAL.lime);
   Sound.sfx('star');
   tryGrantStars();
 }

@@ -56,7 +56,7 @@ function newRun(opts = {}) {
     phase: 'play',
     endT: 0,
     boost: { hustle: 0, coffee: 0, spareKeys: 0 },
-    lastHeatReason: 'THE GUESTS COMPLAINED.',
+    lastHeatReason: t('heat.default'),
     ticketNo: 1,
     heatFloat: 0,
     meltdown: false,
@@ -86,7 +86,8 @@ function newRun(opts = {}) {
     },
   };
   S.goals = opts.goals || [];
-  for (const t of (opts.loadout || CONFIG.career.defaultLoadout).slice(0, CONFIG.career.loadoutCap)) grantCard(t, true);
+  for (const type of (opts.loadout || CONFIG.career.defaultLoadout).slice(0, CONFIG.career.loadoutCap))
+    grantCard(type, true);
   prefillLot();
 }
 const nid = () => S.nextId++;

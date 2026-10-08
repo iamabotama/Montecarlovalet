@@ -3,7 +3,7 @@
    list index.html loads, so a new module can never be forgotten here. */
 const CACHE = 'mcvalet-v2.2.0';
 importScripts('js/modules.js'); // defines MCV_MODULES
-const PRECACHE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'js/modules.js', ...MCV_MODULES.map(m => 'js/' + m)];
+const PRECACHE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'fonts/PressStart2P-Regular.ttf', 'js/modules.js', ...MCV_MODULES.map(m => 'js/' + m)];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));

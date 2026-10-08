@@ -107,37 +107,37 @@ const SHAPES = {
     '..kk...............kk...',
   ],
 };
-// Models: [name, shape, body, dark, light]
+// Models: [name, shape, body, dark, light]. Names are made-up brands: the same in every language.
 const MODELS = {
   beater: [
-    ['RUSTBUCKET HATCH', 'hatch', PAL.khaki, PAL.dgrey, PAL.peach],
-    ['HONDO CIVVY', 'civvy', PAL.lav, PAL.mauve, PAL.lgrey],
-    ['SOCCER-MOM VAN', 'van', PAL.olive, PAL.dgrey, PAL.khaki],
+    ['Rustbucket Hatch', 'hatch', PAL.khaki, PAL.dgrey, PAL.peach],
+    ['Hondo Civvy', 'civvy', PAL.lav, PAL.mauve, PAL.lgrey],
+    ['Soccer-Mom Van', 'van', PAL.olive, PAL.dgrey, PAL.khaki],
   ],
   standard: [
-    ['TOYODA CAMREE', 'sedan', PAL.lgrey, PAL.dgrey, PAL.white],
-    ['FORD FUSSION', 'sedan', PAL.blue, PAL.royal, PAL.white],
-    ['SUBAROO', 'wagon', PAL.green, PAL.teal, PAL.emer],
+    ['Toyoda Camree', 'sedan', PAL.lgrey, PAL.dgrey, PAL.white],
+    ['Ford Fussion', 'sedan', PAL.blue, PAL.royal, PAL.white],
+    ['Subaroo', 'wagon', PAL.green, PAL.teal, PAL.emer],
   ],
   premium: [
-    ['AUDEE A8', 'lux', PAL.lav, PAL.mauve, PAL.lgrey],
-    ['BIMMER 7', 'lux', PAL.white, PAL.lgrey, PAL.white],
-    ['MERC S', 'lux', PAL.asph3, PAL.asph, PAL.lgrey],
-    ['LEXXUS', 'lux', PAL.brown, PAL.rust, PAL.peach],
+    ['Audee A8', 'lux', PAL.lav, PAL.mauve, PAL.lgrey],
+    ['Bimmer 7', 'lux', PAL.white, PAL.lgrey, PAL.white],
+    ['Merc S', 'lux', PAL.asph3, PAL.asph, PAL.lgrey],
+    ['Lexxus', 'lux', PAL.brown, PAL.rust, PAL.peach],
   ],
   whale: [
-    ['FERRUCCIO', 'sport', PAL.red, PAL.crimson, PAL.pink],
-    ['LAMBORGOTTI', 'wedge', PAL.yellow, PAL.orange, PAL.cream],
-    ['PORSCH 911', 'sport', PAL.lime, PAL.emer, PAL.leaf],
-    ['MCLARREN', 'wedge', PAL.orange, PAL.tang, PAL.yellow],
+    ['Ferruccio', 'sport', PAL.red, PAL.crimson, PAL.pink],
+    ['Lamborgotti', 'wedge', PAL.yellow, PAL.orange, PAL.cream],
+    ['Porsch 911', 'sport', PAL.lime, PAL.emer, PAL.leaf],
+    ['McLarren', 'wedge', PAL.orange, PAL.tang, PAL.yellow],
   ],
   ultra: [
-    ['ROLLS-ROIZ PHANTASM', 'gt', PAL.asph2, PAL.ink, PAL.lgrey],
-    ['BENTLEE', 'gt', PAL.green, PAL.teal, PAL.emer],
-    ['BUGATTO', 'gt', PAL.blue, PAL.royal, PAL.white],
+    ['Rolls-Roiz Phantasm', 'gt', PAL.asph2, PAL.ink, PAL.lgrey],
+    ['Bentlee', 'gt', PAL.green, PAL.teal, PAL.emer],
+    ['Bugatto', 'gt', PAL.blue, PAL.royal, PAL.white],
   ],
   limo: [
-    ['STRETCH LIMO', 'limo', PAL.white, PAL.lgrey, PAL.white],
-    ['STRETCH LIMO', 'limo', PAL.asph, PAL.ink, PAL.asph3],
+    ['Stretch Limo', 'limo', PAL.white, PAL.lgrey, PAL.white],
+    ['Stretch Limo', 'limo', PAL.asph, PAL.ink, PAL.asph3],
   ],
 };

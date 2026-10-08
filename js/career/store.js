@@ -7,7 +7,7 @@
 const StoreProvider = {
   name: 'none',
   purchase(productId) {
-    return Promise.reject(new Error('STORE NOT AVAILABLE YET'));
+    return Promise.reject(new Error(t('store.unavailable')));
   },
   restore() {
     return Promise.resolve([]);

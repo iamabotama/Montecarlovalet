@@ -36,16 +36,16 @@ function selectionOptions() {
   if (car.loc.t === 'curb' && g && g.state === 'curbDrop') {
     if (g.tier === 'limo')
       menu.push({
-        label: 'GREET',
+        label: t('sel.greet'),
         fn: () => {
           if (enqueue({ type: 'greet', carId: car.id })) S.selected = null;
         },
       });
-    else if (!isWhale(g.tier)) menu.push({ label: 'WAVE OFF', fn: () => waveOff(car, g) });
-    const have = t => S.cards.findIndex(c => c.type === t);
-    for (const t of ['pawnOff', 'directAway', 'bags', 'bribe']) {
-      const i = have(t);
-      if (i >= 0 && powerTargets(t, g, car)) menu.push({ label: POWER_INFO[t].name, fn: () => useCard(i, g) });
+    else if (!isWhale(g.tier)) menu.push({ label: t('sel.waveOff'), fn: () => waveOff(car, g) });
+    const have = type => S.cards.findIndex(c => c.type === type);
+    for (const type of ['pawnOff', 'directAway', 'bags', 'bribe']) {
+      const i = have(type);
+      if (i >= 0 && powerTargets(type, g, car)) menu.push({ label: POWER_INFO[type].name, fn: () => useCard(i, g) });
     }
     let x = clamp(car.x - 20, 94, 226 - 44);
     menu.forEach((m, n) => {
@@ -68,7 +68,7 @@ function renderSelection() {
   if (!S.selected) return;
   const car = o.car;
   RB(Math.round(car.x - 10), Math.round(car.y - 6), 20, 13, PAL.yellow);
-  if (o.stalls.length && lotFull()) drawText(ctx, 'LOT FULL - NO PARKING', 160, 84, PAL.red, { align: 'center' });
+  if (o.stalls.length && lotFull()) drawText(ctx, t('sel.lotFull'), 160, 84, PAL.red, { align: 'center' });
   for (const s of o.stalls) {
     const x = MAP.lotX + s.idx * SW,
       y = MAP.lotY + s.lane * SH;
