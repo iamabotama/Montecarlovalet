@@ -1,0 +1,23 @@
+{
+ "crew.hire": 6,
+ "crew.home": 6,
+ "crew.send": 6,
+ "guide.arrivalTip": 28,
+ "guide.decay": 78,
+ "guide.greetTip": 28,
+ "guide.meetWithin": 33,
+ "guide.neverParked": 28,
+ "guide.pickupTip": 28,
+ "guide.tip": 28,
+ "guide.waits": 28,
+ "hotel.dubai.name": 11,
+ "hotel.las_vegas.name": 18,
+ "hotel.monte_carlo.name": 18,
+ "hotels.bothEnds": 18,
+ "hotels.oneEnd": 18,
+ "hotels.standardTips": 18,
+ "tut.stalls": 150,
+ "tut.step": 10,
+ "tut.tapStall": 80,
+ "tut.yourTurn": 9
+}

@@ -54,3 +54,15 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - **Shift complete** at midnight: +$150 bonus and the 2-3 star ratings. Clocking out early (a break after wave 2) keeps your money, earns 1 star.
 - Hotel event (Gala, Fight Night, Royal Wedding...) is the 4th wave. Helicopters land at set points in the waves (`helo.times` per hotel).
 - HUD pill (top left) shows WAVE n/4, BREAK or LAST CALL with time left. Banners now queue instead of drawing on top of each other.
+
+## v2.3: 16-bit display + language tables
+- Rendering on a 640x360 detail grid (2x the game grid): smoother people and scenery, same game layout.
+- Text in Press Start 2P (SIL OFL), with the original 3x5 bitmap capitals as a fallback.
+- Every player-facing word moved into `js/i18n/en.js`; `tools/check_i18n.js` runs in CI.
+
+## v2.4: 13 languages
+- English, Español, Français, Deutsch, Italiano, Português (BR), Polski, Türkçe, Українська, Русский, 中文, 日本語, 한국어.
+- Follows the device language by default; **Language** is the last title-menu item ("Langue / Language" when not in English), with a Device-language option. The choice is saved.
+- Chinese/Japanese/Korean use Fusion Pixel 10px (SIL OFL), cut down to the characters the game uses (60-90 KB each, `tools/build_fonts.py`).
+- Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
+- `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.

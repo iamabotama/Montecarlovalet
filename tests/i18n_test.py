@@ -3,7 +3,7 @@ string is wrapped in [brackets], visits every screen, the tutorial and a busy sh
 drawText() draws, and fails if letters appear outside brackets (except names that are the same in every
 language: car models, valet names, lane/stall codes). Also checks switching back to English."""
 import sys
-from harness import Game, run
+from harness import Game, run, tour
 
 PSEUDO_JS = r'''() => {
   const src = LANGS.en.table, xx = {};
@@ -20,7 +20,6 @@ SAME_EVERYWHERE_JS = '''() => { const w = new Set(CONFIG.helpers ? [] : []);
   for (const n of CONFIG.roster ? CONFIG.roster.names : []) w.add(n);
   for (const n of (CONFIG.crew && CONFIG.crew.names) || []) w.add(n);
   return [...w]; }'''
-FRAME = 120
 
 def leaks(drawn, allowed):
     import re
@@ -46,36 +45,11 @@ async def main():
         names = await g.js("() => { const out = []; (function walk(o, d) { if (d > 3 || !o || typeof o !== 'object') return; for (const [k, v] of Object.entries(o)) { if (k === 'names' && Array.isArray(v)) out.push(...v); else walk(v, d + 1); } })(CONFIG, 0); return out; }")
         allowed |= set(names)
         await g.js(PSEUDO_JS)
-        allowed |= set(await g.js('() => languageList().map(l => l.name)'))  # each language names itself
-        for scr in ['title', 'settings', 'howto', 'hotels', 'prep']:
-            await g.js(f"() => goScreen('{scr}')"); await g.run(FRAME)
-            if scr == 'howto':
-                for p in range(1, await g.js('() => HOWTO.length')):
-                    await g.js(f'() => {{ UI.howPage = {p}; }}'); await g.run(FRAME)
-        await g.js("() => goScreen('guide')")
-        for p in range(await g.js('() => GUIDE_PAGES.length')):
-            await g.js(f'() => {{ UI.guidePage = {p}; }}'); await g.run(FRAME)
-        await g.shot('i18n_guide')
-        # tutorial: render every step
-        await g.js('() => startTutorial()'); await g.run(400)
-        n = await g.js('() => TUT_STEPS.length')
-        for i in range(n):
-            await g.js(f'() => {{ TUT.i = {i}; TUT.t = 5; }}'); await g.run(FRAME)
-        await g.js('() => { TUT.on = false; MCV.S.tutorial = false; }')
-        # a busy shift on every hotel: HUD, board, bubbles, crew, helicopter, banners, toasts
-        for hotel in ['monte_carlo', 'dubai']:
-            await g.start(hotel)
-            await g.js('() => { const S = MCV.S; S.money = 5000; }')
-            await g.bot(speed=14)
-            for _ in range(12):
-                await g.run(900)
-                await g.js('() => { try { if (MCV.S.helpers.length < 2) hireValet(); } catch (e) {} if (MCV.S.heat > 60) MCV.S.heat = 20; }')
-            await g.js('() => { UI.paused = true; }'); await g.run(FRAME); await g.js('() => { UI.paused = false; }')
-        await g.shot('i18n_game')
-        await g.js('() => fire()'); await g.run(4500)
-        await g.js("() => { if (!RESULT) finishRun(); goScreen('summary'); }"); await g.run(300)
-        await g.shot('i18n_summary')
-        await g.js("() => { RESULT.promotions = RESULT.promotions.length ? RESULT.promotions : [1]; goScreen('promotion'); }"); await g.run(FRAME)
+        # each language names itself, and the menu adds "/ Language" so anyone can find the picker
+        import re
+        for n in await g.js('() => languageList().map(l => l.name)') + ['Language']:
+            allowed |= set(re.findall(r"[A-Za-z][A-Za-z'.]*\d*", n))
+        await tour(g, shots='i18n')
         drawn = await g.js('() => [...window._drawn]')
         bad = leaks(drawn, allowed)
         print(f'drawn strings: {len(drawn)}, bracketed: {sum("[" in s for s in drawn)}')
@@ -89,10 +63,12 @@ async def main():
         good = back == ['Hotel Monte Carlo', 'Bribe', 'nope.missing']
         print(('OK   ' if good else 'FAIL ') + 'switch back to English', back)
         ok &= good
-        # the Settings language button cycles languages and remembers the choice
-        cyc = await g.js("() => { goScreen('settings'); const b = SCREENS.settings.buttons().find(b => String(b.label).startsWith('Language')); b.fn(); return [I18N.code, SAVE.lang, JSON.parse(localStorage.getItem(CONFIG.career.saveKey)).lang]; }")
-        good = cyc == ['xx', 'xx', 'xx']
-        print(('OK   ' if good else 'FAIL ') + 'settings language button', cyc)
+        # the Language screen picks a language and remembers it; 'Device language' forgets the choice
+        cyc = await g.js('''() => { goScreen('language'); const pick = c => SCREENS.language.buttons().find(b => b.lang === c).fn();
+          pick('xx'); const a = [I18N.code, SAVE.lang, JSON.parse(localStorage.getItem(CONFIG.career.saveKey)).lang];
+          SCREENS.language.buttons()[0].fn(); return a.concat([SAVE.lang, I18N.code]); }''')
+        good = cyc == ['xx', 'xx', 'xx', None, 'en']
+        print(('OK   ' if good else 'FAIL ') + 'language screen', cyc)
         ok &= good
         if g.errors:
             ok = False

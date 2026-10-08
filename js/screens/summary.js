@@ -20,7 +20,7 @@ defineScreen('summary', {
       : r.complete
         ? t('summary.madeIt', { hotel: r.hotel.name, money: fmtMoney(CONFIG.shift.completeBonus) })
         : t('summary.left', { time: fmtClock(r.hour), n: r.st.wavesCleared, total: waveCount() });
-    wrapText(msg.trim(), 76)
+    wrapText(msg.trim(), 303)
       .slice(0, 2)
       .forEach((l, i) => drawText(ctx, l, 160, 19 + i * 7, PAL.white, { align: 'center' }));
     renderShiftColumn(r, 8, 36);

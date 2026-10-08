@@ -8,16 +8,17 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 
 | Folder | Owns | Must not |
 | --- | --- | --- |
-| `core/` | Tiny helpers (random, clamp, lerp) | Know about the game |
+| `core/` | Tiny helpers (random, clamp, lerp), display scale | Know about the game |
+| `i18n/` | Every player-facing word: `i18n.js` (`t()`, `tl()`, language choice) and one table per language (`en.js` is the master) | Contain logic beyond lookup |
 | `data/` | All tuning and content as plain objects: `config.js`, vehicles, power-ups, goals, cosmetics, products, **`hotels/`** | Contain logic or touch state |
-| `art/`, `audio/` | Palette, pixel font, procedural car and people sprites, sound | Read game state |
+| `art/`, `audio/` | Palette, pixel fonts (one face per script: Press Start 2P, Fusion Pixel for CJK), procedural car and people sprites, sound | Read game state |
 | `world/` | The active lot's geometry, the routing graph, the lot model (stalls, temps, curb), and planning and running valet jobs | Award money or heat |
 | `career/` | Everything that **persists between shifts**: save and migrations, XP and ranks, unlocks, crew roster, store ownership | Run during a shift (except roster and wage lookups) |
 | `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`), arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
 | `render/` | Drawing the world: themed background, people, crowd spacing (`crowd.js`), helicopter, the game frame | Change state |
 | `ui/` | In-game HUD, board, selection, crew panel, input hit-targets, debug overlay, widgets | Hold rules |
-| `screens/` | One file per screen (`defineScreen`). Covers title, hotels, shift prep, game, promotion, summary, settings and how-to | Build run state themselves |
+| `screens/` | One file per screen (`defineScreen`). Covers title, hotels, shift prep, game, promotion, summary, settings, language, vehicle guide and how-to | Build run state themselves |
 | `app/` | Flow between screens: `loadHotel()`, `startGame()` | |
 | `main.js` | Boot and the fixed-timestep loop | |
 
@@ -26,6 +27,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 - **Hotels are data.** `data/hotels/<id>.js` calls `defineHotel({...})`. It sets the lot shape (lanes, stalls, open row ends, temp slots), helipad and landings, rush event, arrival mix, modifiers (tips, driving) and visual theme. `world/geometry.js` turns it into live geometry through `setGeometry()`, and `app/flow.js#loadHotel` rebuilds the routing graph and the background. No other code mentions a specific hotel.
 - **Two kinds of state.** `S` is one shift: `newRun()` creates it and it is thrown away afterwards. `SAVE` is the career: only `career/*` and the settings screen write it. `finishRun()` hands the shift to `awardShift()` once, at the end.
 - **Goals read stats.** Nightly goals (`data/goals.js`) are `value(S)` functions over `S.stats`. The rules never call into the goal system; they only count things.
+- **Text is data.** Code never contains words: it calls `t('area.key', {values})` (or `tl()` in data files). Each language is a table in `i18n/`; its font face is named there. Layout measures text (`textW`, `wrapText(s, widthPx)`) instead of counting characters, and fixed slots pass `maxW` so `tests/layout_test.py` can prove every language fits. See `docs/TRANSLATING.md`.
 - **Save versioning.** Bump `CONFIG.career.saveVersion` and add a `MIGRATIONS[n]` entry in `career/save.js`. Old saves get upgraded, never wiped.
 - **Store is one switch.** `CONFIG.store.enabled = false` means everything is owned. Going live means implementing `StoreProvider.purchase()` in `career/store.js` against a real payment backend. Nothing else changes.
 

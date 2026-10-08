@@ -9,7 +9,7 @@ function drawButtons(bs) {
     if (b.hidden) continue;
     R(b.x, b.y, b.w, b.h, PAL.ink);
     RB(b.x, b.y, b.w, b.h, b.col);
-    drawText(ctx, b.label, b.x + b.w / 2, b.y + 4, b.col, { align: 'center' });
+    drawText(ctx, b.label, b.x + b.w / 2, b.y + 4, b.col, { align: 'center', lang: b.lang, maxW: b.w - 2 });
   }
 }
 function renderText(title, lines) {

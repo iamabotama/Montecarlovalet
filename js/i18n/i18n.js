@@ -12,8 +12,9 @@
    tools/check_i18n.js (run in CI) lists missing/unused keys and raw text left in the code. */
 const LANGS = {};
 const I18N = { code: 'en' };
-function defineLanguage(code, name, table) {
-  LANGS[code] = { code, name, table };
+// opts.face: the pixel font this language needs (art/font.js FACES), default 'latin'.
+function defineLanguage(code, name, table, opts = {}) {
+  LANGS[code] = { code, name, table, face: opts.face || 'latin' };
 }
 function lookup(key) {
   const cur = LANGS[I18N.code];
@@ -47,7 +48,8 @@ const tl = (key, values) => new TextRef(key, values);
 // Saved choice, else the first device language we have a table for, else English.
 function chooseLanguage(saved) {
   if (saved && LANGS[saved]) return saved;
-  for (const l of (typeof navigator !== 'undefined' && navigator.languages) || []) {
+  const nav = typeof navigator !== 'undefined' ? navigator : {};
+  for (const l of nav.languages || (nav.language ? [nav.language] : [])) {
     const c = String(l).slice(0, 2).toLowerCase();
     if (LANGS[c]) return c;
   }

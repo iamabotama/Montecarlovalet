@@ -31,8 +31,6 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 function boot() {
-  loadSave();
-  setLanguage(chooseLanguage(SAVE.lang));
   Sound.muted = !!SAVE.muted;
   loadHotel(HOTEL_ORDER[0]);
   resize();
@@ -58,4 +56,11 @@ function boot() {
   };
 }
 // Wait (briefly) for the pixel font so the first frame isn't drawn in the fallback face.
-Promise.race([loadFont(), new Promise(r => setTimeout(r, 1500))]).then(boot);
+// The language is chosen first so its face (e.g. Chinese) can load alongside the Latin one.
+function preBoot() {
+  loadSave();
+  setLanguage(chooseLanguage(SAVE.lang));
+  const fonts = Promise.all([loadFont(), ensureLanguageFont(I18N.code)]);
+  Promise.race([fonts, new Promise(r => setTimeout(r, 1500))]).then(boot);
+}
+preBoot();

@@ -43,8 +43,8 @@ function drawHotelCard(h, x, y, selected) {
   R(x + 1, y + 1, CARD.w - 2, 14, acc.ok ? T.facade : PAL.asph);
   RB(x, y, CARD.w, CARD.h, col);
   const cx = x + CARD.w / 2;
-  drawText(ctx, h.city, cx, y + 3, acc.ok ? T.sign : PAL.lgrey, { align: 'center' });
-  drawText(ctx, h.name, cx, y + 9, acc.ok ? PAL.white : PAL.lgrey, { align: 'center' });
+  drawText(ctx, h.city, cx, y + 3, acc.ok ? T.sign : PAL.lgrey, { align: 'center', maxW: CARD.w - 2 });
+  drawText(ctx, h.name, cx, y + 9, acc.ok ? PAL.white : PAL.lgrey, { align: 'center', maxW: CARD.w - 2 });
   drawLotPreview(h, cx, y + 20, acc.ok);
   const lot = h.lot;
   const info = [
@@ -55,7 +55,9 @@ function drawHotelCard(h, x, y, selected) {
       : t('hotels.noHelipad'),
     h.mods.tipMult !== 1 ? t('hotels.tipsX', { n: h.mods.tipMult }) : t('hotels.standardTips'),
   ];
-  info.forEach((l, i) => drawText(ctx, l, cx, y + 58 + i * 7, acc.ok ? PAL.lav : PAL.dgrey, { align: 'center' }));
+  info.forEach((l, i) =>
+    drawText(ctx, l, cx, y + 58 + i * 7, acc.ok ? PAL.lav : PAL.dgrey, { align: 'center', maxW: CARD.w - 2 }),
+  );
   if (acc.ok) {
     const best = hotelHighScore(h.id);
     drawStars(cx, y + 80, hotelStars(h.id));
@@ -69,7 +71,7 @@ function drawHotelCard(h, x, y, selected) {
       });
   } else {
     drawIcon(ctx, 'lock', cx - 2, y + 86, PAL.orange);
-    wrapText(acc.reason, 17).forEach((l, i) => drawText(ctx, l, cx, y + 94 + i * 7, PAL.orange, { align: 'center' }));
+    wrapText(acc.reason, 67).forEach((l, i) => drawText(ctx, l, cx, y + 94 + i * 7, PAL.orange, { align: 'center' }));
   }
 }
 // Tiny top-down sketch of the hotel's lot: rows, open ends (green) and closed ends (grey).

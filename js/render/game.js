@@ -136,7 +136,7 @@ function renderGame() {
   if (S.phase === 'fired' && S.endT > 1.2) {
     R(0, 60, 320, 50, PAL.ink);
     drawText(ctx, t('hud.fired'), 160, 66, PAL.red, { align: 'center', scale: 3, shadow: PAL.crimson });
-    wrapText(S.firedLine, 60).forEach((l, i) => drawText(ctx, l, 160, 90 + i * 7, PAL.white, { align: 'center' }));
+    wrapText(S.firedLine, 239).forEach((l, i) => drawText(ctx, l, 160, 90 + i * 7, PAL.white, { align: 'center' }));
     const hy = 40 - (S.endT - 1.2) * 30;
     R(S.valet.x + (S.endT - 1.2) * 20, hy, 4, 2, PAL.red);
   }

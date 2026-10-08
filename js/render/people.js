@@ -46,7 +46,7 @@ function drawBubbles(list) {
   const placed = [];
   list.sort((a, b) => a.order - b.order);
   for (const it of list) {
-    const lines = wrapText(it.b.text, 10);
+    const lines = wrapText(it.b.text, 39);
     const w = Math.max(...lines.map(l => textW(l))) + 5,
       h = lines.length * 6 + 4;
     let x = clamp(Math.round(it.x - 3), 1, 319 - w),

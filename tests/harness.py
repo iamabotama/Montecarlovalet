@@ -74,3 +74,41 @@ class Game:
 
 def run(coro):
     asyncio.run(coro)
+
+
+FRAME = 120
+
+
+async def tour(g, shots=None, hotels=('monte_carlo', 'dubai'), busy=12):
+    """Visit every screen and page, every tutorial step and busy shifts (HUD, board, bubbles, crew,
+    helicopter, banners, toasts), then the fired summary and a promotion. Used by the text tests."""
+    for scr in ['title', 'settings', 'language', 'howto', 'hotels', 'prep']:
+        await g.js(f"() => goScreen('{scr}')"); await g.run(FRAME)
+        if scr == 'howto':
+            for p in range(1, await g.js('() => HOWTO.length')):
+                await g.js(f'() => {{ UI.howPage = {p}; }}'); await g.run(FRAME)
+    await g.js("() => goScreen('guide')")
+    for p in range(await g.js('() => GUIDE_PAGES.length')):
+        await g.js(f'() => {{ UI.guidePage = {p}; }}'); await g.run(FRAME)
+    if shots:
+        await g.shot(shots + '_guide')
+    await g.js('() => startTutorial()'); await g.run(400)
+    for i in range(await g.js('() => TUT_STEPS.length')):
+        await g.js(f'() => {{ TUT.i = {i}; TUT.t = 5; }}'); await g.run(FRAME)
+    await g.js('() => { TUT.on = false; MCV.S.tutorial = false; }')
+    for hotel in hotels:
+        await g.start(hotel)
+        await g.js('() => { const S = MCV.S; S.money = 5000; }')
+        await g.bot(speed=14)
+        for _ in range(busy):
+            await g.run(900)
+            await g.js('() => { try { if (MCV.S.helpers.length < 2) hireValet(); } catch (e) {} if (MCV.S.heat > 60) MCV.S.heat = 20; }')
+        await g.js('() => { UI.paused = true; }'); await g.run(FRAME); await g.js('() => { UI.paused = false; }')
+    if shots:
+        await g.shot(shots + '_game')
+    await g.js('() => fire()'); await g.run(4500)
+    await g.js("() => { if (!RESULT) finishRun(); goScreen('summary'); }"); await g.run(300)
+    if shots:
+        await g.shot(shots + '_summary')
+    await g.js("() => { RESULT.promotions = RESULT.promotions.length ? RESULT.promotions : [1]; goScreen('promotion'); }")
+    await g.run(FRAME)

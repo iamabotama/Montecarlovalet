@@ -14,7 +14,8 @@ const ROOT = path.join(__dirname, '..', 'js');
 const I18N_DIR = path.join(ROOT, 'i18n');
 // Files whose literals are not player-facing language text.
 const SKIP_LINT = new Set(['ui/debug.js', 'data/vehicles.js', 'modules.js']);
-const IDS = new Set(['ABCDEFGHIJ', 'MCV-PS2P']);
+const IDS = new Set(['ABCDEFGHIJ']);
+const isId = s => IDS.has(s) || /^MCV-/.test(s); // font family names
 
 const walk = d =>
   fs.readdirSync(d, { withFileTypes: true }).flatMap(e => {
@@ -59,7 +60,7 @@ for (const file of walk(ROOT)) {
       for (const m of line.matchAll(STR)) {
         const s = m[2];
         if (KEY.test(s)) used.add(s);
-        if (SKIP_LINT.has(rel) || line.includes('i18n-ignore') || IDS.has(s) || /console\./.test(line)) continue;
+        if (SKIP_LINT.has(rel) || line.includes('i18n-ignore') || isId(s) || /console\./.test(line)) continue;
         const looksLikeText = /[A-Z]{3,}/.test(s.replace(/\$\{[^}]*\}/g, '')) || /^[A-Z][a-z]+ [A-Za-z]/.test(s);
         if (looksLikeText) errors.push(`raw text in code: ${rel}:${i + 1}: '${s}'`);
       }
@@ -99,10 +100,19 @@ for (const L of Object.values(LANGS)) {
       b = L.table[k];
     if (Array.isArray(a) !== Array.isArray(b))
       errors.push(`${L.code}: ${k} should be ${Array.isArray(a) ? 'a list' : 'text'}`);
-    else if (!Array.isArray(a) && holes(a) !== holes(b))
+    else if (!Array.isArray(a) && holes(a) !== holes(b).replace('h24', 'h') && holes(a) !== holes(b))
       errors.push(`${L.code}: ${k} placeholders {${holes(b)}} should be {${holes(a)}}`);
   }
   for (const k of Object.keys(L.table)) if (!(k in EN)) errors.push(`${L.code}: unknown key ${k}`);
+  // CJK faces are subset fonts: every character the table uses must be in fonts/<file>.chars.txt
+  if (L.face !== 'latin') {
+    const list = path.join(ROOT, '..', 'fonts', `fusion-pixel-${L.face}.chars.txt`);
+    const have = fs.existsSync(list) ? new Set(fs.readFileSync(list, 'utf8')) : new Set();
+    const text = [L.name, ...Object.values(L.table).flat()].join('');
+    const lack = [...new Set(text)].filter(c => c.trim() && !have.has(c));
+    if (lack.length)
+      errors.push(`${L.code}: ${lack.length} character(s) not in its font (${lack.slice(0, 12).join('')}...): run python3 tools/build_fonts.py`);
+  }
   const n = Object.keys(EN).length;
   report.push(`${L.code} (${L.name}): ${n - missing}/${n} keys translated`);
 }

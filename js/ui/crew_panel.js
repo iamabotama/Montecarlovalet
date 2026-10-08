@@ -21,6 +21,6 @@ function renderCrewPanel() {
     : full
       ? [t('crew.crew'), t('crew.full'), '', '']
       : [t('crew.hire'), next.name, fmtMoney(memberWage(next)), t('crew.perHour')];
-  lines.forEach((l, i) => drawText(ctx, l, 16, 127 + i * 7, i < 2 ? PAL.white : col, { align: 'center' }));
+  lines.forEach((l, i) => drawText(ctx, l, 16, 127 + i * 7, i < 2 ? PAL.white : col, { align: 'center', maxW: 26 }));
   for (let i = 0; i < CONFIG.helpers.max; i++) R(6 + i * 7, 160, 5, 4, i < S.helpers.length ? PAL.red : PAL.dgrey);
 }

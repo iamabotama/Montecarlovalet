@@ -31,23 +31,11 @@ function renderHUD() {
   drawText(ctx, t('hud.hi', { money: fmtMoney(hotelHighScore(HOTEL.id)) }), 318, 3, PAL.lav, { align: 'right' });
   // bottom strip: queue
   R(0, 172, 320, 8, PAL.ink);
-  drawText(
-    ctx,
-    S.helpers.length
-      ? S.activeW === 0
-        ? t('hud.you')
-        : t('hud.helper', { n: S.helpers.indexOf(activeWorker()) + 2 })
-      : t('hud.queue'),
-    2,
-    174,
-    S.helpers.length ? PAL.yellow : PAL.lgrey,
-  );
+  drawText(ctx, queueLabel(), 2, 174, S.helpers.length ? PAL.yellow : PAL.lgrey);
   queueItems().forEach(q => {
-    const car = S.cars.get(q.j.carId);
     const active = !!q.j.worker;
     drawText(ctx, q.label, q.x, 174, active ? PAL.lime : q.j.waitMsg ? PAL.orange : PAL.white);
-    if (!q.j.type.startsWith('restow') || true) drawIcon(ctx, 'x', q.x + q.w + 2, 173, PAL.red);
-    void car;
+    drawIcon(ctx, 'x', q.x + q.w + 2, 173, PAL.red);
   });
   drawIcon(ctx, 'pause', 312, 173, PAL.white);
   drawIcon(ctx, Sound.muted ? 'spkoff' : 'spk', 298, 173, PAL.white);
@@ -83,8 +71,16 @@ function renderPhasePill() {
   drawText(ctx, time, 66, 13, PAL.white, { align: 'right' });
   R(4, 19, Math.round(62 * (1 - phaseLeftSec() / p.sec)), 1, col);
 }
+// "Queue:" alone, or whose queue it is once there are helpers ("V1 You:", "V2:")
+const queueLabel = () =>
+  S.helpers.length
+    ? S.activeW === 0
+      ? t('hud.you')
+      : t('hud.helper', { n: S.helpers.indexOf(activeWorker()) + 2 })
+    : t('hud.queue');
+// Queue entries left to right, starting after the label (its width varies by language). Also the tap targets.
 function queueItems() {
-  let x = S.helpers.length && S.activeW === 0 ? 32 : 28;
+  let x = 2 + textW(queueLabel()) + 5;
   const out = [];
   for (const j of S.jobs) {
     if (j.aborted || j.wid !== S.activeW) continue;

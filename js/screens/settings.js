@@ -1,5 +1,5 @@
 'use strict';
-/* Settings: sound, language (shown once there is more than one), career reset. */
+/* Settings: sound, career reset. (Language has its own title-menu screen.) */
 defineScreen('settings', {
   enter() {
     UI.confirmReset = false;
@@ -26,9 +26,6 @@ defineScreen('settings', {
       },
       PAL.red,
     ),
-    ...(languageList().length > 1
-      ? [button(100, 106, 120, t('settings.language', { name: LANGS[I18N.code].name }), nextLanguage)]
-      : []),
     button(100, 130, 120, t('btn.back'), () => goScreen('title')),
   ],
   render() {
@@ -36,12 +33,3 @@ defineScreen('settings', {
     drawButtons(this.buttons());
   },
 });
-// Cycle to the next language and remember the choice (null in SAVE = follow the device).
-function nextLanguage() {
-  const list = languageList();
-  const i = list.findIndex(l => l.code === I18N.code);
-  const code = list[(i + 1) % list.length].code;
-  setLanguage(code);
-  SAVE.lang = code;
-  writeSave();
-}

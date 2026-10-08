@@ -231,7 +231,8 @@ function tutUpdate(dt) {
 // Pointer hook: returns true if the tutorial consumed the tap.
 function tutTap(x, y) {
   if (!TUT.on) return false;
-  if (x >= 290 && y >= 12 && y < 22) {
+  const sk = skipRect();
+  if (x >= sk.x && y >= sk.y && y < sk.y + sk.h) {
     tutFinish();
     return true;
   } // SKIP
@@ -268,13 +269,19 @@ function tutRender() {
   RB(x, y, w, h, PAL.yellow);
   RB(x + 1, y + 1, w - 2, h - 2, PAL.plum);
   drawText(ctx, t('tut.step', { n: TUT.i + 1, total: TUT_STEPS.length }), x + 4, y + 3, PAL.lav);
-  wrapText(st.text, Math.floor((w - 8) / 4)).forEach((l, i) => drawText(ctx, l, x + 4, y + 11 + i * 7, PAL.white));
+  wrapText(st.text, w - 8).forEach((l, i) => drawText(ctx, l, x + 4, y + 11 + i * 7, PAL.white));
   if (!st.until && TUT.t > 0.5 && Math.floor(UI.t * 2.5) % 2)
     drawText(ctx, st.last ? t('tut.startShift') : t('tut.continue'), x + w - 4, y + h - 8, PAL.yellow, {
       align: 'right',
     });
   if (st.until) drawText(ctx, t('tut.yourTurn'), x + w - 4, y + 3, PAL.lime, { align: 'right' });
-  R(290, 12, 28, 10, PAL.ink);
-  RB(290, 12, 28, 10, PAL.lgrey);
-  drawText(ctx, t('tut.skip'), 304, 15, PAL.lgrey, { align: 'center' });
+  const sk = skipRect();
+  R(sk.x, sk.y, sk.w, sk.h, PAL.ink);
+  RB(sk.x, sk.y, sk.w, sk.h, PAL.lgrey);
+  drawText(ctx, t('tut.skip'), sk.x + sk.w / 2, sk.y + 3, PAL.lgrey, { align: 'center' });
+}
+// The Skip button hugs the right edge and grows with its label ("Skip", "Пропустить").
+function skipRect() {
+  const w = Math.max(28, textW(t('tut.skip')) + 7);
+  return { x: 318 - w, y: 12, w, h: 10 };
 }

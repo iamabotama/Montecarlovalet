@@ -1,11 +1,18 @@
 'use strict';
 /* Title screen. */
+const menuItem = (i, label, fn) => ({ ...button(120, 117 + i * 12, 80, label, fn), h: 11 });
+// Always recognisable, even to someone who can't read the current language: 'Langue / Language'.
+function languageLabel() {
+  const own = t('title.language');
+  return own === LANGS.en.table['title.language'] ? own : own + ' / ' + LANGS.en.table['title.language'];
+}
 defineScreen('title', {
   buttons: () => [
-    button(120, 118, 80, t('title.start'), () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
-    button(120, 132, 80, t('title.tutorial'), startTutorial),
-    button(120, 146, 80, t('title.vehicles'), () => goScreen('guide')),
-    button(120, 160, 80, t('title.settings'), () => goScreen('settings')),
+    menuItem(0, t('title.start'), () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
+    menuItem(1, t('title.tutorial'), startTutorial),
+    menuItem(2, t('title.vehicles'), () => goScreen('guide')),
+    menuItem(3, t('title.settings'), () => goScreen('settings')),
+    menuItem(4, languageLabel(), () => goScreen('language')),
     button(4, 164, 40, Sound.muted ? t('btn.unmute') : t('btn.mute'), toggleMute, PAL.lgrey),
     button(256, 164, 60, t('title.fullscreen'), goFullscreen, PAL.lgrey),
   ],

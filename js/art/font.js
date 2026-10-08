@@ -1,23 +1,36 @@
 'use strict';
 /* Text: drawText, textW, wrapText.
-   Primary face: Press Start 2P (fonts/, SIL Open Font License) at 8 detail px = 4 game px per character,
-   rendered on the 16-bit grid and thresholded to hard pixels, cached per string + colour + size.
-   Until it has loaded (or if it can't), the original 3x5 bitmap capitals below are used. Both faces
-   advance 4 game px per character, so layout (textW) is identical either way. */
-const FONT = { family: 'MCV-PS2P', url: 'fonts/PressStart2P-Regular.ttf', px: 8, ready: false };
-function loadFont() {
+   Faces are pixel fonts rendered on the 16-bit grid and thresholded to hard pixels, cached per string,
+   colour, size and face. Each language names its face in i18n/<code>.js (default 'latin'):
+     latin  Press Start 2P (SIL OFL) at 8 detail px: a fixed 4 game px per character. Latin + Cyrillic.
+     zh/ja/ko  Fusion Pixel 10px (SIL OFL), subset to the characters the game uses (tools/build_fonts.py).
+   Until a face has loaded: latin falls back to the 3x5 bitmap capitals below (same 4 px advance, so
+   layout is identical); CJK faces fall back to the system font. */
+const FACES = {
+  latin: { family: 'MCV-PS2P', url: 'fonts/PressStart2P-Regular.ttf', px: 8, advance: 4, dy: 0.5 },
+  zh: { family: 'MCV-FP-zh', url: 'fonts/fusion-pixel-zh.ttf', px: 10, dy: 0, fallback: 'sans-serif' },
+  ja: { family: 'MCV-FP-ja', url: 'fonts/fusion-pixel-ja.ttf', px: 10, dy: 0, fallback: 'sans-serif' },
+  ko: { family: 'MCV-FP-ko', url: 'fonts/fusion-pixel-ko.ttf', px: 10, dy: 0, fallback: 'sans-serif' },
+};
+for (const f of Object.values(FACES)) f.ready = false;
+const FONT = FACES.latin; // the default face (tests and boot read FONT.ready)
+const faceFor = code => FACES[(LANGS[code] && LANGS[code].face) || 'latin'] || FACES.latin;
+// Load a face once; resolves true when usable. Safe to call repeatedly.
+function loadFace(face) {
+  if (face.loading) return face.loading;
   if (typeof FontFace === 'undefined') return Promise.resolve(false);
-  const face = new FontFace(FONT.family, `url(${FONT.url})`);
-  return face
+  face.loading = new FontFace(face.family, `url(${face.url})`)
     .load()
     .then(f => {
       document.fonts.add(f);
-      FONT.ready = true;
+      face.ready = true;
       return true;
     })
     .catch(() => false);
+  return face.loading;
 }
-
+const loadFont = () => loadFace(FONT);
+const ensureLanguageFont = code => loadFace(faceFor(code));
 /* ------------------------------ 3x5 FALLBACK FONT ------------------------------ */
 const GLYPHS = {
   A: 'xxx x.x xxx x.x x.x',
@@ -99,23 +112,40 @@ function glyphCanvas(ch, color) {
   glyphCache.set(key, c);
   return c;
 }
-function textW(s, scale = 1) {
+// Width in game px. Fixed-advance faces (and the bitmap fallback) are pure arithmetic; others are measured.
+const widthCache = new Map();
+let measureCtx = null;
+function textW(s, scale = 1, lang) {
   s = String(s);
-  return s.length ? (s.length * 4 - 1) * scale : 0;
+  if (!s.length) return 0;
+  const face = faceFor(lang || I18N.code);
+  if (face.advance) return (s.length * face.advance - 1) * scale;
+  const fam = face.ready ? face.family : face.fallback;
+  const key = fam + '|' + scale + '|' + s;
+  let w = widthCache.get(key);
+  if (w === undefined) {
+    if (widthCache.size > 4000) widthCache.clear();
+    measureCtx = measureCtx || document.createElement('canvas').getContext('2d');
+    measureCtx.font = face.px * scale + 'px "' + fam + '"';
+    w = Math.ceil(measureCtx.measureText(s).width) * HI_PX - HI_PX * scale; // drop the trailing gap
+    widthCache.set(key, w);
+  }
+  return w;
 }
 // One string as a hard-edged image on the detail grid. Alpha is thresholded so no soft edges survive scaling.
 const runCache = new Map();
-function textRun(s, color, scale) {
-  const key = scale + '|' + color + '|' + s;
+function textRun(s, color, scale, face) {
+  const fam = face.ready ? face.family : face.fallback;
+  const key = fam + '|' + scale + '|' + color + '|' + s;
   let run = runCache.get(key);
   if (run) return run;
   if (runCache.size > 2000) runCache.clear(); // money/timers make new strings every second
-  const px = FONT.px * scale;
+  const px = face.px * scale;
   const c = document.createElement('canvas');
   c.width = Math.max(1, s.length * px);
   c.height = px + 2 * scale; // room for descenders and accents
   const g = c.getContext('2d');
-  g.font = px + 'px "' + FONT.family + '"';
+  g.font = px + 'px "' + fam + '"';
   g.textBaseline = 'top';
   g.fillStyle = color;
   g.fillText(s, 0, 0);
@@ -125,44 +155,62 @@ function textRun(s, color, scale) {
   runCache.set(key, c);
   return c;
 }
+/* Text wider than its slot (opt.maxW) is still drawn, but recorded here so tests/layout_test.py can list
+   translations that need shortening. */
+const TEXT_OVERFLOW = new Map(); // string -> { w, maxW }
+// opt: align 'center'|'right', scale, shadow colour, lang (draw in another language's face, e.g. its own
+// name), maxW (the slot width in game px, for overflow reporting)
 function drawText(ctx, s, x, y, color = PAL.white, opt = {}) {
   s = String(s);
-  if (!FONT.ready) s = s.toUpperCase(); // the fallback face only has capitals
+  const face = faceFor(opt.lang || I18N.code);
+  const bitmap = face.advance && !face.ready; // latin face not loaded yet: 3x5 capitals
+  if (bitmap) s = s.toUpperCase();
   const sc = opt.scale || 1;
-  const w = textW(s, sc);
+  const w = textW(s, sc, opt.lang);
+  if (opt.maxW && w > opt.maxW && TEXT_OVERFLOW.size < 500) TEXT_OVERFLOW.set(s, { w, maxW: opt.maxW });
   if (opt.align === 'center') x -= Math.floor(w / 2);
   else if (opt.align === 'right') x -= w;
   x = Math.round(x);
   y = Math.round(y);
-  if (FONT.ready) {
-    // 8px caps = 4 game px; nudge down half a game px so they sit centred where the 5px caps were.
+  if (!bitmap) {
+    // Latin 8px caps = 4 game px, nudged down half a game px to sit where the 5px caps were.
     // Drop shadow = one font pixel at this scale (a whole game pixel detaches from the thinner strokes).
     const run = (col, dx) => {
-      const c = textRun(s, col, sc);
-      ctx.drawImage(c, x + dx, y + dx + 0.5 * sc, c.width * HI_PX, c.height * HI_PX);
+      const c = textRun(s, col, sc, face);
+      ctx.drawImage(c, x + dx, y + dx + face.dy * sc, c.width * HI_PX, c.height * HI_PX);
     };
     if (opt.shadow) run(opt.shadow, sc * HI_PX);
     run(color, 0);
     return w;
   }
-  if (opt.shadow) drawText(ctx, s, x + sc, y + sc, opt.shadow, { scale: sc });
+  if (opt.shadow) drawText(ctx, s, x + sc, y + sc, opt.shadow, { scale: sc, lang: opt.lang });
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (ch !== ' ') ctx.drawImage(glyphCanvas(ch, color), x + i * 4 * sc, y, 3 * sc, 5 * sc);
   }
   return w;
 }
-function wrapText(s, max) {
-  const words = String(s).split(' ');
+/* Greedy word wrap to maxW game px. Chinese and Japanese have no spaces, so each ideograph/kana is its
+   own breakable unit (closing punctuation stays attached to the character before it). Korean, like
+   European languages, breaks at spaces. */
+const WRAP_UNITS =
+  /\s+|[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF][\u3001\u3002\uFF0C\uFF01\uFF1F\uFF09\uFF1A\u300D\u300F\u2026\u30FC]*|[^\s\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF]+/g;
+function wrapText(s, maxW, lang) {
   const lines = [];
-  let cur = '';
-  for (const w of words) {
-    if (!cur) cur = w;
-    else if ((cur + ' ' + w).length <= max) cur += ' ' + w;
+  let cur = '',
+    gap = false;
+  for (const u of String(s).match(WRAP_UNITS) || []) {
+    if (/^\s/.test(u)) {
+      gap = !!cur;
+      continue;
+    }
+    const next = cur + (gap ? ' ' : '') + u;
+    if (!cur || textW(next, 1, lang) <= maxW) cur = next;
     else {
       lines.push(cur);
-      cur = w;
+      cur = u;
     }
+    gap = false;
   }
   if (cur) lines.push(cur);
   return lines;

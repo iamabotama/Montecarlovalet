@@ -35,7 +35,7 @@ defineScreen('guide', {
       else drawGuideTier(tier, y, h);
     });
     const notes = page.note ? [page.note] : UI.guidePage === 1 ? guideHighRollerNotes() : [];
-    notes.forEach((n, i) => drawText(ctx, n, 160, GUIDE_BOTTOM + 1 + i * 6, PAL.lav, { align: 'center' }));
+    notes.forEach((n, i) => drawText(ctx, n, 160, GUIDE_BOTTOM + 1 + i * 6, PAL.lav, { align: 'center', maxW: 312 }));
     drawButtons(this.buttons());
   },
 });
@@ -77,7 +77,10 @@ const guideTipBonus = () =>
 function drawGuideTier(tier, y, h) {
   const [, col] = TIER_MARK[tier];
   drawText(ctx, t('tier.' + tier), 8, y + 2, col, { scale: 2 });
-  guideLines(tier).forEach((l, i) => drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey));
+  // text column: left of the car pictures (x0)
+  guideLines(tier).forEach((l, i) =>
+    drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey, { maxW: 114 }),
+  );
   const models = MODELS[tier];
   const x0 = 124,
     slot = (316 - x0) / models.length;
@@ -96,7 +99,7 @@ function drawGuideTier(tier, y, h) {
     ctx.scale(k, k);
     drawCarSprite(ctx, s, 0, 0);
     ctx.restore();
-    wrapText(name, Math.floor(slot / 4))
+    wrapText(name, slot - 1)
       .slice(0, 2)
       .forEach((l, i) => drawText(ctx, l, cx, y + 8 + rowH + i * 6, PAL.white, { align: 'center' }));
   });
@@ -110,7 +113,7 @@ function drawGuideHeli(y, h) {
     t('guide.meetWithin', { sec: H.meetSec }),
     t('guide.missed', { heat: H.missHeat }),
   ];
-  lines.forEach((l, i) => drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey));
+  lines.forEach((l, i) => drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey, { maxW: 132 })); // left of the heli
   drawHeliBody(166, y + h / 2 - 2, 1.15, UI.t * 12);
   // which hotels get helicopters, from the hotel files
   const pads = HOTEL_ORDER.map(id => HOTELS[id]).filter(x => x.helo);
@@ -121,5 +124,9 @@ function drawGuideHeli(y, h) {
     }),
   );
   const bonus = guideTipBonus();
-  if (bonus) drawText(ctx, t('guide.hotelBonus', { list: bonus }), 160, y + h - 6, PAL.lav, { align: 'center' });
+  if (bonus) {
+    const line = t('guide.hotelBonus', { list: bonus });
+    // long city names (e.g. Polish) can't fit the label too: show just the list
+    drawText(ctx, textW(line) <= 312 ? line : bonus, 160, y + h - 6, PAL.lav, { align: 'center', maxW: 312 });
+  }
 }
