@@ -69,7 +69,8 @@ function guideHighRollerNotes() {
 }
 // Hotels with a tip bonus, e.g. "Las Vegas x1.1" (ordinary tips only; jackpot + VIP tip are fixed).
 const guideTipBonus = () =>
-  HOTEL_ORDER.map(id => HOTELS[id])
+  listedHotels()
+    .map(id => HOTELS[id])
     .filter(h => h.mods.tipMult !== 1)
     .map(h => t('guide.cityBonus', { city: h.city, n: h.mods.tipMult }))
     .join('  ');
@@ -116,7 +117,9 @@ function drawGuideHeli(y, h) {
   lines.forEach((l, i) => drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey, { maxW: 132 })); // left of the heli
   drawHeliBody(166, y + h / 2 - 2, 1.15, UI.t * 12);
   // which hotels get helicopters, from the hotel files
-  const pads = HOTEL_ORDER.map(id => HOTELS[id]).filter(x => x.helo);
+  const pads = listedHotels()
+    .map(id => HOTELS[id])
+    .filter(x => x.helo);
   drawText(ctx, t('guide.landings'), 250, y + 4, PAL.lav, { align: 'center' });
   pads.forEach((x, i) =>
     drawText(ctx, t('guide.cityBonus', { city: x.city, n: x.helo.times.length }), 250, y + 12 + i * 7, PAL.white, {

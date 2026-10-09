@@ -37,6 +37,7 @@ const MCV_MODULES = [
   'data/hotels/monte_carlo.js',
   'data/hotels/las_vegas.js',
   'data/hotels/dubai.js',
+  'data/hotels/trump_towers.js',
   'data/hotels/swiss_chalet.js',
   // art + audio
   'art/sprites.js',
@@ -110,6 +111,7 @@ const MCV_MODULES = [
   'events/actions.js',
   'events/drunk_driver.js',
   'events/joyride.js',
+  'events/vip_heli.js',
   'app/flow.js',
   'main.js',
 ];

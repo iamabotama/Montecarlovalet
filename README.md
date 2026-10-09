@@ -123,3 +123,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 ## v2.6: premium service + valet buttons
 - Premium service bonus (double tip, manager praise, heat -10) and pad tap hints / lock reasons (see v2.5 notes).
 - Valet number buttons at the bottom of the crew panel (`ui/crew_panel.js`): 1 = you, 2-4 = helpers. Tap to select; **Tab** cycles (number keys stay power-up shortcuts). Yellow = selected, green = working, white = idle, dim = empty slot. Test: `tests/crew_tabs_test.py`.
+
+
+## v2.13: special VIP helicopters
+- About 1 in 3 landings is special (`EVENT_CONFIG.vipHeli`): royalty ($2,000, black-SUV motorcade blocks the right side), celebrity ($1,500, paparazzi), POTUS (wider sprite, blue suit, red tie; when he walks in the hotel becomes TRUMP TOWERS for the rest of the shift, gold, every car a beater).
+- Easter egg: meeting POTUS unlocks the hidden Trump Towers hotel (gold button on hotel select).
+- Fix: a valet walking back from the pad no longer blocks sending one to the next helicopter.

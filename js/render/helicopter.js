@@ -102,12 +102,12 @@ function vipPos() {
 function drawVip() {
   const v = vipPos();
   if (!v) return;
-  drawPerson(ctx, Math.round(v.x + crowdOff(S.heli)), Math.round(v.y), Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle', {
-    h: PAL.yellow,
-    s: PAL.peach,
-    c: PAL.ink,
-    p: PAL.ink,
-    k: PAL.ink,
-    x: PAL.yellow,
-  });
+  const sp = S.heli.special, // a special VIP (events/vip_heli.js) brings its own look
+    x = Math.round(v.x + crowdOff(S.heli)),
+    y = Math.round(v.y),
+    pose = Math.floor(UI.t * 8) % 2 ? 'walk' : 'idle';
+  const look = (sp && sp.look) || { h: PAL.yellow, s: PAL.peach, c: PAL.ink, p: PAL.ink, k: PAL.ink, x: PAL.yellow };
+  if (sp && sp.wide) drawPerson(ctx, x + 1, y, pose, look); // one pixel wider, not taller
+  drawPerson(ctx, x, y, pose, look);
+  if (sp && sp.tie) R(x + 2, y + 5, 1, 3, sp.tie);
 }

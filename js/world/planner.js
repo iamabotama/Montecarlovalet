@@ -115,6 +115,7 @@ function plan(j, from, dry, w) {
     est += CONFIG.helo.greetSec / m;
     act(() => {
       if (S.heli.greeting) heliGreet();
+      j.greetDone = true; // walking back now: no longer "on the way" to the next landing (heliJob)
     });
     walk({ t: 'stand' });
   } else if (j.type === 'fetch') {

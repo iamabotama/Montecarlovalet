@@ -6,10 +6,10 @@ const cardX = i => CARD.x + i * (CARD.w + CARD.gap);
 defineScreen('hotels', {
   enter() {
     UI.hotelSel = UI.hotelSel || SAVE.lastHotel;
-    if (!hotelAccess(hotelById(UI.hotelSel)).ok) UI.hotelSel = HOTEL_ORDER[0];
+    if (!hotelAccess(hotelById(UI.hotelSel)).ok) UI.hotelSel = regularHotels()[0];
   },
   buttons() {
-    const cards = HOTEL_ORDER.map((id, i) => ({
+    const cards = regularHotels().map((id, i) => ({
       x: cardX(i),
       y: CARD.y + 2,
       w: CARD.w,
@@ -20,8 +20,23 @@ defineScreen('hotels', {
         Sound.sfx(hotelAccess(HOTELS[id]).ok ? 'click' : 'deny');
       },
     }));
+    // found easter-egg hotels get a gold button instead of a card (data/hotels/trump_towers.js)
+    const secrets = foundSecretHotels().map((id, i) =>
+      button(
+        80,
+        160 - i * 13,
+        130,
+        t('hotels.secret', { name: HOTELS[id].name }),
+        () => {
+          UI.hotelSel = id;
+          Sound.sfx('click');
+        },
+        UI.hotelSel === id ? PAL.white : PAL.yellow,
+      ),
+    );
     return [
       ...cards,
+      ...secrets,
       button(6, 160, 70, t('btn.back'), () => goScreen('title'), PAL.lgrey),
       button(214, 160, 100, t('btn.next'), () => goScreen('prep')),
     ];
@@ -30,7 +45,7 @@ defineScreen('hotels', {
     R(0, 0, 320, 180, PAL.night);
     drawText(ctx, t('hotels.title'), 160, 4, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.orange });
     drawCareerBar(60, 19, 200);
-    HOTEL_ORDER.forEach((id, i) => drawHotelCard(HOTELS[id], cardX(i), CARD.y, id === UI.hotelSel));
+    regularHotels().forEach((id, i) => drawHotelCard(HOTELS[id], cardX(i), CARD.y, id === UI.hotelSel));
     drawButtons(this.buttons());
   },
 });

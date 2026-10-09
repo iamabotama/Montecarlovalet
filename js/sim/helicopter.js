@@ -19,7 +19,7 @@ function heliVisible() {
   return !!S.heli && ['incoming', 'landed', 'leaving'].includes(S.heli.phase);
 }
 function heliJob() {
-  return S.jobs.find(j => j.type === 'heli' && !j.aborted);
+  return S.jobs.find(j => j.type === 'heli' && !j.aborted && !j.greetDone);
 }
 function tapHeli() {
   if (heliJob()) {
@@ -34,7 +34,8 @@ function heliGreet() {
   const C = CONFIG.helo;
   const vip = { x: PAD.x, y: PAD.y - 6 };
   earn(C.pay, 'pay', vip);
-  earn(C.tip, 'tip', vip);
+  const tip = (H.special && H.special.tip) || C.tip;
+  earn(tip, 'tip', vip);
   H.ok = true;
   H.phase = 'leaving';
   H.t = 0;
@@ -42,7 +43,8 @@ function heliGreet() {
   H.greeting = false;
   S.stats.heli = 'MET'; // i18n-ignore: outcome id
   S.stats.heliMet++;
-  S.banners.push({ text: t('banner.vipMet', { money: fmtMoney(C.tip) }), t: 3 });
+  S.banners.push({ text: t('banner.vipMet', { money: fmtMoney(tip) }), t: 3 });
+  eventHook('heliGreet', H);
   Sound.sfx('gala');
   S.shake = 0.2;
 }
@@ -56,6 +58,7 @@ function heliMissed() {
   const j = heliJob();
   if (j && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1);
   addHeat(CONFIG.helo.missHeat, t('heat.heliMissed'));
+  eventHook('heliMissed', H);
   floater(t('float.nobodyMetVip'), PAD.x, PAD.y - 22, PAL.red);
   Sound.sfx('deny');
 }
@@ -63,15 +66,18 @@ function updateHeli(dt) {
   const H = S.heli,
     C = CONFIG.helo;
   if (!H || S.tutorial) return;
-  if (H.vipT > 0) H.vipT -= dt;
+  if (H.vipT > 0 && (H.vipT -= dt) <= 0) eventHook('vipInside', H); // the VIP is inside the hotel
   if (H.phase === 'wait') {
     if (S.t >= H.at) {
       H.phase = 'incoming';
       H.t = 0;
       H.ok = null;
-      S.banners.push({ text: t('banner.heliInbound'), t: 3 });
-      toast(t('toast.tapHelipad'));
-      Sound.sfx('whistle');
+      H.special = eventHook('heliIncoming', H) || null; // events/vip_heli.js: royalty, celebrity, POTUS
+      if (!H.special) {
+        S.banners.push({ text: t('banner.heliInbound'), t: 3 });
+        toast(t('toast.tapHelipad'));
+        Sound.sfx('whistle');
+      }
     }
     return;
   }

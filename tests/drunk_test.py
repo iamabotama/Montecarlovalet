@@ -17,7 +17,7 @@ def check(ok, what, info=''):
 
 async def drunk_whale(g):
     """Park the first curb car in a row stall, make its owner a whale, bring him out for pickup."""
-    await g.js('() => { MCV.DEBUG.scale = 4; EVENT_CONFIG.drunkDriver.chance = 1; MCV.S.events.cooldown = 0; }')
+    await g.js('() => { MCV.DEBUG.scale = 4; EVENT_CONFIG.drunkDriver.chance = 1; EVENT_CONFIG.vipHeli.enabled = false; MCV.S.events.cooldown = 0; }')
     c = await first_curb_car(g)
     await g.js('id => { const o = selectionOptions(); const s = o.stalls.find(s => s.prem == null && !s.bad); '
                'enqueue({ type: "park", carId: id, lane: s.lane, side: s.side }); }', c['id'])

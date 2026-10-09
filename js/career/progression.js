@@ -34,6 +34,7 @@ function loadoutPicks() {
 }
 // { ok, reason } for the hotel-select screen.
 function hotelAccess(h) {
+  if (!secretFound(h)) return { ok: false, reason: '' };
   if (SAVE.rank < h.unlockRank) return { ok: false, reason: t('hotels.reach', { rank: rankName(h.unlockRank) }) };
   const granted = unlockKeys().has('hotel:' + h.id) || unlockKeys().has('hotel:*');
   if (h.product && !storeOwns(h.product) && !granted)
@@ -55,7 +56,7 @@ function rankUnlockLines(i) {
   }
   if (RANKS[i].loadoutPicks && (i === 0 || RANKS[i].loadoutPicks > (RANKS[i - 1].loadoutPicks || 0)))
     out.push(t('unlock.loadout', { n: RANKS[i].loadoutPicks }));
-  for (const id of HOTEL_ORDER)
+  for (const id of regularHotels())
     if (HOTELS[id].unlockRank === i && i > 0) out.push(t('unlock.hotel', { city: HOTELS[id].city }));
   return out;
 }

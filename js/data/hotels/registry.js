@@ -27,6 +27,11 @@ const HOTEL_DEFAULTS = {
   arrivals: { intervalMult: 1, mixMult: [1, 1, 1, 1, 1, 1] },
   mods: { tipMult: 1, driveMult: 1 },
 };
+// Secret hotels (secret: '<SAVE.secrets key>') stay hidden until that easter egg is found.
+const secretFound = h => !h.secret || !!(SAVE && SAVE.secrets && SAVE.secrets[h.secret]);
+const regularHotels = () => HOTEL_ORDER.filter(id => !HOTELS[id].secret); // the hotel-select cards
+const foundSecretHotels = () => HOTEL_ORDER.filter(id => HOTELS[id].secret && secretFound(HOTELS[id]));
+const listedHotels = () => HOTEL_ORDER.filter(id => secretFound(HOTELS[id])); // anywhere hotels are listed
 function defineHotel(h) {
   const full = {
     ...HOTEL_DEFAULTS,

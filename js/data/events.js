@@ -20,6 +20,16 @@ const EVENT_CONFIG = {
     bonus: 200, // both tasks done by you
     bonusHeatRelief: 10,
   },
+  vipHeli: {
+    enabled: true,
+    chance: 1 / 3, // per helicopter landing (only when no other event is running)
+    weights: { royal: 45, celeb: 35, potus: 20 },
+    royalTitles: 4, // event.vip.royal1..4
+    royal: { tip: 2000, suvX: [252, 276], waitSec: 25 }, // motorcade waits on the road, right side blocked
+    celeb: { tip: 1500, paparazziSec: 20 },
+    potus: { tip: 1000 },
+    force: null, // debug: the next landing is this kind
+  },
   joyride: {
     enabled: true,
     chance: 1 / 15, // per whale/ultra park by a HIRED valet (x the wave's eventMult)

@@ -60,7 +60,7 @@ function prefillLot() {
 }
 function spawnArrival(forceTier) {
   const mix = arrivalMix().map((w, i) => w * HOTEL.arrivals.mixMult[i]); // hotel crowd bias
-  const tier = forceTier || TIERS[weightedIndex(mix)];
+  const tier = forceTier || eventHook('arrivalTier') || TIERS[weightedIndex(mix)];
   const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1));
   S.streetQueue.push(g.carId);
   return g;

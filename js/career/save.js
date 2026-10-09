@@ -17,6 +17,7 @@ function defaultSave() {
     roster: [], // persistent crew, see career/roster.js
     entitlements: [], // owned store products, see career/store.js
     goalsCompleted: 0,
+    secrets: {}, // easter eggs found, e.g. potus -> the hidden Trump Towers hotel
     totals: { shifts: 0, earned: 0 },
   };
 }
