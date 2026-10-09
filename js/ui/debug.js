@@ -98,15 +98,37 @@ function debugButtons() {
       },
     ],
   ]);
+  // fun events: each event file offers its own trigger buttons (events/director.js eventDebugButtons)
+  row(eventDebugButtons());
+  row([
+    ['END EV', debugEndEvent],
+    [
+      DEBUG.alwaysEvents ? 'ODDS:ALL' : 'ODDS:LIVE',
+      () => {
+        DEBUG.alwaysEvents = !DEBUG.alwaysEvents;
+      },
+    ],
+  ]);
   return b;
 }
 function renderDebug() {
-  R(220, 10, 100, 44, PAL.ink);
-  for (const b of debugButtons()) {
+  const btns = debugButtons();
+  const bottom = Math.max(...btns.map(b => b.y)) + 10;
+  R(220, 10, 100, bottom + 8, PAL.ink);
+  for (const b of btns) {
     RB(b.x, b.y, b.w, 8, PAL.lime);
     drawText(ctx, b.label, b.x + 2, b.y + 2, PAL.lime);
   }
-  drawText(ctx, 'X' + DEBUG.scale + ' HEAT ' + S.heat.toFixed(1), 222, 52, PAL.lime);
+  const ev = activeEvent();
+  drawText(ctx, 'X' + DEBUG.scale + ' HEAT ' + S.heat.toFixed(1), 222, bottom, PAL.lime);
+  if (ev || S.events.cooldown > 0)
+    drawText(
+      ctx,
+      ev ? 'EV ' + ev.id + ' ' + (ev.phase || '') : 'EV WAIT ' + Math.ceil(S.events.cooldown),
+      222,
+      bottom + 8,
+      PAL.yellow,
+    );
   for (const g of S.guests.values())
     if (WAITING.has(g.state) && g.state !== 'queued')
       drawText(ctx, Math.round((100 * g.wait) / g.patience) + '%', g.x, g.y + 10, PAL.lime);

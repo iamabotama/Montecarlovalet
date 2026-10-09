@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.7.0',
+  version: '2.7.1',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',

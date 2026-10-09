@@ -26,7 +26,33 @@ function eventOn(id) {
 }
 // May a new event start right now?
 function eventCanStart(id) {
-  return eventOn(id) && S.phase === 'play' && !S.events.active && S.events.cooldown <= 0;
+  return eventOn(id) && S.phase === 'play' && !S.events.active && (S.events.cooldown <= 0 || DEBUG.alwaysEvents);
+}
+// The odds an event rolls against (debug ALWAYS forces 1).
+function eventChance(id) {
+  return DEBUG.alwaysEvents ? 1 : EVENT_CONFIG[id].chance;
+}
+// Debug: stop whatever event is running, tidy its leftovers, allow a new one at once.
+function debugEndEvent() {
+  const a = activeEvent();
+  if (a && EVENTS[a.id].cleanup) EVENTS[a.id].cleanup(a);
+  if (a) endEvent();
+  S.events.cooldown = 0;
+}
+// Debug: the trigger buttons every event offers ({ label: fn }), for ui/debug.js.
+function eventDebugButtons() {
+  const out = [];
+  for (const id in EVENTS)
+    if (eventOn(id) && EVENTS[id].debug)
+      for (const [label, fn] of Object.entries(EVENTS[id].debug))
+        out.push([
+          label,
+          () => {
+            debugEndEvent();
+            fn();
+          },
+        ]);
+  return out;
 }
 function startEvent(id, state) {
   S.events.active = { id, t: 0, vehicles: [], ...state };

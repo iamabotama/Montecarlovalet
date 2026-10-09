@@ -6,6 +6,7 @@ const cv = document.getElementById('c'),
 ctx.imageSmoothingEnabled = false;
 const UI = { screen: 'title', paused: false, howPage: 0, confirmReset: false, t: 0 };
 const DEBUG = {
+  alwaysEvents: false, // debug ODDS:ALL: every event rolls 1 in 1 and ignores the cooldown
   on: false,
   enabled: CONFIG.debug || /[?&]debug=1/.test(location.search),
   scale: 1,

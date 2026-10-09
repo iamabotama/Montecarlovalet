@@ -20,7 +20,12 @@ defineEvent('drunkDriver', {
   },
   hooks: {
     pickupStart(g) {
-      if (isWhale(g.tier) && !ddDrunkGuest() && eventCanStart('drunkDriver') && Math.random() < DD().chance) {
+      if (
+        isWhale(g.tier) &&
+        !ddDrunkGuest() &&
+        eventCanStart('drunkDriver') &&
+        (g.forceDrunk || Math.random() < eventChance('drunkDriver'))
+      ) {
         g.drunk = true;
         g.wobble = true;
         g.hicT = 1;
@@ -48,12 +53,47 @@ defineEvent('drunkDriver', {
   update: ddUpdate,
   draw: ddDraw,
   targets: ddTargets,
+  // debug buttons (ui/debug.js): the warning stage, or straight to the crash
+  debug: {
+    DRUNK: () => ddDebugGuest(),
+    CRASH: () => {
+      const g = ddDebugGuest();
+      if (!g) return;
+      ddCrash(S.cars.get(g.carId), g);
+      guestGone(g);
+    },
+  },
+  cleanup(ev) {
+    S.cars.delete(ev.carId);
+    for (const g of S.guests.values()) g.drunk = g.wobble = false;
+  },
   scenery() {
     const s = ddSite();
     R(s.poleX, s.y - 17, 2, 18, PAL.brown); // telephone pole
     R(s.poleX - 3, s.y - 15, 8, 1, PAL.brown);
   },
 });
+
+/* ---- debug: a whale parked in the first free stall, walking out for pickup right now, tipsy ---- */
+function ddDebugGuest() {
+  for (let l = 0; l < NL; l++)
+    for (const s of LOT_SIDES) {
+      const e = entryIndex(l, s);
+      if (!e) continue;
+      const g = makeGuest('whale', 0);
+      placeInStall(S.cars.get(g.carId), l, e.idx);
+      g.forceDrunk = true;
+      g.state = 'pickWalk';
+      g.phase = 'pick';
+      g.wait = g.over = g.stage = 0;
+      g.patience = CONFIG.tiers[g.tier].pickPatience * patienceMult();
+      g.x = MAP.standX - 2;
+      eventHook('pickupStart', g);
+      return g;
+    }
+  console.warn('debug: lot full, no stall for the drunk whale');
+  return null;
+}
 
 /* ---- the warning: call a cab ---- */
 function ddCallCab(g) {

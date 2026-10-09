@@ -67,6 +67,12 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.7.1: event debug controls
+- Open the game with `?debug=1`, start a shift, press the backtick key (`) to show the debug overlay.
+- **DRUNK**: a tipsy whale walks out for pickup now (try the cab tap, or fetch his car). **CRASH**: straight to the crash scene.
+- **END EV**: stop the current event, tidy up, reset the cooldown. **ODDS:LIVE / ODDS:ALL**: ALL makes every event fire every time it can, with no cooldown.
+- The yellow line shows the running event and its stage, or the cooldown left. Each event file declares its own buttons, so new events show up there automatically.
+
 ## v2.7: fun events (drunk driver)
 - New `js/events/` layer: an event director (one event at a time, cooldown), a small actions API, one file per event. Odds and switches: `data/events.js`. See ARCHITECTURE.md, "Adding a fun event".
 - **Drunk driver** (1 in 30 whale/ultra pickups): he wobbles and hiccups while waiting. Tap him to call a cab (car kept overnight, manager pleased). Hand him his keys and he swerves into the pole at the east entrance: the right side of the lot closes (cars there are dug out the west way), everyone is more patient, and you must walk the driver inside and call the cops at the podium. Cops arrive with lights and siren, then a tow truck hauls the wreck away and the road reopens. Do both jobs for a $200 bonus; ignore either and the manager heats up.
