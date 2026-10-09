@@ -561,4 +561,7 @@ defineLanguage('uk', 'Українська', {
   'skill.lotSense': 'Чуття стоянки',
   'skill.lotSense.desc': 'Під час вибору найшвидше місце підсвічується зеленим.',
   'skills.locked': 'Заблоковано',
+  'lot.temp': 'Тимч.',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}с',
 });

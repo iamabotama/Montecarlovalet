@@ -90,8 +90,14 @@ function renderSelection() {
     const pulse = Math.floor(UI.t * 4) % 2 ? PAL.yellow : PAL.orange;
     RB(x, y, w + 1, h + 1, pulse);
     R(x + 1, y + 1, w - 1, h - 1, PAL.ink);
-    drawText(ctx, s.prem != null ? PREMS[s.prem].name : 'D' + s.depth, x + 3, y + 2, PAL.yellow);
-    if (s.est != null) drawText(ctx, String(Math.round(s.est)), x + 3, y + 8, s === best ? PAL.lime : PAL.white);
+    // Each choice shows only its park time; VIP pads keep their name above it.
+    const sec = s.est != null ? t('sel.sec', { n: Math.round(s.est) }) : '';
+    const col = s === best ? PAL.lime : PAL.white;
+    const cx = x + (w + 1) / 2;
+    if (s.prem != null) {
+      drawText(ctx, PREMS[s.prem].name, cx, y + 2, PAL.yellow, { align: 'center' });
+      drawText(ctx, sec, cx, y + 8, col, { align: 'center' });
+    } else drawText(ctx, sec, cx, y + (h - 3) / 2, col, { align: 'center' });
     if (s === best) RB(x - 1, y - 1, w + 3, h + 3, PAL.lime);
   }
   for (const m of o.menu) {

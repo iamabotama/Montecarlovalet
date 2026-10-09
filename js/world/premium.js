@@ -8,7 +8,7 @@ function setPremiumGeometry() {
   PREMS = (MAP.premium || []).map(([x, y], i) => ({
     x,
     y,
-    name: 'P' + (i + 1),
+    name: tl('lot.vip'),
     mouth: x < MAP.standX ? MAP.mouthL : MAP.mouthR, // the drive entrance the pad hangs off
   }));
 }

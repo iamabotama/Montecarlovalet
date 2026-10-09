@@ -561,4 +561,7 @@ defineLanguage('it', 'Italiano', {
   'skill.lotSense': 'Fiuto parcheggio',
   'skill.lotSense.desc': 'Quando scegli dove parcheggiare, lo stallo più veloce si illumina di verde.',
   'skills.locked': 'Bloccato',
+  'lot.temp': 'TEMP',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

@@ -561,4 +561,7 @@ defineLanguage('es', 'Español', {
   'skill.lotSense': 'Ojo para aparcar',
   'skill.lotSense.desc': 'Al elegir dónde aparcar, la plaza más rápida brilla en verde.',
   'skills.locked': 'Bloqueado',
+  'lot.temp': 'TEMPORAL',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

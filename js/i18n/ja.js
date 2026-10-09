@@ -562,6 +562,9 @@ defineLanguage(
     'skill.lotSense': '駐車勘',
     'skill.lotSense.desc': '駐車先選択時、最速の枠が緑に光る。',
     'skills.locked': 'ロック中',
+    'lot.temp': '臨時',
+    'lot.vip': 'VIP',
+    'sel.sec': '{n}秒',
   },
   { face: 'ja' },
 );

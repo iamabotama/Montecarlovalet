@@ -562,4 +562,7 @@ defineLanguage('pl', 'Polski', {
   'skill.lotSense': 'Wyczucie parkingu',
   'skill.lotSense.desc': 'Najszybsze miejsce świeci na zielono, gdy wybierasz, gdzie zaparkować.',
   'skills.locked': 'Zablokowane',
+  'lot.temp': 'TYMCZ.',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

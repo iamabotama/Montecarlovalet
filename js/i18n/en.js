@@ -117,7 +117,7 @@ defineLanguage('en', 'English', {
   'promo.badge': 'The manager pins on your new badge.',
   'promo.unlocked': 'Unlocked: {what}',
   'unlock.power': 'Power-up: {name}',
-  'unlock.premiumStall': 'Premium stall P1 by the door',
+  'unlock.premiumStall': 'VIP stall by the door',
   'unlock.uniform': 'Uniform: {name}',
   'unlock.loadout': 'Start with {n} power-ups',
   'unlock.hotel': 'New hotel: {city}',
@@ -398,11 +398,11 @@ defineLanguage('en', 'English', {
   'howto.parking1': 'Tap a car at the curb, then tap a lane end.',
   'howto.parking2': 'Cars slide in as deep as they can go.',
   'howto.parking3': 'Each lane is two stacks: west and east.',
-  'howto.parking4': 'D# = how deep. Deeper = slower to dig out.',
+  'howto.parking4': 'Deep spots get boxed in by later cars.',
   'howto.fetching': 'Fetching',
   'howto.fetching1': 'Guests hand their ticket in at the podium.',
   'howto.fetching2': 'Tap a ticket on the board to fetch the car.',
-  'howto.fetching3': 'Blockers go to temp slots T1-T4, then a',
+  'howto.fetching3': 'Blockers go to the TEMP spots, then a',
   'howto.fetching4': 'restow job puts them back.',
   'howto.money': 'Money & Heat',
   'howto.money1': 'Whales tip big on arrival and cool the heat.',
@@ -454,7 +454,7 @@ defineLanguage('en', 'English', {
   'tut.firstGuest': 'Here comes your first guest...',
   'tut.tapCar': 'Tap their car to take the keys.',
   'tut.stalls':
-    'Glowing stalls are your choices. Rows fill from the middle out. D = how deep (cars parked later will block it in). The number = seconds to park.',
+    'Glowing stalls are your choices. Rows fill from the middle out, so deep spots get boxed in by cars parked later. The number = seconds to park.',
   'tut.tapStall': 'Tap any glowing stall to park. Far away is fine - nobody is in a hurry yet.',
   'tut.parked': 'Parked! Your guest went inside. They will be back for the car later.',
   'tut.limo': "A limo! Limos don't park. Tap the limo, then tap Greet.",
@@ -466,7 +466,7 @@ defineLanguage('en', 'English', {
   'tut.delivered': 'Delivered - and they tipped! Faster service = bigger tips.',
   'tut.tricky': "Now a tricky one. This guest's car is boxed in on row C...",
   'tut.blocked':
-    'D1 = one car in the way. Tap the ticket: the valet moves the blocker to a temp slot (T1-T4), grabs the car, then re-parks the blocker.',
+    'One car is in the way. Tap the ticket: the valet moves the blocker to a TEMP spot, grabs the car, then re-parks the blocker.',
   'tut.money':
     'Your score = money earned (pay + tips). Whales - the exotic cars - tip huge. Serve one fast and you might hit a $500 jackpot.',
   'tut.heat':
@@ -582,4 +582,7 @@ defineLanguage('en', 'English', {
   'skill.lotSense': 'Lot Sense',
   'skill.lotSense.desc': 'The fastest stall glows green when you choose where to park.',
   'skills.locked': 'Locked',
+  'lot.temp': 'TEMP',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

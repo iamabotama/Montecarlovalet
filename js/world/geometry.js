@@ -34,10 +34,14 @@ function setGeometry(hotel) {
   LOT_R = MAP.lotX + NS * SW;
   LOT_B = MAP.lotY + NL * SH;
   TEMPS = [];
-  let n = 1;
   for (const side of SIDES)
     for (let k = 0; k < LOT.tempSlots[side]; k++)
-      TEMPS.push({ x: side === 'west' ? MAP.lotX - 30 : LOT_R + 30, y: MAP.lotY + 11 + k * 18, side, name: 'T' + n++ });
+      TEMPS.push({
+        x: side === 'west' ? MAP.lotX - 30 : LOT_R + 30,
+        y: MAP.lotY + 11 + k * 18,
+        side,
+        name: tl('lot.temp'),
+      });
   PAD = hotel.pad ? { ...hotel.pad } : null;
   PAD_MEET = PAD ? [PAD.x - 15, PAD.y] : null;
   setPremiumGeometry();

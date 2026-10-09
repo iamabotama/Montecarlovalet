@@ -562,4 +562,7 @@ defineLanguage('de', 'Deutsch', {
   'skill.lotSense': 'Parkinstinkt',
   'skill.lotSense.desc': 'Beim Platzwählen leuchtet der schnellste Stellplatz grün.',
   'skills.locked': 'Gesperrt',
+  'lot.temp': 'KURZ',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

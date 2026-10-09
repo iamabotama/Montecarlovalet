@@ -561,4 +561,7 @@ defineLanguage('ru', 'Русский', {
   'skill.lotSense': 'Чутьё парковки',
   'skill.lotSense.desc': 'При выборе парковки самое быстрое место светится зелёным.',
   'skills.locked': 'Закрыто',
+  'lot.temp': 'ВРЕМ.',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}с',
 });

@@ -562,6 +562,9 @@ defineLanguage(
     'skill.lotSense': '주차 감각',
     'skill.lotSense.desc': '주차 위치 고를 때 가장 빠른 칸이 초록색으로 빛나요.',
     'skills.locked': '잠김',
+    'lot.temp': '임시',
+    'lot.vip': 'VIP',
+    'sel.sec': '{n}초',
   },
   { face: 'ko' },
 );

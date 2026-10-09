@@ -556,6 +556,9 @@ defineLanguage(
     'skill.lotSense': '车位感',
     'skill.lotSense.desc': '选车位时，最快的车位会亮绿光。',
     'skills.locked': '未解锁',
+    'lot.temp': '临停',
+    'lot.vip': 'VIP',
+    'sel.sec': '{n}秒',
   },
   { face: 'zh' },
 );

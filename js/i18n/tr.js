@@ -561,4 +561,7 @@ defineLanguage('tr', 'Türkçe', {
   'skill.lotSense': 'Otopark Sezgisi',
   'skill.lotSense.desc': 'Nereye park edeceğini seçerken en hızlı yer yeşil parlar.',
   'skills.locked': 'Kilitli',
+  'lot.temp': 'GEÇİCİ',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n} sn',
 });

@@ -64,8 +64,8 @@ async def main():
             await g.run(600)
             await g.shot('premium_parked')
             info = await g.js('''id => { const car = MCV.S.cars.get(id); return {
-                board: spotName(car.loc), free: premFree(1), offered: (MCV.S.selected = null, true) }; }''', c['id'])
-            check(info['board'] == 'P2' and not info['free'], 'board says P2 and it is taken', info)
+                board: String(spotName(car.loc)), free: premFree(1), offered: (MCV.S.selected = null, true) }; }''', c['id'])
+            check(info['board'] == 'VIP' and not info['free'], 'board says VIP and it is taken', info)
             # send the guest out and fetch the car
             await g.js('id => { MCV.S.t = phaseStart(4); MCV.S.heat = 30; const car = MCV.S.cars.get(id); const gg = MCV.S.guests.get(car.guestId); gg.tier = "whale"; gg.stay = 0; }', c['id'])
             for _ in range(60):
@@ -89,7 +89,7 @@ async def main():
         open1 = await g.js('() => MCV.S.prem.map(p => p.open)')
         check(open1 == [True, True], 'rank 1: P1 unlocked', open1)
         lines = await g.js('() => rankUnlockLines(1).map(String)')
-        check(any('P1' in l for l in lines), 'promotion screen lists the premium stall', lines)
+        check(any('VIP' in l for l in lines), 'promotion screen lists the premium stall', lines)
         # --- store on, nothing bought: premium features gated
         gated = await g.js('''() => { CONFIG.store.enabled = true; SAVE.entitlements = []; activeChar().xp = 99999; syncRank();
             startGame('monte_carlo');

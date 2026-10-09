@@ -561,4 +561,7 @@ defineLanguage('fr', 'Français', {
   'skill.lotSense': 'Sens du parking',
   'skill.lotSense.desc': "L'emplacement le plus rapide luit en vert quand tu choisis où la garer.",
   'skills.locked': 'Verrouillée',
+  'lot.temp': 'PROV.',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

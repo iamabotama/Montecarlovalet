@@ -168,7 +168,7 @@ function drawWorldStatic() {
   if (T.fountain) for (let i = 0; i < 3; i++) R(158 + i * 2, 58 - ((time * 6 + i * 2) % 4), 1, 1, PAL.blue);
   for (let i = 0; i < NL; i++)
     for (const side of LOT_SIDES) drawText(ctx, LANE_NAMES[i], aisleX(side) - 1, laneY(i) - 2, PAL.asph3);
-  TEMPS.forEach(tp => drawText(ctx, tp.name, tp.x - 3, tp.y - 2, PAL.orange));
+  TEMPS.forEach(tp => drawText(ctx, tp.name, tp.x - 1, tp.y - 2, PAL.orange, { align: 'center', maxW: 18 }));
   drawText(ctx, t('hud.generalPark'), 225, 84, PAL.white);
 }
 

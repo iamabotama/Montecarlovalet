@@ -561,4 +561,7 @@ defineLanguage('pt', 'Português', {
   'skill.lotSense': 'Faro no Pátio',
   'skill.lotSense.desc': 'A vaga mais rápida brilha em verde quando você escolhe onde parar.',
   'skills.locked': 'Bloqueado',
+  'lot.temp': 'TEMP',
+  'lot.vip': 'VIP',
+  'sel.sec': '{n}s',
 });

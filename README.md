@@ -145,6 +145,10 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
 - Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.
 
+## v2.18.1: clearer lot labels
+- Temp slots read **TEMP**, premium pads read **VIP** (i18n `lot.temp`, `lot.vip`); parking choices show only the park time (`sel.sec`, e.g. "8s"). Row letters A-F stay: the ticket board uses them.
+- Latin capital **W** redrawn (`GLYPH_FIX` in `art/font.js`): the font's full-height middle stroke made it look like a box at 8px.
+
 ## v2.18: Career 2.0, stage 2 (skill tree) + every-car bonus
 - **Skill tree** (Career > Skills): Footwork (Quick Feet, Fast Hands, Second Wind), Charm (Smooth Talker, Whale Charmer, Silver Tongue), Management (Good Hire, Manager's Pet, Lot Sense). One point per promotion (5 total vs 9 skills), learned top-down in each branch, free reset. Data `data/skills.js`, rules `career/skills.js`, shift-side `sim/perks.js`, screen `screens/skills.js`.
 - **Every Last Car**: finish the night with no arriving car waved off, sent away, stolen or abandoned at the curb (beaters too) for +$500 (`CONFIG.shift.everyCarBonus`) and a gold award. Tracked by `S.stats.unparked`.

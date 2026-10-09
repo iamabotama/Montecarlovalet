@@ -133,6 +133,21 @@ function textW(s, scale = 1, lang) {
   return w;
 }
 // One string as a hard-edged image on the detail grid. Alpha is thresholded so no soft edges survive scaling.
+/* Hand-drawn replacements for Latin-face letters that read badly at 8px (the face is monospaced, so each
+   letter is one px-wide cell). W: the font's middle stroke runs top to bottom and closes the letter up. */
+const GLYPH_FIX = {
+  W: ['xx...xx', 'xx...xx', 'xx...xx', 'xx.x.xx', 'xxxxxxx', 'xxx.xxx', '.x...x.'],
+};
+function fixGlyphs(g, s, px, scale) {
+  for (let i = 0; i < s.length; i++) {
+    const rows = GLYPH_FIX[s[i]];
+    if (!rows) continue;
+    g.clearRect(i * px, 0, px, px);
+    rows.forEach((r, y) => {
+      for (let x = 0; x < r.length; x++) if (r[x] === 'x') g.fillRect(i * px + x * scale, y * scale, scale, scale);
+    });
+  }
+}
 const runCache = new Map();
 function textRun(s, color, scale, face) {
   const fam = face.ready ? face.family : face.fallback;
@@ -152,6 +167,7 @@ function textRun(s, color, scale, face) {
   const d = g.getImageData(0, 0, c.width, c.height);
   for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 110 ? 255 : 0;
   g.putImageData(d, 0, 0);
+  if (face === FACES.latin && face.ready) fixGlyphs(g, s, px, scale);
   runCache.set(key, c);
   return c;
 }
