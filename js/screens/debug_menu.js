@@ -13,7 +13,8 @@ const debugEventName = id =>
   id
     .replace(/([A-Z])/g, ' $1')
     .toLowerCase()
-    .replace(/^./, c => c.toUpperCase());
+    .replace(/^./, c => c.toUpperCase())
+    .replace(/^Vip /, 'VIP ');
 // Core scenarios that are not fun events: helicopter now, jump to a wave.
 function debugCoreScenarios() {
   const jump = id => () => {
@@ -21,13 +22,21 @@ function debugCoreScenarios() {
   };
   return [
     [
-      PAD ? 'Helicopter now' : 'Helicopter (no pad here)',
+      'Helicopter now',
       () => {
         if (!PAD) return;
         S.heli = newHeliState() || S.heli;
         if (S.heli) Object.assign(S.heli, { phase: 'wait', at: S.t + 2 });
       },
     ],
+    [
+      'Upset whale (comp)',
+      () => {
+        const g = spawnArrival('whale');
+        g.wait = g.patience * 0.75; // annoyed: tap them for the comp menu once they are at the podium
+      },
+    ],
+    ['End current event', debugEndEvent],
     ['Jump: High Rollers', jump('high')],
     ['Jump: big event wave', jump('event')],
     ['Jump: After Party', jump('after')],
@@ -35,8 +44,10 @@ function debugCoreScenarios() {
   ];
 }
 // Start (or reuse) a shift at the chosen hotel, put it in a pickup-heavy wave, then run the scenario.
-function debugRun(fn, jumpToPickups) {
-  const id = DBG_MENU.hotel || HOTEL_ORDER[0];
+// needsPad: helicopter scenarios move to Monte Carlo when the chosen hotel has no helipad.
+function debugRun(fn, jumpToPickups, needsPad) {
+  let id = DBG_MENU.hotel || HOTEL_ORDER[0];
+  if (needsPad && !HOTELS[id].pad) id = 'monte_carlo';
   if (UI.screen !== 'game' || !HOTEL || HOTEL.id !== id) {
     startGame(id);
     if (jumpToPickups) S.t = phaseTime('high', 0.05);
@@ -75,14 +86,19 @@ defineScreen('debugMenu', {
         events.push([
           debugEventName(id) + ': ' + label,
           () =>
-            debugRun(() => {
-              debugEndEvent();
-              EVENTS[id].debug[label]();
-            }, true),
+            debugRun(
+              () => {
+                debugEndEvent();
+                EVENTS[id].debug[label]();
+              },
+              true,
+              EVENTS[id].debugNeedsPad,
+            ),
         ]);
-    events.push(['End current event', () => debugRun(debugEndEvent, false)]);
     events.forEach(([l, fn], i) => out.push(button(10, 56 + i * 14, 145, l, fn)));
-    debugCoreScenarios().forEach(([l, fn], i) => out.push(button(165, 56 + i * 14, 145, l, () => debugRun(fn, false))));
+    debugCoreScenarios().forEach(([l, fn], i) =>
+      out.push(button(165, 56 + i * 14, 145, l, () => debugRun(fn, false, i === 0))),
+    );
     out.push(button(60, 162, 80, t('btn.back'), () => goScreen('title')));
     out.push(button(180, 162, 80, 'Quit debug', quitDebug, PAL.yellow));
     return out;

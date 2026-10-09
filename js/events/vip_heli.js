@@ -98,9 +98,10 @@ defineEvent('vipHeli', {
   draw(ev) {
     if (ev.kind === 'celeb' && ev.papT > 0) drawPaparazzi(ev);
   },
+  debugNeedsPad: true, // debug menu switches to a hotel with a helipad
   debug: {
     ROYAL: () => vipDebug('royal'),
-    CELEB: () => vipDebug('celeb'),
+    CELEBRITY: () => vipDebug('celeb'),
     POTUS: () => vipDebug('potus'),
   },
 });
