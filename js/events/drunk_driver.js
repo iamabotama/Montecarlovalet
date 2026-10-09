@@ -55,7 +55,7 @@ defineEvent('drunkDriver', {
   targets: ddTargets,
   // debug buttons (ui/debug.js): the warning stage, or straight to the crash
   debug: {
-    DRUNK: () => ddDebugGuest(),
+    TIPSY: () => ddDebugGuest(),
     CRASH: () => {
       const g = ddDebugGuest();
       if (!g) return;

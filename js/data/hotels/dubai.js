@@ -7,14 +7,14 @@ defineHotel({
   blurb: [tl('hotel.dubai.blurb1'), tl('hotel.dubai.blurb2')],
   unlockRank: 3,
   product: 'hotel_pack_1',
-  lot: { lanes: 4, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
+  lot: { lanes: 4, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 196, y: 150 },
   helo: {
     times: [
-      [190, 240], // dinner rush
-      [380, 420], // high rollers
-      [520, 580], // the royal wedding
+      ['dinner', 0.3, 0.7],
+      ['high', 0.3, 0.7],
+      ['after', 0.2, 0.6], // the after party
     ],
   },
   event: { name: tl('hotel.dubai.event'), short: tl('hotel.dubai.eventShort') },

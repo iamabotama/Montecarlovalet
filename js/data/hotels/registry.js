@@ -7,7 +7,8 @@
      lot:  { lanes, stallsPerLane, openSides, tempSlots:{west,east} }   merged over CONFIG.lot
      map:  { lotX, lotY }                            merged over CONFIG.map
      pad:  { x, y } | null                           helipad position (null = no helipad)
-     helo: { times: [[minSec, maxSec], ...] }        one VIP landing per entry, seconds into the shift (needs a pad)
+     helo: { times: [[waveId, from, to], ...] }      one VIP landing per entry, at a random point between from..to
+                                                     (0..1) through that wave (CONFIG.shift.phases ids); needs a pad
      event:{ name, short }                           the final, hardest wave (event: true in CONFIG.shift.phases)
      arrivals: { intervalMult, mixMult[6] }          busier / richer crowds (mix order = TIERS)
      mods: { tipMult, driveMult }                    economy + handling

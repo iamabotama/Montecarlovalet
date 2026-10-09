@@ -19,4 +19,4 @@ function earn(amt, kind, g) {
   }
 }
 // Hotel tip multiplier for ordinary tips (fixed amounts like the jackpot and VIP tip are not scaled).
-const hotelTip = amt => Math.round(amt * HOTEL.mods.tipMult);
+const hotelTip = amt => Math.round(amt * HOTEL.mods.tipMult * phaseTipMult()); // hotel and wave (after party) bonus

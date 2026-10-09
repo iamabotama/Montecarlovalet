@@ -30,7 +30,7 @@ function eventCanStart(id) {
 }
 // The odds an event rolls against (debug ALWAYS forces 1).
 function eventChance(id) {
-  return DEBUG.alwaysEvents ? 1 : EVENT_CONFIG[id].chance;
+  return DEBUG.alwaysEvents ? 1 : EVENT_CONFIG[id].chance * phaseEventMult();
 }
 // Debug: stop whatever event is running, tidy its leftovers, allow a new one at once.
 function debugEndEvent() {

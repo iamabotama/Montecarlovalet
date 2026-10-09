@@ -94,6 +94,7 @@ const MCV_MODULES = [
   'screens/title.js',
   'screens/settings.js',
   'screens/language.js',
+  'screens/debug_menu.js',
   'screens/howto.js',
   'screens/vehicle_guide.js',
   'screens/hotels.js',

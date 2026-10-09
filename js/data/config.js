@@ -4,16 +4,37 @@
    Single-file, vanilla JS + Canvas. No external assets.
    All tuning lives in CONFIG below.
    ===================================================================== */
+// Shift phase builders (CONFIG.shift.phases): a WAVE of arrivals, and the BREAK after it.
+const wavePhase = (id, name, sec, interval, mix, patienceMult, maxPickups, banner) => ({
+  kind: 'wave',
+  id,
+  name,
+  sec,
+  interval,
+  mix,
+  patienceMult,
+  maxPickups,
+  banner,
+});
+const breakPhase = (sec, patienceMult, maxPickups, stayRate, banner) => ({
+  kind: 'break',
+  sec,
+  patienceMult,
+  maxPickups,
+  stayRate,
+  banner,
+});
 const CONFIG = {
+  debugMenu: true, // DEBUG button on the title screen (screens/debug_menu.js); switch off before release
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.7.1',
+  version: '2.8.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
     lanes: 6,
     stallsPerLane: 6,
     stallPx: [16, 15],
-    tempSlots: { west: 2, east: 2 },
+    tempSlots: { west: 1, east: 1 },
     curbSlots: 4,
     streetQueueMax: 3,
     prefilledCars: 0,
@@ -144,7 +165,7 @@ const CONFIG = {
     saveVersion: 2, // bump + add a migration in career/save.js when the save shape changes
   },
   stay: { minSec: 45, maxSec: 150, prefillMinSec: 15, prefillMaxSec: 140 },
-  clock: { realSecPerGameHour: 120, startHour: 18 }, // the shift ends when CONFIG.shift.phases run out (midnight)
+  clock: { realSecPerGameHour: 105, startHour: 18 }, // the shift ends when CONFIG.shift.phases run out (2 AM)
   arrivals: {
     firstSec: 3,
     prefillMix: [55, 35, 10, 0, 0, 0],
@@ -158,78 +179,86 @@ const CONFIG = {
   shift: {
     completeBonus: 150, // $ for surviving the whole night
     clockOutFromWave: 2, // clocking out early is allowed during breaks once this many waves are done
+    // Waves (id = what helicopter schedules point at, data/hotels/*): shorter and steeper than before, a few
+    // whales from wave 1, pickups from wave 1. Optional per wave: tipMult (x tips), eventMult (x fun-event odds).
     phases: [
+      wavePhase(
+        'early',
+        tl('phase.earlyDinner'),
+        90,
+        [13, 16],
+        [45, 43, 8, 3, 0, 1],
+        2.6,
+        1,
+        tl('phase.earlyDinner.banner'),
+      ),
+      breakPhase(30, 2.6, 2, 2, tl('phase.break1.banner')),
+      wavePhase(
+        'dinner',
+        tl('phase.dinnerRush'),
+        100,
+        [10, 13],
+        [30, 40, 20, 6, 1, 3],
+        2.1,
+        2,
+        tl('phase.dinnerRush.banner'),
+      ),
+      breakPhase(30, 2.1, 3, 2.5, tl('phase.break2.banner')),
+      wavePhase(
+        'showtime',
+        tl('phase.showtime'),
+        100,
+        [8, 10],
+        [20, 33, 27, 12, 4, 4],
+        1.8,
+        3,
+        tl('phase.showtime.banner'),
+      ),
+      breakPhase(30, 1.8, 4, 2.5, tl('phase.break2.banner')),
+      wavePhase(
+        'high',
+        tl('phase.highRollers'),
+        110,
+        [7, 9],
+        [12, 24, 28, 22, 9, 5],
+        1.5,
+        4,
+        tl('phase.highRollers.banner'),
+      ),
+      breakPhase(30, 1.5, 4, 2.5, tl('phase.break3.banner')),
       {
-        kind: 'wave',
-        name: tl('phase.earlyDinner'),
-        sec: 110,
-        interval: [16, 20],
-        mix: [50, 50, 0, 0, 0, 0],
-        patienceMult: 3,
-        maxPickups: 0,
-        banner: tl('phase.earlyDinner.banner'),
-      },
-      {
-        kind: 'break',
-        sec: 40,
-        patienceMult: 3,
-        maxPickups: 1,
-        stayRate: 2,
-        banner: tl('phase.break1.banner'),
-      },
-      {
-        kind: 'wave',
-        name: tl('phase.dinnerRush'),
-        sec: 120,
-        interval: [12, 15],
-        mix: [30, 45, 25, 0, 0, 0],
-        patienceMult: 2.4,
-        maxPickups: 2,
-        banner: tl('phase.dinnerRush.banner'),
-      },
-      { kind: 'break', sec: 50, patienceMult: 2.4, maxPickups: 3, stayRate: 2.5, banner: tl('phase.break2.banner') },
-      {
-        kind: 'wave',
-        name: tl('phase.highRollers'),
-        sec: 120,
-        interval: [10, 12],
-        mix: [20, 35, 25, 15, 0, 5],
-        patienceMult: 1.8,
-        maxPickups: 3,
-        banner: tl('phase.highRollers.banner'),
-      },
-      {
-        kind: 'break',
-        sec: 50,
-        patienceMult: 1.8,
-        maxPickups: 4,
-        stayRate: 2.5,
-        banner: tl('phase.break3.banner'),
-      },
-      {
-        kind: 'wave',
+        ...wavePhase('event', null, 110, [6, 8], [8, 18, 26, 26, 14, 8], 1.3, 5, tl('phase.event.banner')),
         event: true,
-        sec: 130,
-        interval: [7, 9],
-        mix: [10, 20, 25, 25, 12, 8],
-        patienceMult: 1.3,
-        maxPickups: 4,
-        banner: tl('phase.event.banner'),
+      },
+      breakPhase(30, 1.3, 5, 2.5, tl('phase.break1.banner')),
+      {
+        ...wavePhase(
+          'after',
+          tl('phase.afterParty'),
+          90,
+          [8, 10],
+          [0, 4, 14, 42, 32, 8],
+          1.5,
+          5,
+          tl('phase.afterParty.banner'),
+        ),
+        tipMult: 1.5,
+        eventMult: 3,
       },
       {
         kind: 'last',
+        id: 'last',
         name: tl('phase.lastCall'),
-        sec: 100,
+        sec: 90,
         patienceMult: 1.3,
         maxPickups: 6,
         stayRate: 1,
         callOutSec: 60,
-        banner: tl('phase.lastCall.banner'),
+        banner: tl('phase.lastCall.closing'),
       },
     ],
   },
   // Extra valets: tap HIRE (left panel), tap a valet to make him active; new jobs go to the active valet.
-  // VIP helicopter: once per shift, lands on the pad right of the lot. A valet must be at the pad within meetSec of touchdown.
   // VIP helicopter timing. Where the pad is and how many landings a night belong to the hotel.
   helo: {
     descendSec: 6,

@@ -4,7 +4,7 @@
    A valet standing at the pad when it is 'landed' greets the VIP (planner job type 'heli'). */
 function newHeliState() {
   if (!PAD || !HOTEL.helo || !HOTEL.helo.times.length) return null;
-  const schedule = HOTEL.helo.times.map(r => rnd(...r)).sort((a, b) => a - b);
+  const schedule = HOTEL.helo.times.map(([id, a, b]) => phaseTime(id, rnd(a, b))).sort((a, b) => a - b);
   return { phase: 'wait', at: schedule.shift(), schedule, t: 0, greeting: false, ok: null, vipT: 0 };
 }
 function heliAlt() {

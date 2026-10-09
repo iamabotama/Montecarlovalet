@@ -44,6 +44,7 @@ async def main():
         allowed = set(await g.js(SAME_EVERYWHERE_JS))
         names = await g.js("() => { const out = []; (function walk(o, d) { if (d > 3 || !o || typeof o !== 'object') return; for (const [k, v] of Object.entries(o)) { if (k === 'names' && Array.isArray(v)) out.push(...v); else walk(v, d + 1); } })(CONFIG, 0); return out; }")
         allowed |= set(names)
+        allowed.add('DEBUG')  # dev-only corner button (screens/debug_menu.js)
         await g.js(PSEUDO_JS)
         # each language names itself, and the menu adds "/ Language" so anyone can find the picker
         import re

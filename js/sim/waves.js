@@ -32,6 +32,13 @@ const phaseLeftSec = () => phaseStart(phaseIndexAt(S.t) + 1) - S.t;
 
 const patienceMult = () => (curPhase() ? curPhase().patienceMult : 1);
 const maxPickups = () => (curPhase() ? curPhase().maxPickups : Infinity);
+const phaseTipMult = () => (curPhase() && curPhase().tipMult) || 1;
+const phaseEventMult = () => (curPhase() && curPhase().eventMult) || 1;
+// A time inside a wave: waveId's start + frac of its length (helicopter schedules).
+function phaseTime(id, frac) {
+  const i = PHASES().findIndex(p => p.id === id);
+  return phaseStart(i) + frac * PHASES()[i].sec;
+}
 const stayRate = () => (curPhase() && curPhase().stayRate) || 1;
 const pickupsAllowed = () => maxPickups() > 0;
 

@@ -6,10 +6,15 @@ defineHotel({
   city: tl('hotel.monte_carlo.city'),
   blurb: [tl('hotel.monte_carlo.blurb1'), tl('hotel.monte_carlo.blurb2')],
   unlockRank: 0,
-  lot: { lanes: 6, stallsPerLane: 6, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
+  lot: { lanes: 6, stallsPerLane: 6, openSides: ['west', 'east'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 190, y: 148 },
-  helo: { times: [[380, 420]] }, // late in the HIGH ROLLERS wave (CONFIG.shift.phases)
+  helo: {
+    times: [
+      ['dinner', 0.3, 0.7],
+      ['high', 0.3, 0.7],
+    ],
+  }, // two VIP landings: Dinner Rush, High Rollers
   event: { name: tl('hotel.monte_carlo.event'), short: tl('hotel.monte_carlo.eventShort') },
   starTarget: 600,
   theme: {

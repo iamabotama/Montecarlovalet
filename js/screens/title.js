@@ -15,6 +15,7 @@ defineScreen('title', {
     menuItem(4, languageLabel(), () => goScreen('language')),
     button(4, 164, 40, Sound.muted ? t('btn.unmute') : t('btn.mute'), toggleMute, PAL.lgrey),
     button(256, 164, 60, t('title.fullscreen'), goFullscreen, PAL.lgrey),
+    ...debugTitleButtons(), // dev tool: screens/debug_menu.js
   ],
   render() {
     R(0, 0, 320, 180, PAL.night);

@@ -67,6 +67,13 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.8: steeper night, after party, debug menu
+- **Night:** 6 shorter waves instead of 4, ramping faster: Early Dinner, Dinner Rush, Showtime, High Rollers, the hotel's big event, then a late-night **After Party** (mostly whales and ultras, tips x1.5, fun-event odds x3), then Last Call. Pickups start in wave 1; a few whales show up from wave 1. The clock now runs 6 PM to 2 AM. Tuning: `CONFIG.shift.phases` (built with `wavePhase()` / `breakPhase()`).
+- **Overflow:** 2 temporary slots (one per side) instead of 4, every hotel.
+- **Helicopters** are scheduled by wave (`helo.times: [[waveId, from, to]]`): Monte Carlo 2 a night (Dinner Rush, High Rollers), Dubai 3 (the last at the After Party). Las Vegas and the Swiss Chalet still have no helipad.
+- **Drunk driver** odds 1 in 12 per whale/ultra pickup (x3 at the After Party).
+- **Debug menu:** DEBUG button, top-left of the title screen (`CONFIG.debugMenu`, switch off before release). Pick a hotel, then a fun event or scenario (helicopter now, jump to a wave); it starts a shift there and fires it. Overlay and Odds toggles included. Test: `tests/debug_menu_test.py`.
+
 ## v2.7.1: event debug controls
 - Open the game with `?debug=1`, start a shift, press the backtick key (`) to show the debug overlay.
 - **DRUNK**: a tipsy whale walks out for pickup now (try the cab tap, or fetch his car). **CRASH**: straight to the crash scene.

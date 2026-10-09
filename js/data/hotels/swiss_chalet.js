@@ -7,7 +7,7 @@ defineHotel({
   blurb: [tl('hotel.swiss_chalet.blurb1'), tl('hotel.swiss_chalet.blurb2')],
   unlockRank: 4,
   product: 'premium',
-  lot: { lanes: 6, stallsPerLane: 5, openSides: ['west'], tempSlots: { west: 2, east: 2 } },
+  lot: { lanes: 6, stallsPerLane: 5, openSides: ['west'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: null,
   event: { name: tl('hotel.swiss_chalet.event'), short: tl('hotel.swiss_chalet.eventShort') },

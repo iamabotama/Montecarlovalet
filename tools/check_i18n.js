@@ -13,7 +13,7 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..', 'js');
 const I18N_DIR = path.join(ROOT, 'i18n');
 // Files whose literals are not player-facing language text.
-const SKIP_LINT = new Set(['ui/debug.js', 'data/vehicles.js', 'modules.js']);
+const SKIP_LINT = new Set(['ui/debug.js', 'screens/debug_menu.js', 'data/vehicles.js', 'modules.js']);
 const IDS = new Set(['ABCDEFGHIJ']);
 const isId = s => IDS.has(s) || /^MCV-/.test(s); // font family names
 

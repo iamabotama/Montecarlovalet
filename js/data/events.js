@@ -5,7 +5,7 @@ const EVENT_CONFIG = {
   cooldownSec: 60, // quiet time after an event before another may start (only one runs at a time)
   drunkDriver: {
     enabled: true,
-    chance: 1 / 30, // per whale/ultra pickup
+    chance: 1 / 12, // per whale/ultra pickup (x the wave's eventMult: 3 at the after party)
     hicEverySec: 2.2, // warning sign: hiccups while he waits
     cabHeatRelief: 5, // tapping him calls a cab instead (car stays overnight)
     waitRate: 0.6, // everyone's patience drains at 60% while the scene is active

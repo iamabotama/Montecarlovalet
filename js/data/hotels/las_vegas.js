@@ -6,7 +6,7 @@ defineHotel({
   city: tl('hotel.las_vegas.city'),
   blurb: [tl('hotel.las_vegas.blurb1'), tl('hotel.las_vegas.blurb2')],
   unlockRank: 1,
-  lot: { lanes: 6, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 2, east: 2 } },
+  lot: { lanes: 6, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: null,
   event: { name: tl('hotel.las_vegas.event'), short: tl('hotel.las_vegas.eventShort') },
