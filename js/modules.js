@@ -105,6 +105,7 @@ const MCV_MODULES = [
   'events/director.js',
   'events/actions.js',
   'events/drunk_driver.js',
+  'events/joyride.js',
   'app/flow.js',
   'main.js',
 ];

@@ -93,6 +93,18 @@ const Sound = {
         this.tone(620, 0.55, 'sawtooth', 0.04, 920);
         this.tone(920, 0.55, 'sawtooth', 0.04, 620, 0.6);
         break;
+      case 'screech':
+        this.noise(0.55, 0.1, 0, 3500);
+        this.tone(1500, 0.5, 'sawtooth', 0.035, 1100);
+        break;
+      case 'thud':
+        this.tone(70, 0.25, 'square', 0.2, 35);
+        this.noise(0.2, 0.2, 0, 250);
+        break;
+      case 'flytune': // chiptune fanfare while the joyrider flies back in
+        [523, 659, 784, 1047, 784, 1047, 1319, 1568].forEach((f, i) => this.tone(f, 0.13, 'square', 0.06, 0, i * 0.14));
+        [131, 131, 196, 196].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.08, 0, i * 0.28));
+        break;
       case 'crash':
         this.noise(0.5, 0.3, 0, 300);
         this.tone(90, 0.35, 'square', 0.15, 40);

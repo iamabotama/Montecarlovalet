@@ -67,6 +67,11 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.9: valet joyride, favicon
+- **Joyride** (`js/events/joyride.js`, tuning `EVENT_CONFIG.joyride`): when a hired valet (never you) starts driving a whale/ultra car to park, 1 in 15 (x the wave's event odds) he snaps: wheels screech, burnout at the curb, fishtails off the east end of the road. ~30 s later the car flies in from the west to a chiptune, lands hard, skids into a sloppy 180 and he parks it in the stall he was given. +3 heat when he leaves; if the owner comes out meanwhile his patience drains 2.5x and you take +6 heat. Debug: **RIDE** (hires a helper if needed and forces it).
+- Core touch points: one hook `parkDriveStart` in `world/runner.js`, a generic `worker.away` flag (runner skips him, renderer hides him), and fetches wait while a car is not in a spot.
+- Valet favicon (`icons/favicon-32.png`, `favicon-64.png`), drawn from the in-game sprite.
+
 ## v2.8.1: compact debug overlay, quit debug
 - In a shift the debug overlay is now one small strip in the top bar (over the HI score): **DBG xSPEED** opens the full panel, **QUIT** leaves debug mode (real speed and odds) and returns to the title. Event, END EV, EVENT and FILL fold the panel away so you can watch. The debug menu also has **Quit debug**.
 

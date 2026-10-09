@@ -98,7 +98,7 @@ function runValet(dt) {
   updateCrew(dt);
 }
 function runWorker(v, dt) {
-  if (v.arriveT > 0) return;
+  if (v.arriveT > 0 || v.away) return; // away: an event has him (events/joyride.js)
   if (!v.job) startNextJob(v);
   const j = v.job;
   if (!j) {
@@ -186,6 +186,7 @@ function runWorker(v, dt) {
         st.t = 0;
         j.carMoved = true;
         if (st.onStart) st.onStart();
+        if (j.type === 'park' && eventHook('parkDriveStart', v, car, j, st)) break; // event took the car
         car.loc = { t: 'moving' };
         v.inCar = car.id;
         v.walking = false;

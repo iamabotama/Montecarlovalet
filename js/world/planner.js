@@ -117,6 +117,7 @@ function plan(j, from, dry, w) {
     walk({ t: 'stand' });
   } else if (j.type === 'fetch') {
     if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
+    if (car.loc.t === 'away' || car.loc.t === 'moving') return { wait: t('wait.carAway') }; // not in a spot yet
     const k = freeCurb(j.id);
     if (k < 0) return { wait: t('wait.curbFull') };
     if (car.loc.t === 'temp' || car.loc.t === 'prem') {

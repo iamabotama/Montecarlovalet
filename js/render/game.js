@@ -70,6 +70,7 @@ function renderGame() {
   for (const w of workers()) {
     const wx = w.x + (w.off || 0) + crowdOff(w);
     if (w === S.valet && !tutValetVisible()) continue;
+    if (w.away) continue; // off-screen with an event
     if ((!w.inCar && S.phase !== 'fired') || (w === S.valet && S.phase === 'fired' && S.endT < 2))
       drawPerson(
         ctx,
