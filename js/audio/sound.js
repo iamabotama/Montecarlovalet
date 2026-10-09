@@ -89,6 +89,18 @@ const Sound = {
         this.tone(415 * p, 0.14, 'square', 0.07, 0, 0.13);
         break;
       }
+      case 'siren':
+        this.tone(620, 0.55, 'sawtooth', 0.04, 920);
+        this.tone(920, 0.55, 'sawtooth', 0.04, 620, 0.6);
+        break;
+      case 'crash':
+        this.noise(0.5, 0.3, 0, 300);
+        this.tone(90, 0.35, 'square', 0.15, 40);
+        this.noise(0.25, 0.15, 0.15, 2000);
+        break;
+      case 'hic':
+        this.tone(420, 0.07, 'square', 0.07, 760);
+        break;
       case 'coin':
         this.tone(988, 0.06, 'square', 0.08);
         this.tone(1319, 0.18, 'square', 0.08, 0, 0.06);

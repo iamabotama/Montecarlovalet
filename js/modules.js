@@ -25,6 +25,7 @@ const MCV_MODULES = [
   'art/palette.js',
   'art/font.js',
   'data/config.js',
+  'data/events.js',
   'data/vehicles.js',
   'data/powerups.js',
   'data/cosmetics.js',
@@ -100,6 +101,9 @@ const MCV_MODULES = [
   'screens/promotion.js',
   'screens/summary.js',
   'screens/game.js',
+  'events/director.js',
+  'events/actions.js',
+  'events/drunk_driver.js',
   'app/flow.js',
   'main.js',
 ];

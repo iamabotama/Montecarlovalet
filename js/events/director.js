@@ -1,0 +1,86 @@
+'use strict';
+/* Event director. Events register with defineEvent(id, def) (one file each in js/events/) and only
+   touch the game through events/actions.js. The director runs at most one event at a time, keeps a
+   cooldown between them, and fans core hooks out to every enabled event.
+   def = {
+     eligible()            -> may this event run tonight (hotel layout etc.)
+     hooks: { name(...) }  -> optional reactions to core moments; a truthy return means "handled"
+                              (pickupStart(g), handOver(car, g), tapGuest(g))
+     update(ev, dt)        -> while active;  idle(dt) -> every frame while not active
+     draw(ev)              -> while active;  scenery() -> every frame (props that are always there)
+     targets(ev, add)      -> tap targets while active
+     waitRate              -> guest patience drain multiplier while active (default 1)
+   }
+   Start one with startEvent(id, state); end it with endEvent(). */
+const EVENTS = {};
+function defineEvent(id, def) {
+  EVENTS[id] = def;
+}
+function newEventsState() {
+  resetBlockedSides();
+  return { active: null, cooldown: 0 };
+}
+function eventOn(id) {
+  const c = EVENT_CONFIG[id];
+  return !!(EVENTS[id] && c && c.enabled && !S.tutorial && (!EVENTS[id].eligible || EVENTS[id].eligible()));
+}
+// May a new event start right now?
+function eventCanStart(id) {
+  return eventOn(id) && S.phase === 'play' && !S.events.active && S.events.cooldown <= 0;
+}
+function startEvent(id, state) {
+  S.events.active = { id, t: 0, vehicles: [], ...state };
+  return S.events.active;
+}
+function endEvent() {
+  S.events.active = null;
+  S.events.cooldown = EVENT_CONFIG.cooldownSec;
+  resetBlockedSides();
+  sirenOff();
+}
+function activeEvent(id) {
+  const a = S.events && S.events.active;
+  return a && (!id || a.id === id) ? a : null;
+}
+// Core hook: returns the first truthy answer from an enabled event.
+function eventHook(name, ...args) {
+  if (!S.events) return undefined;
+  for (const id in EVENTS) {
+    const h = EVENTS[id].hooks && EVENTS[id].hooks[name];
+    if (h && eventOn(id)) {
+      const r = h(...args);
+      if (r) return r;
+    }
+  }
+  return undefined;
+}
+function updateEvents(dt) {
+  if (!S.events) return;
+  if (S.events.cooldown > 0) S.events.cooldown -= dt;
+  const a = S.events.active;
+  for (const id in EVENTS) if (EVENTS[id].idle && eventOn(id)) EVENTS[id].idle(dt);
+  if (a) {
+    a.t += dt;
+    updateServiceVehicles(a, dt);
+    updateSiren(dt);
+    EVENTS[a.id].update(a, dt);
+  }
+}
+function drawEvents() {
+  if (!S.events) return;
+  for (const id in EVENTS) if (EVENTS[id].scenery && eventOn(id)) EVENTS[id].scenery();
+  const a = S.events.active;
+  if (a) {
+    drawServiceVehicles(a);
+    EVENTS[a.id].draw(a);
+  }
+}
+function eventTargets(add) {
+  const a = S.events && S.events.active;
+  if (a && EVENTS[a.id].targets) EVENTS[a.id].targets(a, add);
+}
+// Guest patience drain multiplier (events can make everyone more patient).
+function eventWaitRate() {
+  const a = S.events && S.events.active;
+  return a && EVENTS[a.id].waitRate ? EVENTS[a.id].waitRate : 1;
+}

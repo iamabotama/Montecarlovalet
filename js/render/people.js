@@ -22,6 +22,7 @@ function guestPose(g) {
     dy = -Math.abs(Math.round(Math.sin(t * 12) * 2));
     dx = Math.round(Math.sin(t * 40));
   }
+  if (g.wobble) dx += Math.round(Math.sin(t * 3) * 1.5); // set by events (e.g. a tipsy guest)
   return { pose, dx, dy, cols, flip: s === 1 && Math.floor(t * 1.5) % 2 };
 }
 function bubbleFor(g) {

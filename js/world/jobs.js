@@ -18,6 +18,8 @@ function jobLabel(j) {
       return t('job.greet');
     case 'heli':
       return t('job.helipad');
+    case 'errand':
+      return t(j.labelKey);
   }
   return j.type.toUpperCase();
 }

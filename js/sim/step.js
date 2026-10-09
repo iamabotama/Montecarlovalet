@@ -11,6 +11,7 @@ function stepSim(dt) {
     runValet(dt);
     updateMovers(dt);
     updateHeli(dt);
+    updateEvents(dt);
     updateGoals();
     updateVipHold(dt);
     if (S.tutorial) tutUpdate(dt);

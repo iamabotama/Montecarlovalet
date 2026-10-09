@@ -165,6 +165,12 @@ const CAR_BODIES = {
 const WHALE_FX = ['intakes', 'canopy', 'glint', 'sparkle'];
 // [body, paint, tags] per model, same order as MODELS in art.js
 const CAR_LOOKS = {
+  // event vehicles, never guests (events/actions.js SERVICE): police, tow truck, black SUV
+  service: [
+    ['sedan', '#1d2b53', ['chrome']],
+    ['van', '#ffa300', []],
+    ['suv', '#1a1a22', ['chrome']],
+  ],
   beater: [
     ['hatch', '#b8a77a', ['rust', 'dent']],
     ['hatch', '#8f8a7a', ['rust', 'mismatch']],

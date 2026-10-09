@@ -19,6 +19,7 @@ function renderGame() {
     drawText(ctx, '+' + (S.streetQueue.length - LOT.streetQueueMax), 2, 68, PAL.yellow);
   const v = S.valet;
   for (const w of workers()) if (w.inCar) drawCar(S.cars.get(w.inCar));
+  drawEvents();
   // reserved (restow) stalls
   S.lanes.forEach((L, i) =>
     L.res.forEach((r, j) => {

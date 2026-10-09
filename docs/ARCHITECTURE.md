@@ -15,6 +15,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | `world/` | The active lot's geometry, the routing graph, the lot model (stalls, temps, curb), and planning and running valet jobs | Award money or heat |
 | `career/` | Everything that **persists between shifts**: save and migrations, XP and ranks, unlocks, crew roster, store ownership | Run during a shift (except roster and wage lookups) |
 | `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`), arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
+| `events/` | **Fun events**, isolated from the core rules: `director.js` (registry, one event at a time, cooldown, core hooks), `actions.js` (the only things an event may do: close a lot end, send a valet on an errand, police/tow vehicles, siren, banners), then one file per event (`drunk_driver.js`). Odds and on/off live in `data/events.js` | Reach into lots, jobs or routing directly; change core rules permanently |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
 | `render/` | Drawing the world: themed background, people, crowd spacing (`crowd.js`), helicopter, the game frame | Change state |
 | `ui/` | In-game HUD, board, selection, crew panel, input hit-targets, debug overlay, widgets | Hold rules |
@@ -63,3 +64,13 @@ python3 gameplay_test.py; python3 crew_test.py; python3 heli_test.py
 ```
 
 Formatting: `npx prettier@3 --write "js/**/*.js"` (settings in `.prettierrc`).
+
+## Adding a fun event
+
+1. Add a tuning block to `data/events.js` (`enabled`, `chance`, timers, rewards).
+2. Create `js/events/<name>.js` and call `defineEvent('<name>', { eligible, hooks, idle, update, draw, scenery, targets, waitRate })`.
+   Start the scene with `startEvent()` and finish it with `endEvent()` (which also reopens any closed lot end and stops the siren).
+3. Only use `events/actions.js` (plus `earn`, `addHeat`, `coolHeat`, `floater`, `toast`) to touch the game. If an event needs something new, add it there once, so the next event can reuse it.
+4. The core calls events at fixed points only: `eventHook('pickupStart' | 'handOver' | 'tapGuest')` in `sim/`, `updateEvents()` in `sim/step.js`, `drawEvents()` in `render/game.js`, `eventTargets()` in `ui/input.js`, `eventWaitRate()` for guest patience.
+5. Register the file in `js/modules.js` (after `events/actions.js`), add its text to `i18n/en.js` under `event.<name>.*`, run `tools/translate.py --all`.
+6. Switch an event off with `enabled: false`; nothing else changes. Events never run in the tutorial.

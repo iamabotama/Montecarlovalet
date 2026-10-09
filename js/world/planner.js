@@ -92,6 +92,15 @@ function plan(j, from, dry, w) {
     });
     wait(SPD.greetSec, 'greet');
     act(() => greetLimo(car, g));
+  } else if (j.type === 'errand') {
+    // generic event errand (events/actions.js): walk there, wait, act, optionally walk back
+    walk(j.to);
+    if (j.sec) wait(j.sec, j.label);
+    act(() => j.onArrive && j.onArrive(workers().find(x => x.job === j)));
+    if (j.back) {
+      walk({ t: 'stand' });
+      act(() => j.onBack && j.onBack(workers().find(x => x.job === j)));
+    }
   } else if (j.type === 'heli') {
     const H = S.heli;
     if (!H || (H.phase !== 'incoming' && H.phase !== 'landed') || H.greeting) return { refuse: '' };

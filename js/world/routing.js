@@ -97,6 +97,7 @@ function locEnds(loc) {
   if (loc.t === 'curb') return [{ node: nk(MAP.curbX[loc.k], MAP.curbY), tail: [] }];
   if (loc.t === 'temp') return [{ node: nk(TEMPS[loc.i].x, TEMPS[loc.i].y), tail: [] }];
   if (loc.t === 'prem') return [{ node: nk(PREMS[loc.i].x, PREMS[loc.i].y), tail: [] }];
+  if (loc.t === 'pt') return [{ node: nk(loc.node[0], loc.node[1]), tail: [[loc.x, loc.y]] }]; // events/actions.js pointLoc
   if (loc.t === 'pad') return [{ node: nk(PAD_MEET[0], PAD_MEET[1]), tail: [] }];
   if (loc.t === 'stall') {
     const y = laneY(loc.lane),

@@ -13,7 +13,9 @@ const SPOTS = [84, 236, 68, 252, 52, 268, 36, 284, 20, 300]; // pickup waiting s
 
 let HOTEL = null; // the active hotel definition (data/hotels/*)
 let MAP, LOT, NL, NS, SW, SH, HALF, LOT_R, LOT_B;
-let LOT_SIDES = SIDES; // the row ends cars can enter from
+let LOT_SIDES = SIDES; // the row ends cars can enter from right now
+let LOT_BASE_SIDES = SIDES; // the hotel's own open ends (events may close one for a while)
+const BLOCKED_SIDES = new Set();
 let TEMPS = [];
 let PAD = null,
   PAD_MEET = null; // helipad (null when the hotel has none)
@@ -25,8 +27,10 @@ function setGeometry(hotel) {
   NL = LOT.lanes;
   NS = LOT.stallsPerLane;
   [SW, SH] = LOT.stallPx;
-  LOT_SIDES = SIDES.filter(s => (LOT.openSides || SIDES).includes(s));
-  HALF = LOT_SIDES.length === 2 ? Math.ceil(NS / 2) : LOT_SIDES[0] === 'west' ? NS : 0;
+  LOT_BASE_SIDES = SIDES.filter(s => (LOT.openSides || SIDES).includes(s));
+  BLOCKED_SIDES.clear();
+  LOT_SIDES = LOT_BASE_SIDES;
+  HALF = LOT_BASE_SIDES.length === 2 ? Math.ceil(NS / 2) : LOT_SIDES[0] === 'west' ? NS : 0;
   LOT_R = MAP.lotX + NS * SW;
   LOT_B = MAP.lotY + NL * SH;
   TEMPS = [];
@@ -39,6 +43,13 @@ function setGeometry(hotel) {
   setPremiumGeometry();
 }
 
+// Close / reopen one end of every row (events/actions.js blockSide). Stack sizes (HALF) never change.
+function setSideBlocked(side, on) {
+  if (on) BLOCKED_SIDES.add(side);
+  else BLOCKED_SIDES.delete(side);
+  LOT_SIDES = LOT_BASE_SIDES.filter(s => !BLOCKED_SIDES.has(s));
+  pathCache.clear();
+}
 const laneY = i => MAP.lotY + i * SH + Math.floor(SH / 2);
 const stallX = j => MAP.lotX + j * SW + SW / 2;
 const aisleX = side => (side === 'west' ? MAP.lotX - 8 : LOT_R + 8);

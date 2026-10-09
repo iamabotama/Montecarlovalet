@@ -38,6 +38,7 @@ function hitTargets() {
     add(q.x + q.w + 1, 172, 5, 8, 6, () => cancelJob(q.j));
   }
   PREMS.forEach((p, i) => add(p.x - 10, p.y - 7, 20, 14, 1, () => tapPremiumPad(i)));
+  eventTargets(add);
   const o = selectionOptions();
   for (const m of o.menu) add(m.x, m.y, m.w, 9, 5, m.fn);
   for (const s of o.stalls)

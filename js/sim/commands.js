@@ -30,6 +30,7 @@ function tapGuest(g) {
     useCard(S.armed, g);
     return;
   }
+  if (eventHook('tapGuest', g)) return;
   if (g.phase === 'pick' && !g.ticket) {
     toast(t('toast.waitTicket'));
     return;

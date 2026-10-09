@@ -117,7 +117,7 @@ function updateGuests(dt) {
     const car = S.cars.get(g.carId);
     if (WAITING.has(g.state)) {
       if (g.ignoreT > 0) g.ignoreT -= dt;
-      else if (!S.tutorial) g.wait += dt;
+      else if (!S.tutorial) g.wait += dt * eventWaitRate();
       const st = stageOf(g);
       if (st !== g.stage) {
         if (st > g.stage) {
@@ -188,6 +188,7 @@ function updateGuests(dt) {
         g.stage = 0;
         g.patience = CONFIG.tiers[g.tier].pickPatience * patienceMult();
         g.x = MAP.standX - 2;
+        eventHook('pickupStart', g);
       }
     } else if (g.state === 'pickWalk') {
       const tx = CONFIG.podium.x - 6;
@@ -216,7 +217,7 @@ function updateGuests(dt) {
       const tx = g.boardX;
       g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * 2 * dt);
       if (Math.abs(g.x - tx) < 1) {
-        departCar(car);
+        if (!eventHook('handOver', car, g)) departCar(car);
         guestGone(g);
       }
     }
