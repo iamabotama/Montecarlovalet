@@ -68,6 +68,7 @@ async def main():
         await g.js('() => { MCV.S.money += 0; const ev = activeEvent("drunkDriver"); MCV.S.activeW = MCV.S.valet.id; ddCallCops(ev); }')
         m0 = await g.js('() => MCV.S.money')
         seen_cop = False
+        tow_shots = 0
         for i in range(240):
             r = await g.js('() => { const ev = MCV.S.events.active; return ev ? { d: ev.driver && ev.driver.state, cops: ev.copsCalled, you: ev.byYou, '
                            'cop: !!ev.cop, lights: !!(ev.cop && ev.cop.lights), tow: !!ev.tow } : null; }')
@@ -75,6 +76,11 @@ async def main():
                 seen_cop = True
                 await g.run(1500)
                 await g.shot('drunk_cops')
+            if r and r['tow'] and tow_shots < 2:
+                towing = await g.js('() => !!(MCV.S.events.active.tow && MCV.S.events.active.tow.tows)')
+                if (tow_shots == 0) or towing:
+                    await g.shot('drunk_tow%d' % tow_shots)
+                    tow_shots += 1
             if r is None:
                 break
             await g.run(250)

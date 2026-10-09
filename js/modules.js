@@ -42,6 +42,7 @@ const MCV_MODULES = [
   // art + audio
   'art/sprites.js',
   'art/cars.js',
+  'art/tow_truck.js',
   'audio/sound.js',
   // world: geometry, routing, lot model, jobs (plan + run)
   'world/geometry.js',

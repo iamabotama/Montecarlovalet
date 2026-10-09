@@ -54,17 +54,17 @@ function updateServiceVehicles(ev, dt) {
         if (cb) cb(v);
       }
     }
-    if (v.tows) Object.assign(v.tows, { x: v.x - (v.dir === 2 ? -1 : 1) * 17, y: v.y, dir: v.dir });
+    if (v.tows) Object.assign(v.tows, { x: v.x - (v.dir === 2 ? -1 : 1) * TOW.hitch, y: v.y, dir: v.dir });
   }
   ev.vehicles = ev.vehicles.filter(v => !v.gone);
 }
 function drawServiceVehicles(ev) {
   for (const v of ev.vehicles) {
-    drawCarSprite(ctx, carSprite('service', SERVICE[v.kind], v.dir), v.x, v.y);
     if (v.kind === 'tow') {
-      const bx = v.x + (v.dir === 2 ? 7 : -9);
-      R(bx, v.y - 1, 3, 1, PAL.dgrey); // boom
+      drawTowTruck(v.x, v.y, v.dir, true); // art/tow_truck.js: amber lights always running on scene
+      continue;
     }
+    drawCarSprite(ctx, carSprite('service', SERVICE[v.kind], v.dir), v.x, v.y);
     if (v.lights) {
       const on = Math.floor(UI.t * 8) % 2;
       R(v.x - 3, v.y - 1, 3, 2, on ? PAL.red : PAL.white);
