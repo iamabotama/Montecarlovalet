@@ -211,7 +211,7 @@ function jrDraw(ev) {
   if (ev.shoutT > 0 && Math.floor(UI.t * 6) % 3) {
     const msg = t('event.joyride.shout', { name: ev.name });
     const x = clamp(ev.x, 4 + textW(msg), 316 - textW(msg)); // scale 2: half-width = textW
-    const y = ev.y - ev.alt - 22,
+    const y = ev.y - ev.alt + 10, // below the car: banners own the hotel front
       hw = textW(msg);
     R(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.ink); // dark plate so it reads over the hotel front
     RB(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.yellow);
