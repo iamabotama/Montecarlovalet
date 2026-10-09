@@ -52,6 +52,7 @@ function newRun(opts = {}) {
     particles: [],
     toasts: [],
     banners: [],
+    shout: null,
     shake: 0,
     events: newEventsState(),
     manager: null,

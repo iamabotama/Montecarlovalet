@@ -67,6 +67,10 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.11: message dock
+- Every pop-up (event shouts, warnings, wave/jackpot banners) now shows in one dock on empty scenery under the ticket board, right of the helipad, so text never covers valets, guests, cars or the board. One at a time: shout > warning > banner; text wraps to fit any language.
+- Code: `ui/messages.js` (DOCK position/size and priority). Events call `eventShout(who, text, sec)`; sim code keeps using `toast()` and `S.banners`.
+
 ## v2.10.1: joyride tweaks
 - The owner never knows: no heat, no faster patience; the cost is losing that valet for the ride (a ticket for the car just waits until it is back in a spot).
 - No ghost car left at the curb; a big "NAME: JOY RIDE!!" over the car; chiptune ping-ping tyre squeal as he burns out and fishtails away.
@@ -76,7 +80,7 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Code: `isMovable` / `parkJobType` in `world/lot.js`; the planner's `move` job now starts from stall, premium or overflow; a move from a stall locks both rows (`world/workers.js`). Test: `tests/move_test.py`.
 
 ## v2.9.1: pop-ups off the action
-- Banners now sit on the hotel front and warnings stack over the bottom-left of the lot, so the road, curb and helipad (where events play out) stay visible. Positions: `MSG` in `render/game.js`.
+- Banners now sit on the hotel front and warnings stack over the bottom-left of the lot, so the road, curb and helipad (where events play out) stay visible. (Superseded in v2.11: all messages now live in the message dock.)
 
 ## v2.9: valet joyride, favicon
 - **Joyride** (`js/events/joyride.js`, tuning `EVENT_CONFIG.joyride`): when a hired valet (never you) starts driving a whale/ultra car to park, 1 in 15 (x the wave's event odds) he snaps: wheels screech, burnout at the curb, fishtails off the east end of the road. ~30 s later the car flies in from the west to a chiptune, lands hard, skids into a sloppy 180 and he parks it in the stall he was given. +3 heat when he leaves; if the owner comes out meanwhile his patience drains 2.5x and you take +6 heat. Debug: **RIDE** (hires a helper if needed and forces it).

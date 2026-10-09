@@ -4,6 +4,10 @@
 function toast(msg) {
   if (msg) S.toasts.push({ msg, t: CONFIG.fx.toastSec });
 }
+// An event's big moment, shown in the message dock (ui/messages.js) above toasts and banners.
+function shout(who, text, sec) {
+  S.shout = { who, text, t: sec };
+}
 function floater(text, x, y, color) {
   S.floaters.push({ text, x, y, color, t: 1.4 });
 }

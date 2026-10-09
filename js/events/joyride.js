@@ -46,8 +46,7 @@ function jrStart(w, car, step) {
   ev.y = car.y;
   ev.dir = car.dir;
   ev.alt = 0;
-  ev.name = w.name;
-  ev.shoutT = JR().shoutSec; // big shout over the car (event.joyride.shout)
+  eventShout(w.name, t('event.joyride.shout'), JR().shoutSec);
   ev.pingT = 0;
   Sound.sfx('screech');
   return ev;
@@ -92,7 +91,6 @@ function jrUpdate(ev, dt) {
   const car = S.cars.get(ev.carId);
   if (!car) return endEvent();
   jrPings(ev, dt);
-  if (ev.shoutT > 0) ev.shoutT -= dt;
   switch (ev.stage) {
     case 'spin': // burnout at the curb: the car spins on the spot
       ev.dir = Math.floor(ev.st * 10) % 4;
@@ -208,15 +206,6 @@ function jrDraw(ev) {
     ctx.globalAlpha = 1;
   }
   drawCarSprite(ctx, carSprite(car.tier, car.mi, ev.dir), ev.x, ev.y - ev.alt);
-  if (ev.shoutT > 0 && Math.floor(UI.t * 6) % 3) {
-    const msg = t('event.joyride.shout', { name: ev.name });
-    const x = clamp(ev.x, 4 + textW(msg), 316 - textW(msg)); // scale 2: half-width = textW
-    const y = ev.y - ev.alt + 10, // below the car: banners own the hotel front
-      hw = textW(msg);
-    R(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.ink); // dark plate so it reads over the hotel front
-    RB(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.yellow);
-    drawText(ctx, msg, x, y, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.crimson });
-  }
 }
 /* ---- debug: RIDE hires a helper if needed, sends in a whale and has the helper park it (forced) ---- */
 function jrDebugRide() {

@@ -75,3 +75,6 @@ Formatting: `npx prettier@3 --write "js/**/*.js"` (settings in `.prettierrc`).
 5. Register the file in `js/modules.js` (after `events/actions.js`), add its text to `i18n/en.js` under `event.<name>.*`, run `tools/translate.py --all`.
 6. Switch an event off with `enabled: false`; nothing else changes. Events never run in the tutorial.
 7. Give it debug triggers: `debug: { LABEL: fn }` (and `cleanup(ev)` to tidy leftovers). They appear automatically as buttons in the debug overlay. Roll odds with `eventChance(id)` so the overlay's ODDS:ALL switch works.
+
+## Messages on screen
+All pop-up text goes through the message dock in `ui/messages.js` (under the ticket board). Sim code uses `toast(msg)` and `S.banners.push(...)`; events use `eventShout(who, text, sec)` / `eventBanner(text)` from `events/actions.js`. Never draw free-floating text over the play area: valets, guests, cars and the ticket board must stay visible.

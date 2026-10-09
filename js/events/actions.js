@@ -92,6 +92,9 @@ function updateSiren(dt) {
     SIREN.t = 1.2;
   }
 }
+function eventShout(who, text, sec) {
+  shout(who, text, sec);
+}
 function eventBanner(text) {
   S.banners.push({ text, t: 3 });
 }

@@ -35,6 +35,7 @@ function stepSim(dt) {
   for (const a of [S.toasts, S.npcs]) for (const o of a) o.t -= dt;
   if (S.banners.length > 3) S.banners.splice(0, S.banners.length - 3); // never lag far behind events
   if (S.banners.length) S.banners[0].t -= dt; // banners queue: one at a time
+  if (S.shout && (S.shout.t -= dt) <= 0) S.shout = null;
   S.toasts = S.toasts.filter(o => o.t > 0).slice(-2);
   S.banners = S.banners.filter(o => o.t > 0);
   S.npcs = S.npcs.filter(o => o.t > 0);

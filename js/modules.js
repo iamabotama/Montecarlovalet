@@ -85,6 +85,7 @@ const MCV_MODULES = [
   'render/game.js',
   'ui/hud.js',
   'ui/board.js',
+  'ui/messages.js',
   'ui/crew_panel.js',
   'ui/selection.js',
   'ui/input.js',
