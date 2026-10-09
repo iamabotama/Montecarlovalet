@@ -22,16 +22,18 @@ jobs:
           cp -r index.html sw.js manifest.webmanifest icons fonts js site/
           echo "www.montecarlovalet.com" > site/CNAME
           printf '# montecarlovalet.com\nDeployed automatically from iamabotama/Montecarlovalet. Do not edit here.\n' > site/README.md
-      # 3. Push to the Pages repo
+      # 3. Push to the Pages repo (plain git: no Docker image to download, so no Docker Hub rate limits)
       - name: Push to iamabotama/Montecarlovalet.com
-        uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.DEPLOY_TOKEN }}
-        with:
-          source-directory: site
-          destination-github-username: iamabotama
-          destination-repository-name: Montecarlovalet.com
-          target-branch: main
-          commit-message: "Deploy: ORIGIN_COMMIT"
-          user-email: actions@github.com
-          user-name: Monte Carlo Valet CI
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${DEPLOY_TOKEN}@github.com/iamabotama/Montecarlovalet.com.git" dest
+          find dest -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r site/. dest/
+          cd dest
+          git config user.name "Monte Carlo Valet CI"
+          git config user.email actions@github.com
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing to deploy"; exit 0; fi
+          git commit -qm "Deploy: ${GITHUB_SHA}"
+          git push origin HEAD:main
