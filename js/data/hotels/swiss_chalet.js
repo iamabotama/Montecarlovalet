@@ -6,7 +6,7 @@ defineHotel({
   city: tl('hotel.swiss_chalet.city'),
   blurb: [tl('hotel.swiss_chalet.blurb1'), tl('hotel.swiss_chalet.blurb2')],
   unlockRank: 4,
-  product: 'hotel_pack_1',
+  product: 'premium',
   lot: { lanes: 6, stallsPerLane: 5, openSides: ['west'], tempSlots: { west: 2, east: 2 } },
   map: { lotX: 46, lotY: 81 },
   pad: null,

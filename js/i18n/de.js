@@ -1,5 +1,5 @@
 'use strict';
-/* German. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* German. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('de', "Deutsch", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('de', "Deutsch", {
   "nametag.gold": "Gold-Namensschild",
   "product.hotelPack1": "Hotel-Paket: Alpen + Dubai",
   "product.supporter": "Supporter Edition",
+  "product.premium": "Premium",
   "store.unavailable": "Shop noch nicht verfügbar",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Hotel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('de', "Deutsch", {
   "promo.badge": "Der Chef steckt dir das neue Abzeichen an.",
   "promo.unlocked": "Freigeschaltet: {what}",
   "unlock.power": "Power-up: {name}",
+  "unlock.premiumStall": "Premium-Platz P1 am Eingang",
   "unlock.uniform": "Uniform: {name}",
   "unlock.loadout": "Starte mit {n} Power-ups",
   "unlock.hotel": "Neues Hotel: {city}",
@@ -176,6 +178,7 @@ defineLanguage('de', "Deutsch", {
   "bubble.onCall": "Auf Abruf",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Parke {lane}-{side}",
+  "job.parkPrem": "Parke {where}",
   "job.move": "Stell {lane}-{side} um",
   "job.fetchAt": "Hole {where}",
   "job.fetch": "Holen",
@@ -253,6 +256,8 @@ defineLanguage('de', "Deutsch", {
   "toast.alreadyQueued": "Schon in Reihe",
   "toast.guestInside": "Gast ist noch drin",
   "toast.crewFull": "Team voll ({n} Helfer)",
+  "toast.crewPremium": "Mehr Valets mit Premium",
+  "toast.premTaken": "Der Premium-Platz ist belegt",
   "toast.needToHire": "Brauche {money}, um {name} zu heuern",
   "toast.helperOn": "{name} ist an - deine nächsten Jobs gehen an ihn",
   "toast.goingHome": "{name} geht heim",

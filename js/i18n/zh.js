@@ -1,5 +1,5 @@
 'use strict';
-/* Simplified Chinese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Simplified Chinese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('zh', "中文", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('zh', "中文", {
   "nametag.gold": "金色名牌",
   "product.hotelPack1": "酒店包：阿尔卑斯＋迪拜",
   "product.supporter": "支持者版",
+  "product.premium": "尊享版",
   "store.unavailable": "商店尚未开放",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "蒙特卡洛酒店",
@@ -102,6 +103,7 @@ defineLanguage('zh', "中文", {
   "promo.badge": "经理给你别上了新徽章。",
   "promo.unlocked": "解锁：{what}",
   "unlock.power": "道具：{name}",
+  "unlock.premiumStall": "门口的尊享车位P1",
   "unlock.uniform": "制服：{name}",
   "unlock.loadout": "初始携带 {n} 个道具",
   "unlock.hotel": "新酒店：{city}",
@@ -176,6 +178,7 @@ defineLanguage('zh', "中文", {
   "bubble.onCall": "待命",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "停 {lane}-{side}",
+  "job.parkPrem": "停到{where}",
   "job.move": "挪 {lane}-{side}",
   "job.fetchAt": "去{where}取车",
   "job.fetch": "取车",
@@ -253,6 +256,8 @@ defineLanguage('zh', "中文", {
   "toast.alreadyQueued": "已在队列",
   "toast.guestInside": "客人还在里面",
   "toast.crewFull": "员工已满（{n} 名助手）",
+  "toast.crewPremium": "尊享版自带更多泊车员",
+  "toast.premTaken": "该尊享车位已占用",
   "toast.needToHire": "需要{money}才能雇用{name}",
   "toast.helperOn": "{name}已上岗，你接下来的活交给他",
   "toast.goingHome": "{name}要回家了",

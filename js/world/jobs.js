@@ -6,15 +6,12 @@ function jobLabel(j) {
   const car = S.cars.get(j.carId);
   switch (j.type) {
     case 'park':
+      if (j.prem != null) return t('job.parkPrem', { where: PREMS[j.prem].name });
       return t('job.park', { lane: LANE_NAMES[j.lane], side: sideLabel(j.side) });
     case 'move':
       return t('job.move', { lane: LANE_NAMES[j.lane], side: sideLabel(j.side) });
     case 'fetch':
-      return car && car.loc.t === 'stall'
-        ? t('job.fetchAt', { where: stallName(car.loc.lane, car.loc.idx) })
-        : car && car.loc.t === 'temp'
-          ? t('job.fetchAt', { where: TEMPS[car.loc.i].name })
-          : t('job.fetch');
+      return car && spotName(car.loc) ? t('job.fetchAt', { where: spotName(car.loc) }) : t('job.fetch');
     case 'restow':
       return t('job.restow', { n: j.list.filter(e => !e.done).length });
     case 'greet':

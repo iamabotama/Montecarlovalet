@@ -1,5 +1,5 @@
 'use strict';
-/* Polish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Polish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('pl', "Polski", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('pl', "Polski", {
   "nametag.gold": "Złota plakietka",
   "product.hotelPack1": "Pakiet hoteli: Alpy + Dubaj",
   "product.supporter": "Edycja Supporter",
+  "product.premium": "Premium",
   "store.unavailable": "Sklep jeszcze niedostępny",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Hotel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('pl', "Polski", {
   "promo.badge": "Kierownik przypina ci nową odznakę.",
   "promo.unlocked": "Odblokowano: {what}",
   "unlock.power": "Dopalacz: {name}",
+  "unlock.premiumStall": "Miejsce premium P1 przy wejściu",
   "unlock.uniform": "Mundur: {name}",
   "unlock.loadout": "Start z {n} dopalaczami",
   "unlock.hotel": "Nowy hotel: {city}",
@@ -176,6 +178,7 @@ defineLanguage('pl', "Polski", {
   "bubble.onCall": "Na wezwanie",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Zaparkuj {lane}-{side}",
+  "job.parkPrem": "Zaparkuj {where}",
   "job.move": "Przestaw {lane}-{side}",
   "job.fetchAt": "Odbierz {where}",
   "job.fetch": "Odbierz",
@@ -253,6 +256,8 @@ defineLanguage('pl', "Polski", {
   "toast.alreadyQueued": "Już w kolejce",
   "toast.guestInside": "Gość wciąż w środku",
   "toast.crewFull": "Załoga pełna ({n} pomocników)",
+  "toast.crewPremium": "Więcej parkingowych w Premium",
+  "toast.premTaken": "To miejsce premium jest zajęte",
   "toast.needToHire": "Potrzeba {money}, by nająć {name}",
   "toast.helperOn": "{name} wchodzi - kolejne zlecenia do niego",
   "toast.goingHome": "{name} wraca do domu",

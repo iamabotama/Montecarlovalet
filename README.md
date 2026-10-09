@@ -66,3 +66,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Chinese/Japanese/Korean use Fusion Pixel 10px (SIL OFL), cut down to the characters the game uses (60-90 KB each, `tools/build_fonts.py`).
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
+
+## v2.5: premium parking
+- Two gold premium stalls on pads beside the entrance drive (`world/premium.js`, drawn by `render/premium.js`): the quickest spots on the property, single stalls, no digging out.
+- **P1** unlocks at rank Valet. **P2** is a premium perk, free for everyone while the store is off.
+- Premium product (`data/products.js`): the Swiss Chalet, the 3rd and 4th valet (`CONFIG.helpers.freeMax`), premium stall P2. Gates live in `premiumFeature()`; nothing is gated today.
+- Test: `tests/premium_test.py`.

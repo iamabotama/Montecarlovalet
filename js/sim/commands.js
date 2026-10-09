@@ -72,5 +72,5 @@ function tapCar(car, g) {
     Sound.sfx('click');
     return;
   }
-  if (car.loc.t === 'stall') toast(t('toast.guestInside'));
+  if (isParked(car)) toast(t('toast.guestInside'));
 }

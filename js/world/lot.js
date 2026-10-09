@@ -86,6 +86,24 @@ function placeInTemp(car, i) {
   car.tempSince = S.t;
   car.tempHeatT = 0;
 }
+// Cars that are put away (guest inside): row stalls, temp slots, premium stalls.
+const isParked = car => car.loc.t === 'stall' || car.loc.t === 'temp' || car.loc.t === 'prem';
+// Short name of where a car is: "A3", "T1", "P1" (null for curb/moving).
+function spotName(loc) {
+  if (loc.t === 'stall') return stallName(loc.lane, loc.idx);
+  if (loc.t === 'temp') return TEMPS[loc.i].name;
+  if (loc.t === 'prem') return PREMS[loc.i].name;
+  return null;
+}
+// Park destinations (row stall or premium stall): claim it when the drive starts, settle the car when it ends.
+function claimSpot(dest, carId) {
+  if (dest.t === 'prem') S.prem[dest.i].car = carId;
+  else S.lanes[dest.lane].cars[dest.idx] = carId;
+}
+function putCarAt(car, dest) {
+  if (dest.t === 'prem') placeInPrem(car, dest.i);
+  else placeInStall(car, dest.lane, dest.idx);
+}
 function removeCarFromWorld(car) {
   if (car.loc.t === 'stall') {
     S.lanes[car.loc.lane].cars[car.loc.idx] = null;
@@ -93,6 +111,7 @@ function removeCarFromWorld(car) {
   if (car.loc.t === 'temp') {
     S.temps[car.loc.i].car = null;
   }
+  if (car.loc.t === 'prem') S.prem[car.loc.i].car = null;
   if (car.loc.t === 'curb') {
     S.curb[car.loc.k].car = null;
   }

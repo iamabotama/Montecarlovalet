@@ -1,5 +1,5 @@
 'use strict';
-/* Ukrainian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Ukrainian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('uk', "Українська", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('uk', "Українська", {
   "nametag.gold": "Золотий бейдж",
   "product.hotelPack1": "Пакет готелів: Альпи + Дубай",
   "product.supporter": "Видання для підтримки",
+  "product.premium": "Преміум",
   "store.unavailable": "Магазин ще недоступний",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Готель Монте-Карло",
@@ -102,6 +103,7 @@ defineLanguage('uk', "Українська", {
   "promo.badge": "Менеджер пришпилює твій новий бейдж.",
   "promo.unlocked": "Розблоковано: {what}",
   "unlock.power": "Бустер: {name}",
+  "unlock.premiumStall": "Преміум-місце P1 біля входу",
   "unlock.uniform": "Форма: {name}",
   "unlock.loadout": "Починай із {n} бустерами",
   "unlock.hotel": "Новий готель: {city}",
@@ -176,6 +178,7 @@ defineLanguage('uk', "Українська", {
   "bubble.onCall": "На виклику",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Постав {lane}-{side}",
+  "job.parkPrem": "Паркуй на {where}",
   "job.move": "Перестав {lane}-{side}",
   "job.fetchAt": "Подай з {where}",
   "job.fetch": "Подати",
@@ -253,6 +256,8 @@ defineLanguage('uk', "Українська", {
   "toast.alreadyQueued": "Вже в черзі",
   "toast.guestInside": "Гість ще всередині",
   "toast.crewFull": "Команда повна ({n} помічн.)",
+  "toast.crewPremium": "З Преміумом більше паркувальників",
+  "toast.premTaken": "Це преміум-місце зайняте",
   "toast.needToHire": "Потрібно {money}, щоб найняти {name}",
   "toast.helperOn": "{name} на зміні — наступні завдання йдуть йому",
   "toast.goingHome": "{name} йде додому",

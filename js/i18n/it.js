@@ -1,5 +1,5 @@
 'use strict';
-/* Italian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Italian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('it', "Italiano", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('it', "Italiano", {
   "nametag.gold": "Badge d'oro",
   "product.hotelPack1": "Pacchetto Hotel: Alpi + Dubai",
   "product.supporter": "Edizione Supporter",
+  "product.premium": "Premium",
   "store.unavailable": "Negozio non disponibile",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Hotel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('it', "Italiano", {
   "promo.badge": "Il manager ti mette il nuovo distintivo.",
   "promo.unlocked": "Sbloccato: {what}",
   "unlock.power": "Power-up: {name}",
+  "unlock.premiumStall": "Posto Premium P1 vicino alla porta",
   "unlock.uniform": "Uniforme: {name}",
   "unlock.loadout": "Parti con {n} power-up",
   "unlock.hotel": "Nuovo hotel: {city}",
@@ -176,6 +178,7 @@ defineLanguage('it', "Italiano", {
   "bubble.onCall": "Di turno",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Parcheggia {lane}-{side}",
+  "job.parkPrem": "Porta in {where}",
   "job.move": "Sposta {lane}-{side}",
   "job.fetchAt": "Ritira a {where}",
   "job.fetch": "Ritira",
@@ -253,6 +256,8 @@ defineLanguage('it', "Italiano", {
   "toast.alreadyQueued": "Già in coda",
   "toast.guestInside": "L'ospite è ancora dentro",
   "toast.crewFull": "Team al completo ({n} aiutanti)",
+  "toast.crewPremium": "Con Premium hai più valet",
+  "toast.premTaken": "Quel posto Premium è occupato",
   "toast.needToHire": "Servono {money} per assumere {name}",
   "toast.helperOn": "{name} attivo - i tuoi prossimi lavori vanno a lui",
   "toast.goingHome": "{name} torna a casa",

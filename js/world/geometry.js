@@ -36,6 +36,7 @@ function setGeometry(hotel) {
       TEMPS.push({ x: side === 'west' ? MAP.lotX - 30 : LOT_R + 30, y: MAP.lotY + 11 + k * 18, side, name: 'T' + n++ });
   PAD = hotel.pad ? { ...hotel.pad } : null;
   PAD_MEET = PAD ? [PAD.x - 15, PAD.y] : null;
+  setPremiumGeometry();
 }
 
 const laneY = i => MAP.lotY + i * SH + Math.floor(SH / 2);

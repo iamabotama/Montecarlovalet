@@ -46,12 +46,7 @@ function renderBoard() {
     drawText(ctx, String(g.ticket), 233, y + 2, PAL.white);
     const [m, mc] = TIER_MARK[g.tier];
     drawText(ctx, m, 247, y + 2, mc);
-    const loc =
-      car.loc.t === 'stall'
-        ? stallName(car.loc.lane, car.loc.idx)
-        : car.loc.t === 'temp'
-          ? TEMPS[car.loc.i].name
-          : '..';
+    const loc = spotName(car.loc) || '..';
     drawText(ctx, loc, 254, y + 2, PAL.lgrey);
     const fetching = S.jobs.some(j => j.type === 'fetch' && j.carId === g.carId && !j.aborted);
     if (fetching) drawText(ctx, t('board.fetch'), 316, y + 2, PAL.lime, { align: 'right' });

@@ -28,6 +28,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 - **Two kinds of state.** `S` is one shift: `newRun()` creates it and it is thrown away afterwards. `SAVE` is the career: only `career/*` and the settings screen write it. `finishRun()` hands the shift to `awardShift()` once, at the end.
 - **Goals read stats.** Nightly goals (`data/goals.js`) are `value(S)` functions over `S.stats`. The rules never call into the goal system; they only count things.
 - **Text is data.** Code never contains words: it calls `t('area.key', {values})` (or `tl()` in data files). Each language is a table in `i18n/`; its font face is named there. Layout measures text (`textW`, `wrapText(s, widthPx)`) instead of counting characters, and fixed slots pass `maxW` so `tests/layout_test.py` can prove every language fits. See `docs/TRANSLATING.md`.
+- **Premium is one switch too.** Premium-only features (the last hotel, the 3rd and 4th valet, premium stall P2) ask `premiumFeature(key)` in `career/store.js`; the `premium` product in `data/products.js` grants those keys. With the store off, everyone has them.
 - **Save versioning.** Bump `CONFIG.career.saveVersion` and add a `MIGRATIONS[n]` entry in `career/save.js`. Old saves get upgraded, never wiped.
 - **Store is one switch.** `CONFIG.store.enabled = false` means everything is owned. Going live means implementing `StoreProvider.purchase()` in `career/store.js` against a real payment backend. Nothing else changes.
 

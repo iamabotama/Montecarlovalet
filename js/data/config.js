@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.4.0',
+  version: '2.5.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -32,6 +32,10 @@ const CONFIG = {
     mouthL: 100,
     mouthR: 220,
     curbX: [112, 136, 184, 208],
+    premium: [
+      [82, 57],
+      [238, 57],
+    ], // premium stall pads beside the drive (world/premium.js)
     queueX: [80, 60, 40],
   },
   speed: {
@@ -127,7 +131,7 @@ const CONFIG = {
     xpPerDollar: 1,
     ranks: [
       { name: tl('rank.rookie'), xp: 0, unlock: [], loadoutPicks: 2 },
-      { name: tl('rank.valet'), xp: 1000, unlock: ['reserved', 'uniform:blue'] },
+      { name: tl('rank.valet'), xp: 1000, unlock: ['reserved', 'uniform:blue', 'stall:premium1'] },
       { name: tl('rank.senior'), xp: 3000, unlock: ['spareKeys'], loadoutPicks: 3 },
       { name: tl('rank.head'), xp: 7500, unlock: ['bribe', 'uniform:black'] },
       { name: tl('rank.captain'), xp: 15000, unlock: ['fakeSmile', 'uniform:gloves'] },
@@ -237,6 +241,7 @@ const CONFIG = {
   },
   helpers: {
     max: 3,
+    freeMax: 1, // helpers beyond this (the 3rd and 4th valet) are a premium perk ('crew:extra')
     costPerHour: 100,
     speed: 1.0,
     idleOffsets: [0, 8, -8, 16],

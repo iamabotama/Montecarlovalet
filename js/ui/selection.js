@@ -33,6 +33,12 @@ function selectionOptions() {
     if (k >= 0) stalls.splice(k, 1);
     stalls.push(vip);
   }
+  if (canPark)
+    PREMS.forEach((p, i) => {
+      if (!premFree(i)) return;
+      const job = { type: car.loc.t === 'temp' ? 'move' : 'park', carId: car.id, prem: i, bags: sel.bags };
+      stalls.push({ prem: i, depth: 0, est: estimateFor(job), job });
+    });
   if (car.loc.t === 'curb' && g && g.state === 'curbDrop') {
     if (g.tier === 'limo')
       menu.push({
@@ -63,6 +69,11 @@ function selectionOptions() {
   }
   return { stalls, menu, car };
 }
+// Screen rect [x, y, w, h] of a park choice: a row stall, or a premium pad.
+function optionRect(s) {
+  if (s.prem != null) return [PREMS[s.prem].x - 10, PREMS[s.prem].y - 7, 20, 14];
+  return [MAP.lotX + s.idx * SW, MAP.lotY + s.lane * SH, SW, SH];
+}
 function renderSelection() {
   const o = selectionOptions();
   if (!S.selected) return;
@@ -70,16 +81,15 @@ function renderSelection() {
   RB(Math.round(car.x - 10), Math.round(car.y - 6), 20, 13, PAL.yellow);
   if (o.stalls.length && lotFull()) drawText(ctx, t('sel.lotFull'), 160, 84, PAL.red, { align: 'center' });
   for (const s of o.stalls) {
-    const x = MAP.lotX + s.idx * SW,
-      y = MAP.lotY + s.lane * SH;
+    const [x, y, w, h] = optionRect(s);
     if (s.bad) {
-      RB(x + 1, y + 1, SW - 2, SH - 2, PAL.dgrey);
+      RB(x + 1, y + 1, w - 2, h - 2, PAL.dgrey);
       continue;
     }
     const pulse = Math.floor(UI.t * 4) % 2 ? PAL.yellow : PAL.orange;
-    RB(x, y, SW + 1, SH + 1, pulse);
-    R(x + 1, y + 1, SW - 1, SH - 1, PAL.ink);
-    drawText(ctx, 'D' + s.depth, x + 3, y + 2, PAL.yellow);
+    RB(x, y, w + 1, h + 1, pulse);
+    R(x + 1, y + 1, w - 1, h - 1, PAL.ink);
+    drawText(ctx, s.prem != null ? PREMS[s.prem].name : 'D' + s.depth, x + 3, y + 2, PAL.yellow);
     if (s.est != null) drawText(ctx, String(Math.round(s.est)), x + 3, y + 8, PAL.white);
   }
   for (const m of o.menu) {

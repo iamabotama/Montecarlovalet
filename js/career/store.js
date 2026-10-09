@@ -13,6 +13,8 @@ const StoreProvider = {
     return Promise.resolve([]);
   },
 };
+// Premium-only features (unlock keys a product grants, e.g. 'crew:extra'). Everyone has them while the store is off.
+const premiumFeature = key => !CONFIG.store.enabled || storeGrants().includes(key);
 const storeOwns = productId => !CONFIG.store.enabled || SAVE.entitlements.includes(productId);
 // All unlock keys granted by owned products ('hotel:*' style keys are handled by storeOwns at the call site).
 function storeGrants() {

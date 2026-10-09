@@ -1,5 +1,5 @@
 'use strict';
-/* Japanese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Japanese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('ja', "日本語", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('ja', "日本語", {
   "nametag.gold": "金の名札",
   "product.hotelPack1": "ホテルパック：アルプス＋ドバイ",
   "product.supporter": "サポーター版",
+  "product.premium": "プレミアム",
   "store.unavailable": "ストアは未対応",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "ホテル・モンテカルロ",
@@ -102,6 +103,7 @@ defineLanguage('ja', "日本語", {
   "promo.badge": "支配人が新バッジを付ける。",
   "promo.unlocked": "解放：{what}",
   "unlock.power": "パワー：{name}",
+  "unlock.premiumStall": "入口そばのプレミアム枠P1",
   "unlock.uniform": "制服：{name}",
   "unlock.loadout": "開始時パワー{n}個",
   "unlock.hotel": "新ホテル：{city}",
@@ -176,6 +178,7 @@ defineLanguage('ja', "日本語", {
   "bubble.onCall": "待機中",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "{lane}-{side}に駐車",
+  "job.parkPrem": "{where}に駐車",
   "job.move": "{lane}-{side}へ移動",
   "job.fetchAt": "{where}で出庫",
   "job.fetch": "出庫",
@@ -253,6 +256,8 @@ defineLanguage('ja', "日本語", {
   "toast.alreadyQueued": "既に順番待ち",
   "toast.guestInside": "客はまだ館内",
   "toast.crewFull": "クルー満員（{n}人）",
+  "toast.crewPremium": "プレミアムで駐車係が増える",
+  "toast.premTaken": "そのプレミアム枠は埋まってる",
   "toast.needToHire": "{name}を雇うには{money}必要",
   "toast.helperOn": "{name}が稼働中 - 次の仕事は任せる",
   "toast.goingHome": "{name}は帰宅中",

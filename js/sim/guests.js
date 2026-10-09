@@ -94,7 +94,7 @@ function leaveAngry(g, why) {
   addHeat(heat, t('heat.' + why, { car: carName(car) }), g.x, g.y);
   const qi = S.streetQueue.indexOf(car.id);
   if (qi >= 0) S.streetQueue.splice(qi, 1);
-  if (car.loc.t === 'stall' || car.loc.t === 'temp') {
+  if (isParked(car)) {
     removeCarFromWorld(car);
     S.cars.delete(car.id);
   } else departCar(car);
@@ -180,7 +180,7 @@ function updateGuests(dt) {
       }
     } else if (g.state === 'inside') {
       g.stay -= dt * stayRate();
-      if (g.stay <= 0 && car && (car.loc.t === 'stall' || car.loc.t === 'temp') && pickupsActive() < maxPickups()) {
+      if (g.stay <= 0 && car && isParked(car) && pickupsActive() < maxPickups()) {
         g.state = 'pickWalk';
         g.phase = 'pick';
         g.wait = 0;

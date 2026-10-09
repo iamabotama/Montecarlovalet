@@ -8,6 +8,7 @@ function renderGame() {
   ctx.translate(shake, 0);
   drawWorldStatic();
   drawPad();
+  drawPremiumStalls();
   tutWorldFx();
   // lot cars
   for (const car of S.cars.values()) if (car.loc.t !== 'moving' && car.loc.t !== 'street') drawCar(car);

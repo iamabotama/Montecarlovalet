@@ -50,6 +50,7 @@ defineLanguage('en', 'English', {
   'nametag.gold': 'Gold Name Tag',
   'product.hotelPack1': 'Hotel Pack: Alps + Dubai',
   'product.supporter': 'Supporter Edition',
+  'product.premium': 'Premium',
   'store.unavailable': 'Store not available yet',
 
   // ---------- hotels ----------
@@ -109,6 +110,7 @@ defineLanguage('en', 'English', {
   'promo.badge': 'The manager pins on your new badge.',
   'promo.unlocked': 'Unlocked: {what}',
   'unlock.power': 'Power-up: {name}',
+  'unlock.premiumStall': 'Premium stall P1 by the door',
   'unlock.uniform': 'Uniform: {name}',
   'unlock.loadout': 'Start with {n} power-ups',
   'unlock.hotel': 'New hotel: {city}',
@@ -186,6 +188,7 @@ defineLanguage('en', 'English', {
 
   // ---------- job labels (bottom queue strip) ----------
   'job.park': 'Park {lane}-{side}',
+  'job.parkPrem': 'Park {where}',
   'job.move': 'Move {lane}-{side}',
   'job.fetchAt': 'Fetch {where}',
   'job.fetch': 'Fetch',
@@ -268,6 +271,8 @@ defineLanguage('en', 'English', {
   'toast.alreadyQueued': 'Already queued',
   'toast.guestInside': 'Guest is still inside',
   'toast.crewFull': 'Crew is full ({n} helpers)',
+  'toast.crewPremium': 'More valets come with Premium',
+  'toast.premTaken': 'That premium stall is taken',
   'toast.needToHire': 'Need {money} to hire {name}',
   'toast.helperOn': '{name} is on - your next jobs go to him',
   'toast.goingHome': '{name} is going home',

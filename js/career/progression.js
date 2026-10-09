@@ -51,6 +51,7 @@ function rankUnlockLines(i) {
     if (kind === 'power') out.push(t('unlock.power', { name: POWER_INFO[id].name }));
     if (kind === 'uniform') out.push(t('unlock.uniform', { name: UNIFORMS[id].name }));
     if (kind === 'nametag') out.push(String(NAMETAGS[id].name));
+    if (kind === 'stall') out.push(t('unlock.premiumStall'));
   }
   if (RANKS[i].loadoutPicks && (i === 0 || RANKS[i].loadoutPicks > (RANKS[i - 1].loadoutPicks || 0)))
     out.push(t('unlock.loadout', { n: RANKS[i].loadoutPicks }));

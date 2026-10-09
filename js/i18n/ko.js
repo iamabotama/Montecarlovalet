@@ -1,5 +1,5 @@
 'use strict';
-/* Korean. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Korean. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('ko', "한국어", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('ko', "한국어", {
   "nametag.gold": "골드 네임택",
   "product.hotelPack1": "호텔 팩: 알프스 + 두바이",
   "product.supporter": "서포터 에디션",
+  "product.premium": "프리미엄",
   "store.unavailable": "상점은 아직 이용 불가",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "호텔 몬테카를로",
@@ -102,6 +103,7 @@ defineLanguage('ko', "한국어", {
   "promo.badge": "매니저가 새 배지를 달아줘요.",
   "promo.unlocked": "해금: {what}",
   "unlock.power": "파워업: {name}",
+  "unlock.premiumStall": "문옆 프리미엄 칸 P1",
   "unlock.uniform": "유니폼: {name}",
   "unlock.loadout": "시작 시 파워업 {n}개",
   "unlock.hotel": "새 호텔: {city}",
@@ -176,6 +178,7 @@ defineLanguage('ko', "한국어", {
   "bubble.onCall": "대기 중",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "주차 {lane}-{side}",
+  "job.parkPrem": "{where}에 주차",
   "job.move": "이동 {lane}-{side}",
   "job.fetchAt": "{where} 출차",
   "job.fetch": "출차",
@@ -253,6 +256,8 @@ defineLanguage('ko', "한국어", {
   "toast.alreadyQueued": "이미 대기 중",
   "toast.guestInside": "손님이 아직 안에 있어요",
   "toast.crewFull": "크루 정원 ({n}명)",
+  "toast.crewPremium": "프리미엄이면 발렛이 더 와요",
+  "toast.premTaken": "프리미엄 칸은 이미 찼어요",
   "toast.needToHire": "{name} 고용에 {money} 필요",
   "toast.helperOn": "{name} 투입 - 다음 일은 그에게",
   "toast.goingHome": "{name} 귀가 중",

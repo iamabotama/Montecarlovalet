@@ -50,6 +50,7 @@ function buildGraph() {
     );
   }
   if (PAD) chainNodes([[aisleX('east'), PAD.y], PAD_MEET]);
+  linkPremiumStalls();
 }
 const pathCache = new Map();
 function graphPath(a, b) {
@@ -90,11 +91,12 @@ function graphPath(a, b) {
   pathCache.set(ck, out);
   return out;
 }
-// Location descriptors: {t:'stand'} {t:'curb',k} {t:'temp',i} {t:'stall',lane,idx}
+// Location descriptors: {t:'stand'} {t:'curb',k} {t:'temp',i} {t:'prem',i} {t:'pad'} {t:'stall',lane,idx}
 function locEnds(loc) {
   if (loc.t === 'stand') return [{ node: nk(MAP.standX, MAP.curbY), tail: [[MAP.standX, MAP.standY]] }];
   if (loc.t === 'curb') return [{ node: nk(MAP.curbX[loc.k], MAP.curbY), tail: [] }];
   if (loc.t === 'temp') return [{ node: nk(TEMPS[loc.i].x, TEMPS[loc.i].y), tail: [] }];
+  if (loc.t === 'prem') return [{ node: nk(PREMS[loc.i].x, PREMS[loc.i].y), tail: [] }];
   if (loc.t === 'pad') return [{ node: nk(PAD_MEET[0], PAD_MEET[1]), tail: [] }];
   if (loc.t === 'stall') {
     const y = laneY(loc.lane),

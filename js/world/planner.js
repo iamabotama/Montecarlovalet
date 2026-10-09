@@ -1,6 +1,14 @@
 'use strict';
 /* Job planner: turns a job into concrete walk/drive/wait steps with time estimates. */
 
+// Where a park/move job puts the car: a premium stall (j.prem) or the next free stall of a row end.
+// Returns { dest, depth } or { refuse }.
+function parkDest(j, dry) {
+  if (j.prem != null)
+    return premFree(j.prem, j) ? { dest: { t: 'prem', i: j.prem }, depth: 0 } : { refuse: t('toast.premTaken') };
+  const e = parkTarget(j, dry);
+  return e ? { dest: { t: 'stall', lane: j.lane, idx: e.idx }, depth: e.depth } : { refuse: parkRefusal(j) };
+}
 // Planner: builds steps with precomputed paths from the valet's location; returns {steps, est} | {refuse} | {wait}
 function plan(j, from, dry, w) {
   const m = speedMult() * (w ? w.speed : 1);
@@ -31,24 +39,24 @@ function plan(j, from, dry, w) {
   const g = car ? S.guests.get(car.guestId) : null;
   if (j.type === 'park') {
     if (!car || car.loc.t !== 'curb' || !g || g.state !== 'curbDrop') return { refuse: '' };
-    const e = parkTarget(j, dry);
-    if (!e) return { refuse: parkRefusal(j) };
+    const e = parkDest(j, dry);
+    if (e.refuse !== undefined) return e;
     const k = car.loc.k;
     walk({ t: 'curb', k });
     act(() => reachCarAtCurb(car, g, j.bags));
     if (j.bags) wait(SPD.bagsExtraSec, 'bags'); // step label (id, not shown)
     drive(
       car.id,
-      { t: 'stall', lane: j.lane, idx: e.idx },
+      e.dest,
       null,
       j.side,
       () => {
         S.curb[k].car = null;
         if (j.vip) takeVipHold();
-        S.lanes[j.lane].cars[e.idx] = car.id;
+        claimSpot(e.dest, car.id);
       },
       () => {
-        placeInStall(car, j.lane, e.idx);
+        putCarAt(car, e.dest);
         S.stats.carsParked++;
       },
     );
@@ -56,22 +64,22 @@ function plan(j, from, dry, w) {
     j.depth = e.depth;
   } else if (j.type === 'move') {
     if (!car || car.loc.t !== 'temp') return { refuse: '' };
-    const e = parkTarget(j, dry);
-    if (!e) return { refuse: parkRefusal(j) };
+    const e = parkDest(j, dry);
+    if (e.refuse !== undefined) return e;
     const i = car.loc.i;
     walk({ t: 'temp', i });
     drive(
       car.id,
-      { t: 'stall', lane: j.lane, idx: e.idx },
+      e.dest,
       null,
       j.side,
       () => {
         S.temps[i].car = null;
         dropRestowEntry(car.id);
         if (j.vip) takeVipHold();
-        S.lanes[j.lane].cars[e.idx] = car.id;
+        claimSpot(e.dest, car.id);
       },
-      () => placeInStall(car, j.lane, e.idx),
+      () => putCarAt(car, e.dest),
     );
     walk({ t: 'stand' }, null, j.side);
     j.depth = e.depth;
@@ -102,17 +110,17 @@ function plan(j, from, dry, w) {
     if (!car || !g || (g.state !== 'pickWait' && g.state !== 'toSpot')) return { refuse: '' };
     const k = freeCurb(j.id);
     if (k < 0) return { wait: t('wait.curbFull') };
-    if (car.loc.t === 'temp') {
-      const i = car.loc.i;
+    if (car.loc.t === 'temp' || car.loc.t === 'prem') {
+      const from = { ...car.loc }; // single-car spot: nothing to dig out
       if (!dry) S.curb[k].res = j.id;
-      walk({ t: 'temp', i });
+      walk(from);
       drive(
         car.id,
         { t: 'curb', k },
         null,
         null,
         () => {
-          S.temps[i].car = null;
+          (from.t === 'temp' ? S.temps : S.prem)[from.i].car = null;
           dropRestowEntry(car.id);
           S.curb[k].res = null;
           S.curb[k].car = car.id;

@@ -38,7 +38,7 @@ function hitTargets() {
   for (const m of o.menu) add(m.x, m.y, m.w, 9, 5, m.fn);
   for (const s of o.stalls)
     if (!s.bad)
-      add(MAP.lotX + s.idx * SW, MAP.lotY + s.lane * SH, SW, SH, 4, () => {
+      add(...optionRect(s), 4, () => {
         if (enqueue(s.job)) {
           if (s.job.type === 'park') {
             const g = S.guests.get(S.cars.get(s.job.carId).guestId);
@@ -52,7 +52,7 @@ function hitTargets() {
   for (const car of S.cars.values()) {
     const g = S.guests.get(car.guestId);
     if (!g) continue;
-    if (car.loc.t === 'curb' || car.loc.t === 'temp' || car.loc.t === 'stall')
+    if (car.loc.t === 'curb' || isParked(car))
       add(car.x - 8, car.y - 4, 16, 8, car.loc.t === 'stall' ? 1 : 3, () => tapCar(car, g));
   }
   S.streetQueue.slice(0, LOT.streetQueueMax).forEach(id => {

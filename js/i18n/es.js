@@ -1,5 +1,5 @@
 'use strict';
-/* Spanish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Spanish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('es', "Español", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('es', "Español", {
   "nametag.gold": "Placa dorada",
   "product.hotelPack1": "Pack hotel: Alpes + Dubái",
   "product.supporter": "Edición Supporter",
+  "product.premium": "Premium",
   "store.unavailable": "Tienda no disponible aún",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Hotel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('es', "Español", {
   "promo.badge": "El gerente te coloca la nueva placa.",
   "promo.unlocked": "Desbloqueado: {what}",
   "unlock.power": "Mejora: {name}",
+  "unlock.premiumStall": "Plaza premium P1 junto a la puerta",
   "unlock.uniform": "Uniforme: {name}",
   "unlock.loadout": "Empiezas con {n} mejoras",
   "unlock.hotel": "Hotel nuevo: {city}",
@@ -176,6 +178,7 @@ defineLanguage('es', "Español", {
   "bubble.onCall": "De guardia",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Aparca {lane}-{side}",
+  "job.parkPrem": "Aparca en {where}",
   "job.move": "Mueve {lane}-{side}",
   "job.fetchAt": "Trae {where}",
   "job.fetch": "Traer",
@@ -253,6 +256,8 @@ defineLanguage('es', "Español", {
   "toast.alreadyQueued": "Ya en cola",
   "toast.guestInside": "El huésped sigue dentro",
   "toast.crewFull": "Equipo lleno ({n} ayudantes)",
+  "toast.crewPremium": "Con Premium vienen más valets",
+  "toast.premTaken": "Esa plaza premium ya está ocupada",
   "toast.needToHire": "Necesitas {money} para emplear a {name}",
   "toast.helperOn": "{name} activo: tus próximos trabajos van a él",
   "toast.goingHome": "{name} se va a casa",

@@ -1,5 +1,5 @@
 'use strict';
-/* Russian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Russian. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('ru', "Русский", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('ru', "Русский", {
   "nametag.gold": "Золотой бейдж",
   "product.hotelPack1": "Пакет отелей: Альпы + Дубай",
   "product.supporter": "Издание спонсора",
+  "product.premium": "Премиум",
   "store.unavailable": "Магазин пока недоступен",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Отель Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('ru', "Русский", {
   "promo.badge": "Менеджер вручил тебе новый значок.",
   "promo.unlocked": "Открыто: {what}",
   "unlock.power": "Буст: {name}",
+  "unlock.premiumStall": "Премиум-место P1 у входа",
   "unlock.uniform": "Форма: {name}",
   "unlock.loadout": "Старт с {n} бустами",
   "unlock.hotel": "Новый отель: {city}",
@@ -176,6 +178,7 @@ defineLanguage('ru', "Русский", {
   "bubble.onCall": "На вызове",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Паркуй {lane}-{side}",
+  "job.parkPrem": "Паркуй {where}",
   "job.move": "Переставь {lane}-{side}",
   "job.fetchAt": "Подай {where}",
   "job.fetch": "Подай",
@@ -253,6 +256,8 @@ defineLanguage('ru', "Русский", {
   "toast.alreadyQueued": "Уже в очереди",
   "toast.guestInside": "Гость ещё внутри",
   "toast.crewFull": "Команда полная ({n})",
+  "toast.crewPremium": "С Премиумом больше парковщиков",
+  "toast.premTaken": "Это премиум-место занято",
   "toast.needToHire": "Нужно {money}, чтобы нанять {name}",
   "toast.helperOn": "{name} на смене — след. задания ему",
   "toast.goingHome": "{name} уходит домой",

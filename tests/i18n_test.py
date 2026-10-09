@@ -32,7 +32,7 @@ def leaks(drawn, allowed):
                 break
             r = r2
         for tok in re.findall(r"[A-Za-z][A-Za-z'.]*\d*", r):
-            if tok in allowed or re.fullmatch(r'[A-J]\d{0,2}|T\d|D\d|[A-Z]|M?\d*', tok):
+            if tok in allowed or re.fullmatch(r'[A-J]\d{0,2}|T\d|P\d|D\d|[A-Z]|M?\d*', tok):
                 continue
             out.append(s)
             break

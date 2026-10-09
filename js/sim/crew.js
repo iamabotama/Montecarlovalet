@@ -11,9 +11,11 @@ function crewJobsThisShift() {
   for (const w of S.crewLog) out[w.memberId] = (out[w.memberId] || 0) + w.jobsDone;
   return out;
 }
+// How many helpers this player may hire (the 3rd and 4th valet are a premium perk).
+const helperCap = () => (premiumFeature('crew:extra') ? HC.max : Math.min(HC.freeMax, HC.max));
 function hireValet() {
-  if (S.helpers.length >= HC.max) {
-    toast(t('toast.crewFull', { n: HC.max }));
+  if (S.helpers.length >= helperCap()) {
+    toast(helperCap() < HC.max ? t('toast.crewPremium') : t('toast.crewFull', { n: HC.max }));
     Sound.sfx('deny');
     return;
   }

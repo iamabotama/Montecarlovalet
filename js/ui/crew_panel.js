@@ -9,7 +9,7 @@ function crewButton() {
 }
 function renderCrewPanel() {
   const w = activeWorker();
-  const full = S.helpers.length >= CONFIG.helpers.max;
+  const full = S.helpers.length >= helperCap();
   const next = hireCandidate();
   const poor = S.money < memberWage(next);
   const home = w.id !== 0;

@@ -21,6 +21,7 @@ function newRun(opts = {}) {
     nextId: 1,
     lanes: Array.from({ length: NL }, () => ({ cars: Array(NS).fill(null), res: Array(NS).fill(null) })),
     temps: TEMPS.map(() => ({ car: null, res: null })),
+    prem: newPremState(),
     curb: MAP.curbX.map(() => ({ car: null, res: null })),
     streetQueue: [],
     jobs: [],

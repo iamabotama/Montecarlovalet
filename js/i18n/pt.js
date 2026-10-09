@@ -1,5 +1,5 @@
 'use strict';
-/* Brazilian Portuguese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Brazilian Portuguese. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('pt', "Português", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('pt', "Português", {
   "nametag.gold": "Crachá Dourado",
   "product.hotelPack1": "Pacote de hotéis: Alpes + Dubai",
   "product.supporter": "Edição de Apoiador",
+  "product.premium": "Premium",
   "store.unavailable": "Loja ainda indisponível",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Hotel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('pt', "Português", {
   "promo.badge": "O gerente prende seu novo crachá.",
   "promo.unlocked": "Liberado: {what}",
   "unlock.power": "Power-up: {name}",
+  "unlock.premiumStall": "Vaga premium P1 na porta",
   "unlock.uniform": "Uniforme: {name}",
   "unlock.loadout": "Comece com {n} power-ups",
   "unlock.hotel": "Novo hotel: {city}",
@@ -176,6 +178,7 @@ defineLanguage('pt', "Português", {
   "bubble.onCall": "De plantão",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Estac. {lane}-{side}",
+  "job.parkPrem": "Estacione {where}",
   "job.move": "Mover {lane}-{side}",
   "job.fetchAt": "Buscar em {where}",
   "job.fetch": "Buscar",
@@ -253,6 +256,8 @@ defineLanguage('pt', "Português", {
   "toast.alreadyQueued": "Já na fila",
   "toast.guestInside": "Hóspede ainda está dentro",
   "toast.crewFull": "Equipe cheia ({n} ajudantes)",
+  "toast.crewPremium": "Mais manobristas vêm com Premium",
+  "toast.premTaken": "Essa vaga premium está ocupada",
   "toast.needToHire": "Precisa de {money} p/ admitir {name}",
   "toast.helperOn": "{name} ativo - seus próx. serviços vão pra ele",
   "toast.goingHome": "{name} vai pra casa",

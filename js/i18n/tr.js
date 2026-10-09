@@ -1,5 +1,5 @@
 'use strict';
-/* Turkish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-08);
+/* Turkish. Keys mirror i18n/en.js (the master). Drafted by tools/translate.py (gpt-5, 2026-10-09);
    lines a native speaker has reviewed can be edited freely - the tool only fills in missing keys. */
 defineLanguage('tr', "Türkçe", {
   // ---------- shared buttons ----------
@@ -47,6 +47,7 @@ defineLanguage('tr', "Türkçe", {
   "nametag.gold": "Altın İsimlik",
   "product.hotelPack1": "Otel Paketi: Alpler + Dubai",
   "product.supporter": "Destekçi Sürümü",
+  "product.premium": "Premium",
   "store.unavailable": "Mağaza daha hazır değil",
   // ---------- hotels ----------
   "hotel.monte_carlo.name": "Otel Monte Carlo",
@@ -102,6 +103,7 @@ defineLanguage('tr', "Türkçe", {
   "promo.badge": "Müdür yeni rozetini yakana iliştirir.",
   "promo.unlocked": "Açıldı: {what}",
   "unlock.power": "Güçlendirme: {name}",
+  "unlock.premiumStall": "Kapıdaki Premium park yeri P1",
   "unlock.uniform": "Üniforma: {name}",
   "unlock.loadout": "Başlangıçta {n} güçlendirme",
   "unlock.hotel": "Yeni otel: {city}",
@@ -176,6 +178,7 @@ defineLanguage('tr', "Türkçe", {
   "bubble.onCall": "Nöbette",
   // ---------- job labels (bottom queue strip) ----------
   "job.park": "Park et {lane}-{side}",
+  "job.parkPrem": "Park et {where}",
   "job.move": "Taşı {lane}-{side}",
   "job.fetchAt": "Getir {where}",
   "job.fetch": "Getir",
@@ -253,6 +256,8 @@ defineLanguage('tr', "Türkçe", {
   "toast.alreadyQueued": "Zaten sırada",
   "toast.guestInside": "Müşteri hâlâ içeride",
   "toast.crewFull": "Ekip dolu ({n} yardımcı)",
+  "toast.crewPremium": "Premium ile daha çok vale gelir",
+  "toast.premTaken": "O Premium park yeri dolu",
   "toast.needToHire": "{name}'i işe almak için {money} gerek",
   "toast.helperOn": "{name} devrede - sonraki işler ona",
   "toast.goingHome": "{name} eve gidiyor",
