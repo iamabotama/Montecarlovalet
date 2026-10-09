@@ -87,6 +87,7 @@ function newRun(opts = {}) {
       heliMissed: 0,
       eventsSurvived: 0,
       wavesCleared: 0,
+      marks: {}, // event tallies for awards: every event start under its id, plus eventMark(key)
     },
   };
   S.goals = opts.goals || [];

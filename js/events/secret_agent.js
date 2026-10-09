@@ -104,6 +104,7 @@ function agentUpdate(ev, dt) {
       ev.man.y += (dy / d) * step;
     } else {
       ev.stage = 'eject';
+      eventMark('agentEject');
       ev.man.x = car.x;
       ev.man.y = car.y;
       ev.ej = 0;
@@ -127,6 +128,7 @@ function agentUpdate(ev, dt) {
 }
 function agentSuccess(ev) {
   const g = S.guests.get(ev.guestId);
+  eventMark('agentParked');
   earn(AGT().tip, 'tip', g);
   floater(fmtMoney(AGT().tip), g ? g.x : 160, g ? g.y - 14 : 30, PAL.yellow);
   Sound.sfx('bigcoin');

@@ -5,7 +5,7 @@ const cardX = i => CARD.x + i * (CARD.w + CARD.gap);
 
 defineScreen('hotels', {
   enter() {
-    UI.hotelSel = UI.hotelSel || SAVE.lastHotel;
+    UI.hotelSel = UI.hotelSel || activeChar().lastHotel;
     if (!hotelAccess(hotelById(UI.hotelSel)).ok) UI.hotelSel = regularHotels()[0];
   },
   buttons() {

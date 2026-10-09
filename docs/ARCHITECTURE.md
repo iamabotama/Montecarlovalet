@@ -13,7 +13,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | `data/` | All tuning and content as plain objects: `config.js`, vehicles, power-ups, goals, cosmetics, products, **`hotels/`** | Contain logic or touch state |
 | `art/`, `audio/` | Palette, pixel fonts (one face per script: Press Start 2P, Fusion Pixel for CJK), procedural car and people sprites, sound | Read game state |
 | `world/` | The active lot's geometry, the routing graph, the lot model (stalls, temps, curb), and planning and running valet jobs | Award money or heat |
-| `career/` | Everything that **persists between shifts**: save and migrations, XP and ranks, unlocks, crew roster, store ownership | Run during a shift (except roster and wage lookups) |
+| `career/` | Everything that **persists between shifts**: save and migrations, characters (`character.js`), XP and ranks, unlocks, awards (`awards.js`) and daily streaks (`streaks.js`), crew roster, store ownership | Run during a shift (except roster and wage lookups) |
 | `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`), arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
 | `events/` | **Fun events**, isolated from the core rules: `director.js` (registry, one event at a time, cooldown, core hooks), `actions.js` (the only things an event may do: close a lot end, send a valet on an errand, police/tow vehicles, siren, banners), then one file per event (`drunk_driver.js`), `joyride.js` (a hired valet takes a whale car for a spin; core hook `parkDriveStart`, `worker.away`). Odds and on/off live in `data/events.js`  `events/vip_heli.js` (special helicopters: royalty motorcade, celebrity paparazzi, POTUS -> TRUMP TOWERS for the shift + unlocks the secret `data/hotels/trump_towers.js`; core hooks heliIncoming/heliGreet/heliMissed/vipInside/arrivalTier). Secret hotels: `secret:` field in the hotel file, listed via `listedHotels()` once `SAVE.secrets[...]` is set. | Reach into lots, jobs or routing directly; change core rules permanently `snowmobiles.js` (Swiss passive: some everyday cars are faster snowmobiles; hooks carCreated/vehicleSpeed/drawCar/carName), `blizzard.js` (Swiss: white-out overlay, walkRate + waitRate). Def fields: `walkRate`, `overlay(ev)` (drawn above everything). `secret_agent.js` (Monte Carlo easter egg: 7 fountain taps; uses the new director `passiveTargets(add)`). |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
@@ -30,6 +30,8 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 - **Goals read stats.** Nightly goals (`data/goals.js`) are `value(S)` functions over `S.stats`. The rules never call into the goal system; they only count things.
 - **Text is data.** Code never contains words: it calls `t('area.key', {values})` (or `tl()` in data files). Each language is a table in `i18n/`; its font face is named there. Layout measures text (`textW`, `wrapText(s, widthPx)`) instead of counting characters, and fixed slots pass `maxW` so `tests/layout_test.py` can prove every language fits. See `docs/TRANSLATING.md`.
 - **Premium is one switch too.** Premium-only features (the last hotel, the 3rd and 4th valet, premium stall P2) ask `premiumFeature(key)` in `career/store.js`; the `premium` product in `data/products.js` grants those keys. With the store off, everyone has them.
+- **Characters.** Everything about the player's valet (rank, XP, look, loadout, hotel records, lifetime stats, awards, streak) lives on a character record in `SAVE.chars`; code reads it through `activeChar()` (`career/character.js`). Account-wide things (language, sound, tutorial, purchases, secrets, crew roster) stay on `SAVE`. New character fields go in `newCharacter()`; old saves pick them up on load (`fillCharacter`), no migration needed. More characters later = `addCharacter()` / `selectCharacter()` plus a select screen.
+- **Awards are data.** `data/awards.js` lists each award with a `check(L, r, c)` over lifetime sums, the shift just played and the character. Lifetime sums are built automatically from every number in `S.stats`, and events count under `L.marks` (each event start by id, plus `eventMark(key)`), so most new awards need no new hooks.
 - **Save versioning.** Bump `CONFIG.career.saveVersion` and add a `MIGRATIONS[n]` entry in `career/save.js`. Old saves get upgraded, never wiped.
 - **Store is one switch.** `CONFIG.store.enabled = false` means everything is owned. Going live means implementing `StoreProvider.purchase()` in `career/store.js` against a real payment backend. Nothing else changes.
 
@@ -43,6 +45,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | A power-up | `data/powerups.js` (info) and `CONFIG.power`. Logic goes in `sim/powerups.js#useCard`, or its own `sim/<name>.js` if it has state (see `sim/reserved.js`). Unlock it in `CONFIG.career.ranks` |
 | A uniform or name tag | `data/cosmetics.js`, plus an unlock key in a rank |
 | A rank | `CONFIG.career.ranks` |
+| An award | `data/awards.js` (+ i18n `award.<id>` and `award.<id>.desc`; a new medal glyph goes in `ICONS`, `art/sprites.js`) |
 | A screen | New `screens/<name>.js` with `defineScreen`, plus `js/modules.js` (e.g. `vehicle_guide.js`) |
 | Something that stands on the sidewalk | Add it to `crowdMembers()` in `render/game.js` (props use `fixed: true`) and draw it at `x + crowdOff(ref)` |
 | A paid product | `data/products.js`, then point a hotel's `product` at it |
@@ -55,7 +58,7 @@ Browser tests use Playwright plus system Chromium. `tests/harness.py` drives the
 ```
 cd tests
 python3 hotels_test.py     # every hotel plays 10 sim-minutes without errors
-python3 career_test.py     # v1 save migration, hotel locks, prep, promotion, roster, persistence
+python3 career_test.py     # v1->v3 save migration, hotel locks, prep, promotion, roster, awards, streak, career wall, persistence
 python3 reserved_test.py   # RESERVED power-up
 python3 crowd_test.py      # standing characters never overlap
 python3 waves_test.py      # a full night: waves, breaks, last call, shift complete

@@ -1,6 +1,8 @@
 'use strict';
 /* Title screen. */
-const menuItem = (i, label, fn) => ({ ...button(120, 117 + i * 12, 80, label, fn), h: 11 });
+const menuItem = (i, label, fn, col) => ({ ...button(120, 105 + i * 12, 80, label, fn, col), h: 11 });
+const careerLabel = () =>
+  activeChar().awardsUnseen ? t('title.careerNew', { n: activeChar().awardsUnseen }) : t('title.career');
 // Always recognisable, even to someone who can't read the current language: 'Langue / Language'.
 function languageLabel() {
   const own = t('title.language');
@@ -9,10 +11,11 @@ function languageLabel() {
 defineScreen('title', {
   buttons: () => [
     menuItem(0, t('title.start'), () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
-    menuItem(1, t('title.tutorial'), startTutorial),
-    menuItem(2, t('title.vehicles'), () => goScreen('guide')),
-    menuItem(3, t('title.settings'), () => goScreen('settings')),
-    menuItem(4, languageLabel(), () => goScreen('language')),
+    menuItem(1, careerLabel(), () => goScreen('career'), activeChar().awardsUnseen ? PAL.pink : undefined),
+    menuItem(2, t('title.tutorial'), startTutorial),
+    menuItem(3, t('title.vehicles'), () => goScreen('guide')),
+    menuItem(4, t('title.settings'), () => goScreen('settings')),
+    menuItem(5, languageLabel(), () => goScreen('language')),
     button(4, 164, 40, Sound.muted ? t('btn.unmute') : t('btn.mute'), toggleMute, PAL.lgrey),
     button(256, 164, 60, t('title.fullscreen'), goFullscreen, PAL.lgrey),
     ...debugTitleButtons(), // dev tool: screens/debug_menu.js
@@ -40,8 +43,8 @@ defineScreen('title', {
     const cx = ((UI.t * 40) % 400) - 40;
     drawCarSprite(ctx, carSprite('whale', 1, 0), cx, 150);
     drawCarSprite(ctx, carSprite('limo', 1, 2), 360 - ((UI.t * 25) % 420), 160);
-    R(56, 101, 208, 14, PAL.ink);
-    drawCareerBar(60, 103, 200);
+    R(56, 91, 208, 13, PAL.ink);
+    drawCareerBar(60, 92, 200);
     drawText(ctx, t('title.version', { v: CONFIG.version }), 2, 2, PAL.dgrey);
     drawButtons(this.buttons());
   },

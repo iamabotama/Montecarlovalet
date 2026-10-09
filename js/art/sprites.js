@@ -146,6 +146,17 @@ const ICONS = {
   key: ['xx...', 'xxxxx', 'xx.x.'],
   thumb: ['..x..', '.xx..', 'xxxxx', 'xxxxx', 'xxxx.'],
   full: ['xxxxx', 'x...x', 'x...x', 'xxxxx'],
+  // award medal glyphs (data/awards.js)
+  moon: ['.xx.', 'x...', 'x...', 'x...', '.xx.'],
+  car: ['.xxx.', 'xxxxx', 'xxxxx', '.x.x.'],
+  whale: ['....x', 'xxx.x', 'xxxxx', '.xxx.'],
+  coin: ['.xxx.', 'xx.xx', 'x.x.x', 'xx.xx', '.xxx.'],
+  heli: ['xxxxx', '..x..', '.xxxx', '.xxx.'],
+  flame: ['..x..', '.xx..', '.xxx.', 'xx.xx', '.xxx.'],
+  globe: ['.xxx.', 'x.x.x', 'xxxxx', 'x.x.x', '.xxx.'],
+  wheel: ['.xxx.', 'x.x.x', 'xx.xx', 'x.x.x', '.xxx.'],
+  bow: ['x...x', 'xx.xx', 'xxxxx', 'xx.xx', 'x...x'],
+  crown: ['x.x.x', 'xxxxx', 'xxxxx'],
 };
 function drawIcon(ctx, name, x, y, color) {
   const r = ICONS[name];

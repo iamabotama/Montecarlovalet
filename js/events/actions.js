@@ -92,6 +92,10 @@ function updateSiren(dt) {
     SIREN.t = 1.2;
   }
 }
+// Count something an event did, for career awards (data/awards.js reads lifetime L.marks.<key>).
+function eventMark(key) {
+  S.stats.marks[key] = (S.stats.marks[key] || 0) + 1;
+}
 function eventShout(who, text, sec) {
   shout(who, text, sec);
 }

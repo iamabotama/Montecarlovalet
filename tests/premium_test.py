@@ -43,7 +43,7 @@ async def main():
     async with Game() as g:
         await g.js('() => { MCV.DEBUG.scale = 4; }')
         # --- rank 0, store off: P1 locked, P2 open
-        await g.js('() => { SAVE.careerXP = 0; syncRank(); }')
+        await g.js('() => { activeChar().xp = 0; syncRank(); }')
         await g.start('monte_carlo')
         await g.js('() => { MCV.DEBUG.scale = 4; }')
         open0 = await g.js('() => MCV.S.prem.map(p => p.open)')
@@ -84,14 +84,14 @@ async def main():
             hint = await g.js('() => { MCV.S.toasts = []; tapPremiumPad(0); tapPremiumPad(1); return MCV.S.toasts.map(x => String(x.msg)); }')
             check(len(hint) == 2 and 'rank' in hint[0] and 'double' in hint[1], 'tapping pads explains them', hint)
         # --- rank 1: P1 opens
-        await g.js('() => { SAVE.careerXP = 1000; syncRank(); }')
+        await g.js('() => { activeChar().xp = 1000; syncRank(); }')
         await g.start('monte_carlo')
         open1 = await g.js('() => MCV.S.prem.map(p => p.open)')
         check(open1 == [True, True], 'rank 1: P1 unlocked', open1)
         lines = await g.js('() => rankUnlockLines(1).map(String)')
         check(any('P1' in l for l in lines), 'promotion screen lists the premium stall', lines)
         # --- store on, nothing bought: premium features gated
-        gated = await g.js('''() => { CONFIG.store.enabled = true; SAVE.entitlements = []; SAVE.careerXP = 99999; syncRank();
+        gated = await g.js('''() => { CONFIG.store.enabled = true; SAVE.entitlements = []; activeChar().xp = 99999; syncRank();
             startGame('monte_carlo');
             const r = { p2: MCV.S.prem[1].open, cap: helperCap(), swiss: hotelAccess(HOTELS.swiss_chalet).ok,
                         dubai: hotelAccess(HOTELS.dubai).ok };

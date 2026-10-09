@@ -31,6 +31,7 @@ const MCV_MODULES = [
   'data/comps.js',
   'data/cosmetics.js',
   'data/goals.js',
+  'data/awards.js',
   'data/products.js',
   // hotels (levels): registry first, then one file per hotel in menu order
   'data/hotels/registry.js',
@@ -54,8 +55,11 @@ const MCV_MODULES = [
   'world/planner.js',
   'world/runner.js',
   // career (persistent)
+  'career/character.js',
   'career/save.js',
   'career/store.js',
+  'career/streaks.js',
+  'career/awards.js',
   'career/progression.js',
   'career/roster.js',
   // simulation rules (one shift)
@@ -82,6 +86,7 @@ const MCV_MODULES = [
   // rendering + in-game UI
   'ui/canvas.js',
   'ui/widgets.js',
+  'ui/medal.js',
   'render/background.js',
   'render/crowd.js',
   'render/helicopter.js',
@@ -104,6 +109,7 @@ const MCV_MODULES = [
   'screens/debug_menu.js',
   'screens/howto.js',
   'screens/vehicle_guide.js',
+  'screens/career.js',
   'screens/hotels.js',
   'screens/shift_prep.js',
   'screens/promotion.js',

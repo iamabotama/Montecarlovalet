@@ -27,7 +27,7 @@ const breakPhase = (sec, patienceMult, maxPickups, stayRate, banner) => ({
 const CONFIG = {
   debugMenu: true, // DEBUG button on the title screen (screens/debug_menu.js); switch off before release
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.16.0',
+  version: '2.17.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -162,7 +162,8 @@ const CONFIG = {
     defaultLoadout: ['pawnOff', 'bags'],
     goalsPerNight: 3,
     saveKey: 'mcvalet.save',
-    saveVersion: 2, // bump + add a migration in career/save.js when the save shape changes
+    streak: { xpPerDay: 0.05, maxBonus: 0.3 }, // daily play streak XP bonus (career/streaks.js)
+    saveVersion: 3, // bump + add a migration in career/save.js when the save shape changes
   },
   stay: { minSec: 45, maxSec: 150, prefillMinSec: 15, prefillMaxSec: 140 },
   clock: { realSecPerGameHour: 105, startHour: 18 }, // the shift ends when CONFIG.shift.phases run out (2 AM)

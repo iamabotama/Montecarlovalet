@@ -143,11 +143,11 @@ function renderGame() {
 }
 // The player's look comes from the career cosmetics (data/cosmetics.js); helpers wear the same uniform.
 function valetColors() {
-  const U = UNIFORMS[SAVE.cosmetic.uniform] || UNIFORMS.red;
+  const U = UNIFORMS[activeChar().look.uniform] || UNIFORMS.red;
   return { h: PAL.ink, s: PAL.peach, c: U.shirt, p: PAL.ink, k: PAL.ink, x: U.hat, g: U.hands };
 }
 function drawNametag(x, y) {
-  const tag = NAMETAGS[SAVE.cosmetic.nametag];
+  const tag = NAMETAGS[activeChar().look.nametag];
   if (tag && tag.color) R(x + 3, y + 4, 1, 1, tag.color);
 }
 // Guest states that are visible on the sidewalk (others are inside the hotel, in a car or queued off-screen).

@@ -30,12 +30,12 @@ function goFullscreen() {
 // Rank name + XP progress toward the next rank.
 function drawCareerBar(x, y, w) {
   const nr = nextRank(),
-    cur = RANKS[SAVE.rank].xp;
-  const f = nr ? clamp((SAVE.careerXP - cur) / (nr.xp - cur), 0, 1) : 1;
+    cur = RANKS[activeChar().rank].xp;
+  const f = nr ? clamp((activeChar().xp - cur) / (nr.xp - cur), 0, 1) : 1;
   drawText(ctx, rankName(), x, y, PAL.white);
   drawText(
     ctx,
-    nr ? t('career.xp', { xp: SAVE.careerXP, next: nr.xp }) : t('career.xpMax', { xp: SAVE.careerXP }),
+    nr ? t('career.xp', { xp: activeChar().xp, next: nr.xp }) : t('career.xpMax', { xp: activeChar().xp }),
     x + w,
     y,
     PAL.lav,

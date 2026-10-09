@@ -2,9 +2,11 @@
 /* Shift prep: tonight's goals, power-up loadout, uniform. START SHIFT hands the choices to app/flow.js. */
 defineScreen('prep', {
   enter() {
-    const h = hotelById(UI.hotelSel || SAVE.lastHotel);
+    const h = hotelById(UI.hotelSel || activeChar().lastHotel);
     const owned = unlockedPowerups();
-    const keep = SAVE.loadout.filter(p => owned.includes(p)).slice(0, loadoutPicks());
+    const keep = activeChar()
+      .loadout.filter(p => owned.includes(p))
+      .slice(0, loadoutPicks());
     UI.prep = { hotel: h, goals: drawGoals(h), loadout: keep };
   },
   buttons() {
@@ -28,14 +30,14 @@ defineScreen('prep', {
         8,
         122,
         150,
-        t('prep.uniform', { name: UNIFORMS[SAVE.cosmetic.uniform].name }),
+        t('prep.uniform', { name: UNIFORMS[activeChar().look.uniform].name }),
         () => cycleCosmetic('uniform', uniforms),
         uniforms.length > 1 ? PAL.lav : PAL.dgrey,
       ),
     ];
     if (tags.length > 1)
       cos.push(
-        button(176, 132, 136, NAMETAGS[SAVE.cosmetic.nametag].name, () => cycleCosmetic('nametag', tags), PAL.lav),
+        button(176, 132, 136, NAMETAGS[activeChar().look.nametag].name, () => cycleCosmetic('nametag', tags), PAL.lav),
       );
     return [
       ...tiles,
@@ -75,13 +77,13 @@ function toggleLoadout(p) {
   if (L.includes(p)) L.splice(L.indexOf(p), 1);
   else if (L.length < loadoutPicks()) L.push(p);
   else return Sound.sfx('deny');
-  SAVE.loadout = L.slice();
+  activeChar().loadout = L.slice();
   writeSave();
   Sound.sfx('click');
 }
 function cycleCosmetic(kind, ids) {
   if (ids.length < 2) return Sound.sfx('deny');
-  SAVE.cosmetic[kind] = ids[(ids.indexOf(SAVE.cosmetic[kind]) + 1) % ids.length];
+  activeChar().look[kind] = ids[(ids.indexOf(activeChar().look[kind]) + 1) % ids.length];
   writeSave();
   Sound.sfx('click');
 }

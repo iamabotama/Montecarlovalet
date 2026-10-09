@@ -59,6 +59,7 @@ function eventDebugButtons() {
 }
 function startEvent(id, state) {
   S.events.active = { id, t: 0, vehicles: [], ...state };
+  eventMark(id);
   return S.events.active;
 }
 function endEvent() {

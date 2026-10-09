@@ -144,3 +144,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Park the GT within 40 s for a $700 tip and a one-liner. Too slow, and the henchman walks over, climbs in, and the ejector seat launches him off the top of the screen (no tip).
 - The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
 - Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.
+
+## v2.17: Career 2.0, stage 1 (characters, awards wall, daily streaks)
+- **Characters** (`career/character.js`): career data moved off the save onto a character record (save v3; old saves migrate automatically onto character 1). Built so more characters can be added later.
+- **Awards wall**: Career button on the title menu (shows "(n new)"), `screens/career.js`. 20 awards in `data/awards.js`: bronze/silver/gold pay 100/250/500 XP; 4 are secret ("?") until found. Tap a medal for details; lifetime stats alongside.
+- **Daily streak** (`career/streaks.js`): finish a shift on consecutive days for +5% XP per day, up to +30% (`CONFIG.career.streak`).
+- Summary shows the streak bonus and new awards. Lifetime stats are summed from every shift stat automatically (`career/awards.js`).

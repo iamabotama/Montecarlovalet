@@ -119,7 +119,7 @@ function debugButtons() {
     [
       'XP+1K',
       () => {
-        SAVE.careerXP += 1000;
+        activeChar().xp += 1000;
         syncRank();
         writeSave();
       },

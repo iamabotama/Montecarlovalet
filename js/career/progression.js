@@ -5,15 +5,15 @@
 const RANKS = CONFIG.career.ranks;
 
 const rankForXP = xp => RANKS.reduce((r, k, i) => (xp >= k.xp ? i : r), 0);
-const rankName = (i = SAVE.rank) => String(RANKS[i].name);
-const nextRank = () => RANKS[SAVE.rank + 1] || null;
+const rankName = (i = activeChar().rank) => String(RANKS[i].name);
+const nextRank = () => RANKS[activeChar().rank + 1] || null;
 function syncRank() {
-  SAVE.rank = rankForXP(SAVE.careerXP);
+  activeChar().rank = rankForXP(activeChar().xp);
 }
 // Everything unlocked at or below the current rank (plus store grants).
 function unlockKeys() {
   const keys = new Set();
-  for (let i = 0; i <= SAVE.rank; i++) for (const k of RANKS[i].unlock) keys.add(k);
+  for (let i = 0; i <= activeChar().rank; i++) for (const k of RANKS[i].unlock) keys.add(k);
   for (const k of storeGrants()) keys.add(k);
   return keys;
 }
@@ -29,13 +29,14 @@ function unlockedCosmetics(kind) {
 }
 function loadoutPicks() {
   let n = CONFIG.career.loadoutCap;
-  for (let i = 0; i <= SAVE.rank; i++) if (RANKS[i].loadoutPicks) n = RANKS[i].loadoutPicks;
+  for (let i = 0; i <= activeChar().rank; i++) if (RANKS[i].loadoutPicks) n = RANKS[i].loadoutPicks;
   return Math.min(n, CONFIG.career.loadoutCap);
 }
 // { ok, reason } for the hotel-select screen.
 function hotelAccess(h) {
   if (!secretFound(h)) return { ok: false, reason: '' };
-  if (SAVE.rank < h.unlockRank) return { ok: false, reason: t('hotels.reach', { rank: rankName(h.unlockRank) }) };
+  if (activeChar().rank < h.unlockRank)
+    return { ok: false, reason: t('hotels.reach', { rank: rankName(h.unlockRank) }) };
   const granted = unlockKeys().has('hotel:' + h.id) || unlockKeys().has('hotel:*');
   if (h.product && !storeOwns(h.product) && !granted)
     return {
@@ -66,14 +67,12 @@ function shiftStars(r) {
   if (r.complete) return r.money >= hotelById(r.hotel).starTarget ? 3 : 2;
   return r.kind === 'clockout' || r.st.eventsSurvived > 0 ? 1 : 0;
 }
-const hotelStars = id => (SAVE.hotels[id] ? SAVE.hotels[id].stars || 0 : 0);
-/* Bank one finished shift into the career. Returns what changed (for the summary/promotion screens).
-   Every shift pays XP, even a firing; XP never affects the score. */
+const hotelStars = id => (activeChar().hotels[id] ? activeChar().hotels[id].stars || 0 : 0);
+/* Bank one finished shift into the active character's career. Returns what changed (for the summary and
+   promotion screens). Every shift pays XP, even a firing; XP never affects the score.
+   Order: hotel record -> totals -> lifetime stats -> streak -> awards -> XP and rank. */
 function awardShift(r) {
-  const xp = Math.round(r.earned * CONFIG.career.xpPerDollar) + r.goalXP;
-  const oldRank = SAVE.rank;
-  SAVE.careerXP += xp;
-  syncRank();
+  const me = activeChar();
   const rec = hotelRecord(r.hotel);
   const isHigh = r.money > rec.highScore;
   if (isHigh) rec.highScore = Math.round(r.money);
@@ -83,13 +82,32 @@ function awardShift(r) {
   rec.best.biggestTip = Math.max(rec.best.biggestTip || 0, r.st.biggestTip);
   rec.best.longestShift = Math.max(rec.best.longestShift || 0, r.t);
   rec.best.whalesServed = Math.max(rec.best.whalesServed || 0, r.st.whalesServed);
-  SAVE.totals.shifts++;
-  SAVE.totals.earned += Math.round(r.earned);
-  SAVE.goalsCompleted += r.goalsDone;
-  SAVE.lastHotel = r.hotel;
+  me.totals.shifts++;
+  me.totals.earned += Math.round(r.earned);
+  me.totals.goals += r.goalsDone;
+  me.lastHotel = r.hotel;
   rosterBankShift(r.crewJobs);
+  bankLifetime(r.st);
+  const streak = bankStreak();
+  const mult = streakMult(streak.count);
+  const awards = checkAwards({ ...r, stars });
+  const baseXP = Math.round(r.earned * CONFIG.career.xpPerDollar) + r.goalXP;
+  const streakXP = Math.round(baseXP * (mult - 1));
+  const xp = baseXP + streakXP + awardXP(awards);
+  const oldRank = me.rank;
+  me.xp += xp;
+  syncRank();
   writeSave();
   const promotions = [];
-  for (let i = oldRank + 1; i <= SAVE.rank; i++) promotions.push(i);
-  return { xp, isHigh, highScore: rec.highScore, stars, promotions };
+  for (let i = oldRank + 1; i <= me.rank; i++) promotions.push(i);
+  return {
+    xp,
+    streakXP,
+    streak: streak.count,
+    awards: awards.map(a => a.id),
+    isHigh,
+    highScore: rec.highScore,
+    stars,
+    promotions,
+  };
 }
