@@ -170,6 +170,8 @@ const CAR_LOOKS = {
     ['sedan', '#1d2b53', ['chrome']],
     ['van', '#ffa300', []],
     ['suv', '#1a1a22', ['chrome']],
+    ['ferr', '#c8ccd4', ['roundlights', 'quad', 'vents', 'glint']], // secret agent's silver GT
+    ['exec', '#121216', ['chrome']], // henchman sedan
   ],
   beater: [
     ['hatch', '#b8a77a', ['rust', 'dent']],

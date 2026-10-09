@@ -108,6 +108,10 @@ const Sound = {
         [523, 659, 784, 1047, 784, 1047, 1319, 1568].forEach((f, i) => this.tone(f, 0.13, 'square', 0.06, 0, i * 0.14));
         [131, 131, 196, 196].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.08, 0, i * 0.28));
         break;
+      case 'spysting': // original minor-key surf-guitar-ish sting (square + slide)
+        [330, 349, 370, 349, 330, 0, 494].forEach((f, i) => f && this.tone(f, 0.12, 'square', 0.05, f, i * 0.13));
+        this.tone(247, 0.5, 'triangle', 0.06, 233, 0.95);
+        break;
       case 'wind': // blizzard gust: long airy hiss with a low howl
         this.noise(1.6, 0.1, 0, 1200);
         this.tone(160, 1.2, 'triangle', 0.04, 110);

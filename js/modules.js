@@ -116,6 +116,7 @@ const MCV_MODULES = [
   'events/vip_heli.js',
   'events/snowmobiles.js',
   'events/blizzard.js',
+  'events/secret_agent.js',
   'app/flow.js',
   'main.js',
 ];

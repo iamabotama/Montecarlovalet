@@ -45,6 +45,16 @@ const EVENT_CONFIG = {
     walkMult: 0.7, // everyone walks slower
     waitMult: 0.6, // guests are more forgiving (patience drains slower)
   },
+  secretAgent: {
+    enabled: true, // Monte Carlo only
+    chance: 1 / 900, // per second during waves (x the wave's eventMult); or tap the fountain
+    taps: 7, // fountain taps...
+    tapWindowSec: 6, // ...within this long
+    parkSec: 40, // from his arrival: park the GT before this or the henchman makes his move
+    tip: 700,
+    sedanX: 40, // where the henchman sedan idles on the street
+    ejectPxSec: 25, // ejector seat launch speed (plus a gentle acceleration)
+  },
   joyride: {
     enabled: true,
     chance: 1 / 15, // per whale/ultra park by a HIRED valet (x the wave's eventMult)

@@ -31,7 +31,7 @@ function errandWorker(tag) {
 const pointLoc = (x, y, node) => ({ t: 'pt', x, y, node });
 
 /* ---- service vehicles (event-owned; drawn with the shared car sprites, look = CAR_LOOKS.service[i]) ---- */
-const SERVICE = { police: 0, tow: 1, suv: 2 };
+const SERVICE = { police: 0, tow: 1, suv: 2, agent: 3, henchman: 4 };
 function spawnService(ev, kind, pts, speed, onDone) {
   const v = { kind, x: pts[0][0], y: pts[0][1], dir: pts[1][0] < pts[0][0] ? 2 : 0, lights: false, mv: null };
   ev.vehicles.push(v);

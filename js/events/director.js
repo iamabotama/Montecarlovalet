@@ -12,6 +12,7 @@
      waitRate              -> guest patience drain multiplier while active (default 1)
      walkRate              -> walking speed multiplier for valets and guests while active (default 1)
      overlay(ev)           -> while active, drawn above cars, people and weather
+     passiveTargets(add)   -> tap targets even while not active (e.g. a secret trigger)
    }
    Start one with startEvent(id, state); end it with endEvent(). */
 const EVENTS = {};
@@ -104,6 +105,7 @@ function drawEvents() {
   }
 }
 function eventTargets(add) {
+  if (S.events) for (const id in EVENTS) if (EVENTS[id].passiveTargets && eventOn(id)) EVENTS[id].passiveTargets(add);
   const a = S.events && S.events.active;
   if (a && EVENTS[a.id].targets) EVENTS[a.id].targets(a, add);
 }

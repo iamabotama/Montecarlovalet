@@ -138,3 +138,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - **Blizzard** (`js/events/blizzard.js`): a 35 s white-out mid-wave. Everyone walks at 70% speed and patience drains at 60%. It eases in and out.
 - **Tow truck** (`js/art/tow_truck.js`): its own sprite with a white flatbed, orange rails, hazard bars, a boom with winch and hook, and an amber light bar that flashes.
 - Tuning: `EVENT_CONFIG.snowmobiles`, `EVENT_CONFIG.blizzard` in `data/events.js`. Debug menu: SLEDS, BLIZZARD.
+
+## v2.16: secret agent easter egg (Monte Carlo)
+- `js/events/secret_agent.js`. Tap the fountain 7 times within 6 s (or it happens very rarely by itself). "Agent Double-O-Nothing" arrives in a silver GT (the "Aston Marten DB-0"), tailed by a black henchman sedan.
+- Park the GT within 40 s for a $700 tip and a one-liner. Too slow, and the henchman walks over, climbs in, and the ejector seat launches him off the top of the screen (no tip).
+- The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
+- Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.

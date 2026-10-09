@@ -144,3 +144,5 @@ const MODELS = {
 
 // Snowmobile spoof brands (events/snowmobiles.js, Swiss Alps).
 const SLED_MODELS = ['Ski-Dew Summit', 'Arctic Kat ZR', 'Polarus Rush', 'Yamahoo Sidewinder', 'Lynks Rave'];
+// The secret agent's GT (events/secret_agent.js).
+const AGENT_CAR_NAME = 'Aston Marten DB-0';
