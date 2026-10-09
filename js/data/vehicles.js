@@ -141,3 +141,6 @@ const MODELS = {
     ['Stretch Limo', 'limo', PAL.asph, PAL.ink, PAL.asph3],
   ],
 };
+
+// Snowmobile spoof brands (events/snowmobiles.js, Swiss Alps).
+const SLED_MODELS = ['Ski-Dew Summit', 'Arctic Kat ZR', 'Polarus Rush', 'Yamahoo Sidewinder', 'Lynks Rave'];

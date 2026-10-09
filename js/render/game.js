@@ -114,6 +114,7 @@ function renderGame() {
   }
   drawBubbles(bubbles);
   drawWeather();
+  drawEventOverlay();
   for (const p of S.particles) R(p.x, p.y, 1, 1, p.c);
   for (const f of S.floaters) drawText(ctx, f.text, f.x, f.y, f.color, { align: 'center', shadow: PAL.ink });
   renderCompFx();

@@ -30,6 +30,21 @@ const EVENT_CONFIG = {
     potus: { tip: 1000 },
     force: null, // debug: the next landing is this kind
   },
+  snowmobiles: {
+    enabled: true, // Swiss Alps only (snow hotels): passive, never blocks other events
+    share: 0.3, // of everyday arrivals ride up on a snowmobile
+    tiers: ['beater', 'standard', 'premium'],
+    speedMult: 1.8, // drives this much faster than a car (quicker park and fetch)
+    trailSec: 2.5, // snow puffs fade over this long
+  },
+  blizzard: {
+    enabled: true, // Swiss Alps only
+    chance: 1 / 90, // per second during waves (x the wave's eventMult)
+    durationSec: 35,
+    rampSec: 4, // snow thickens and eases over this long
+    walkMult: 0.7, // everyone walks slower
+    waitMult: 0.6, // guests are more forgiving (patience drains slower)
+  },
   joyride: {
     enabled: true,
     chance: 1 / 15, // per whale/ultra park by a HIRED valet (x the wave's eventMult)

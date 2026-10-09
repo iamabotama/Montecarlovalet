@@ -26,5 +26,6 @@ const RB = (x, y, w, h, c) => {
   R(x + w - 1, y, 1, h, c);
 };
 function drawCar(car) {
+  if (eventHook('drawCar', car)) return; // an event drew its own vehicle (snowmobiles)
   drawCarSprite(ctx, carSprite(car.tier, car.mi, car.dir), car.x, car.y);
 }

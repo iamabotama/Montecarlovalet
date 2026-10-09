@@ -114,6 +114,8 @@ const MCV_MODULES = [
   'events/drunk_driver.js',
   'events/joyride.js',
   'events/vip_heli.js',
+  'events/snowmobiles.js',
+  'events/blizzard.js',
   'app/flow.js',
   'main.js',
 ];

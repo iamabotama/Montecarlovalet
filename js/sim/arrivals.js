@@ -11,6 +11,7 @@ const GUEST_COLORS = {
 };
 function makeGuest(tier, mi) {
   const car = { id: nid(), tier, mi, x: -14, y: MAP.streetY, dir: 0, loc: { t: 'street' } };
+  eventHook('carCreated', car); // e.g. events/snowmobiles.js turns some into snowmobiles
   const g = {
     id: nid(),
     tier,

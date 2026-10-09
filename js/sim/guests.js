@@ -173,7 +173,7 @@ function updateGuests(dt) {
     if (g.state === 'handed' || g.state === 'leavingIn') {
       g.state = 'leavingIn';
       const tx = MAP.standX - 2;
-      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt);
+      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * eventWalkRate() * dt);
       if (Math.abs(g.x - tx) < 1) {
         g.state = 'inside';
         g.stay = S.tutorial ? 1e9 : rnd(CONFIG.stay.minSec, CONFIG.stay.maxSec);
@@ -192,7 +192,7 @@ function updateGuests(dt) {
       }
     } else if (g.state === 'pickWalk') {
       const tx = CONFIG.podium.x - 6;
-      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt);
+      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * eventWalkRate() * dt);
       if (Math.abs(g.x - tx) < 1) {
         g.state = 'handTicket';
         g.handT = CONFIG.podium.handSec;
@@ -211,11 +211,11 @@ function updateGuests(dt) {
       }
     } else if (g.state === 'toSpot' || g.state === 'pickWait') {
       const tx = g.spotX;
-      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * dt);
+      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * eventWalkRate() * dt);
       if (Math.abs(g.x - tx) < 1) g.state = 'pickWait';
     } else if (g.state === 'pickBoard') {
       const tx = g.boardX;
-      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * 2 * dt);
+      g.x += Math.sign(tx - g.x) * Math.min(Math.abs(tx - g.x), SPD.guestWalkPxSec * eventWalkRate() * 2 * dt);
       if (Math.abs(g.x - tx) < 1) {
         if (!eventHook('handOver', car, g)) departCar(car);
         guestGone(g);

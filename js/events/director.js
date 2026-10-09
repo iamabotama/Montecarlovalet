@@ -10,6 +10,8 @@
      draw(ev)              -> while active;  scenery() -> every frame (props that are always there)
      targets(ev, add)      -> tap targets while active
      waitRate              -> guest patience drain multiplier while active (default 1)
+     walkRate              -> walking speed multiplier for valets and guests while active (default 1)
+     overlay(ev)           -> while active, drawn above cars, people and weather
    }
    Start one with startEvent(id, state); end it with endEvent(). */
 const EVENTS = {};
@@ -98,12 +100,23 @@ function drawEvents() {
   const a = S.events.active;
   if (a) {
     drawServiceVehicles(a);
-    EVENTS[a.id].draw(a);
+    if (EVENTS[a.id].draw) EVENTS[a.id].draw(a);
   }
 }
 function eventTargets(add) {
   const a = S.events && S.events.active;
   if (a && EVENTS[a.id].targets) EVENTS[a.id].targets(a, add);
+}
+// Walking speed multiplier for valets and guests (a blizzard slows everyone down).
+function eventWalkRate() {
+  const a = S.events && S.events.active;
+  return a && EVENTS[a.id].walkRate ? EVENTS[a.id].walkRate : 1;
+}
+// Per-vehicle driving speed (snowmobiles are quicker than cars).
+const vehicleSpeed = car => (car && eventHook('vehicleSpeed', car)) || 1;
+function drawEventOverlay() {
+  const a = S.events && S.events.active;
+  if (a && EVENTS[a.id].overlay) EVENTS[a.id].overlay(a);
 }
 // Guest patience drain multiplier (events can make everyone more patient).
 function eventWaitRate() {

@@ -153,7 +153,7 @@ function runWorker(v, dt) {
         v.x = st.pts[0][0];
         v.y = st.pts[0][1];
       }
-      const speed = (SPD.tilePx / SPD.walkPerTileSec) * m;
+      const speed = (SPD.tilePx / SPD.walkPerTileSec) * m * eventWalkRate();
       v.walking = true;
       const before = budget;
       const o = { x: v.x, y: v.y, pi: v.pi, dir: v.dir };
@@ -195,7 +195,7 @@ function runWorker(v, dt) {
         v.y = st.pts[0][1];
         Sound.sfx('door');
       }
-      const half = SPD.driveBaseSec / 2 / (m * driveMult());
+      const half = SPD.driveBaseSec / 2 / (m * driveMult() * vehicleSpeed(car));
       if (st.ph === 0) {
         st.t += budget;
         budget = 0;
@@ -206,7 +206,7 @@ function runWorker(v, dt) {
         continue;
       }
       if (st.ph === 1) {
-        const speed = (SPD.tilePx / SPD.drivePerTileSec) * m * driveMult();
+        const speed = (SPD.tilePx / SPD.drivePerTileSec) * m * driveMult() * vehicleSpeed(car);
         const o = { x: v.x, y: v.y, pi: v.pi, dir: car.dir };
         const done = advanceAlong(o, st.pts, speed * budget);
         v.x = o.x;

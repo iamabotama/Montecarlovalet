@@ -132,3 +132,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 
 ## v2.14: tutorial spotlight
 - `js/tutorial/spotlight.js`: during the tutorial everything dims except the step's highlight, your valet and the step's `focus` list (guests/cars involved). Tuning in `SPOT` (darkness, fade, padding). Visual only; taps work as before.
+
+## v2.15: Swiss Alps signature + tow truck
+- **Snowmobiles** (`js/events/snowmobiles.js`): at the Swiss chalet ~30% of beater/standard/premium guests ride up on snowmobiles. They drive 1.8x faster, leave snow trails and have their own spoof names (`SLED_MODELS` in `data/vehicles.js`). Whales keep their cars.
+- **Blizzard** (`js/events/blizzard.js`): a 35 s white-out mid-wave. Everyone walks at 70% speed and patience drains at 60%. It eases in and out.
+- **Tow truck** (`js/art/tow_truck.js`): its own sprite with a white flatbed, orange rails, hazard bars, a boom with winch and hook, and an amber light bar that flashes.
+- Tuning: `EVENT_CONFIG.snowmobiles`, `EVENT_CONFIG.blizzard` in `data/events.js`. Debug menu: SLEDS, BLIZZARD.

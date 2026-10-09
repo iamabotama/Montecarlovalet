@@ -218,6 +218,7 @@ defineLanguage('en', 'English', {
   'phase.highRollers.banner': 'Whales tonight - big tips, park fast',
   'phase.break3.banner': 'Last breather before the big one',
   'phase.event.banner': 'High rollers everywhere',
+  'event.blizzard': 'BLIZZARD! Everyone slows down, guests are patient',
   'event.joyride.shout': '"JOY RIDE!!"',
   'comp.title': 'Comp this whale',
   'comp.champagne': 'Champagne',

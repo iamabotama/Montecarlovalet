@@ -138,7 +138,7 @@ function dropRestowEntry(carId) {
   S.jobs = S.jobs.filter(j => !(j.type === 'restow' && j.list.every(e => e.done) && !j.worker));
 }
 function carName(car) {
-  return MODELS[car.tier][car.mi][0];
+  return eventHook('carName', car) || MODELS[car.tier][car.mi][0];
 }
 function stallName(lane, idx) {
   return LANE_NAMES[lane] + (idx + 1);

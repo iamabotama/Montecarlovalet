@@ -27,7 +27,7 @@ function plan(j, from, dry, w) {
   const drive = (carId, to, sideA, sideB, onStart, onEnd) => {
     const r = route(cur, to, sideA, sideB);
     steps.push({ k: 'drive', carId, pts: r.pts, to, onStart, onEnd });
-    est += driveSec(r.len, m);
+    est += driveSec(r.len, m * vehicleSpeed(S.cars.get(carId)));
     cur = to;
   };
   const wait = (sec, label) => {
