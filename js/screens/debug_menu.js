@@ -44,6 +44,7 @@ function debugRun(fn, jumpToPickups) {
   UI.screen = 'game';
   UI.paused = false;
   DEBUG.enabled = DEBUG.on = true;
+  DEBUG.open = false; // just the strip: the scene stays visible
   fn();
 }
 defineScreen('debugMenu', {
@@ -82,7 +83,8 @@ defineScreen('debugMenu', {
     events.push(['End current event', () => debugRun(debugEndEvent, false)]);
     events.forEach(([l, fn], i) => out.push(button(10, 56 + i * 14, 145, l, fn)));
     debugCoreScenarios().forEach(([l, fn], i) => out.push(button(165, 56 + i * 14, 145, l, () => debugRun(fn, false))));
-    out.push(button(120, 162, 80, t('btn.back'), () => goScreen('title')));
+    out.push(button(60, 162, 80, t('btn.back'), () => goScreen('title')));
+    out.push(button(180, 162, 80, 'Quit debug', quitDebug, PAL.yellow));
     return out;
   },
   render() {

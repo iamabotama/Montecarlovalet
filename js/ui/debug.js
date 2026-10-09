@@ -1,9 +1,36 @@
 'use strict';
-/* Debug overlay (?debug=1, backtick). */
-
-/* ---- debug overlay ---- */
+/* Debug overlay (?debug=1 + backtick, or the title screen's DEBUG menu). Collapsed it is one small strip in
+   the top bar (DBG xSPEED / QUIT, over the HI score); DBG opens the full panel under it. Buttons that start
+   something you want to watch (events, FILL, EVENT) close the panel again. */
+const DBG_TAB = { x: 238, y: 1 };
+// Leave debug mode: real speed and odds, overlay off, back to the title (the test shift is abandoned).
+function quitDebug() {
+  Object.assign(DEBUG, { on: false, open: false, enabled: false, alwaysEvents: false, scale: 1, hit: false });
+  UI.paused = false;
+  goScreen('title');
+  Sound.stopMusic();
+}
+function debugTabButtons() {
+  const tab = [
+    ['DBG X' + DEBUG.scale, () => (DEBUG.open = !DEBUG.open)],
+    ['QUIT', quitDebug],
+  ];
+  let x = DBG_TAB.x;
+  return tab.map(([label, fn]) => {
+    const w = textW(label) + 4;
+    const b = { x, y: DBG_TAB.y, w, label, fn };
+    x += w + 2;
+    return b;
+  });
+}
+// Run fn, then fold the panel away so the result is visible.
+const andClose = fn => () => {
+  fn();
+  DEBUG.open = false;
+};
 function debugButtons() {
-  const b = [];
+  const b = debugTabButtons();
+  if (!DEBUG.open) return b;
   let y = 12;
   const row = items => {
     let x = 222;
@@ -30,9 +57,9 @@ function debugButtons() {
     ],
     [
       'EVENT',
-      () => {
+      andClose(() => {
         S.t = phaseStart(PHASES().findIndex(p => p.event)); // jump to the rush-event wave
-      },
+      }),
     ],
   ]);
   row([
@@ -63,7 +90,7 @@ function debugButtons() {
   row([
     [
       'FILL',
-      () => {
+      andClose(() => {
         for (let l = 0; l < NL; l++)
           for (const s of LOT_SIDES) {
             let e;
@@ -74,7 +101,7 @@ function debugButtons() {
               g.stay = 999;
             }
           }
-      },
+      }),
     ],
     [
       'GRANT',
@@ -99,9 +126,9 @@ function debugButtons() {
     ],
   ]);
   // fun events: each event file offers its own trigger buttons (events/director.js eventDebugButtons)
-  row(eventDebugButtons());
+  row(eventDebugButtons().map(([l, fn]) => [l, andClose(fn)]));
   row([
-    ['END EV', debugEndEvent],
+    ['END EV', andClose(debugEndEvent)],
     [
       DEBUG.alwaysEvents ? 'ODDS:ALL' : 'ODDS:LIVE',
       () => {
@@ -113,22 +140,29 @@ function debugButtons() {
 }
 function renderDebug() {
   const btns = debugButtons();
-  const bottom = Math.max(...btns.map(b => b.y)) + 10;
-  R(220, 10, 100, bottom + 8, PAL.ink);
-  for (const b of btns) {
-    RB(b.x, b.y, b.w, 8, PAL.lime);
-    drawText(ctx, b.label, b.x + 2, b.y + 2, PAL.lime);
-  }
+  const tab = btns.slice(0, 2);
+  R(DBG_TAB.x - 2, 0, 320 - DBG_TAB.x + 2, 10, PAL.ink); // strip covers the HI score
   const ev = activeEvent();
-  drawText(ctx, 'X' + DEBUG.scale + ' HEAT ' + S.heat.toFixed(1), 222, bottom, PAL.lime);
-  if (ev || S.events.cooldown > 0)
-    drawText(
-      ctx,
-      ev ? 'EV ' + ev.id + ' ' + (ev.phase || '') : 'EV WAIT ' + Math.ceil(S.events.cooldown),
-      222,
-      bottom + 8,
-      PAL.yellow,
-    );
+  if (DEBUG.open) {
+    const panel = btns.slice(2);
+    const bottom = Math.max(...panel.map(b => b.y)) + 10;
+    R(220, 10, 100, bottom + 8, PAL.ink);
+    drawText(ctx, 'HEAT ' + S.heat.toFixed(1), 222, bottom, PAL.lime);
+    if (ev || S.events.cooldown > 0)
+      drawText(
+        ctx,
+        ev ? 'EV ' + ev.id + ' ' + (ev.phase || '') : 'EV WAIT ' + Math.ceil(S.events.cooldown),
+        222,
+        bottom + 8,
+        PAL.yellow,
+      );
+  }
+  for (const b of btns) {
+    const col = tab.includes(b) && b.label === 'QUIT' ? PAL.yellow : PAL.lime;
+    RB(b.x, b.y, b.w, 8, col);
+    drawText(ctx, b.label, b.x + 2, b.y + 2, col);
+  }
+  if (!DEBUG.open && ev) R(318, 1, 1, 8, PAL.yellow); // an event is running
   for (const g of S.guests.values())
     if (WAITING.has(g.state) && g.state !== 'queued')
       drawText(ctx, Math.round((100 * g.wait) / g.patience) + '%', g.x, g.y + 10, PAL.lime);

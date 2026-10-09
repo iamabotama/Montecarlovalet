@@ -67,6 +67,9 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.8.1: compact debug overlay, quit debug
+- In a shift the debug overlay is now one small strip in the top bar (over the HI score): **DBG xSPEED** opens the full panel, **QUIT** leaves debug mode (real speed and odds) and returns to the title. Event, END EV, EVENT and FILL fold the panel away so you can watch. The debug menu also has **Quit debug**.
+
 ## v2.8: steeper night, after party, debug menu
 - **Night:** 6 shorter waves instead of 4, ramping faster: Early Dinner, Dinner Rush, Showtime, High Rollers, the hotel's big event, then a late-night **After Party** (mostly whales and ultras, tips x1.5, fun-event odds x3), then Last Call. Pickups start in wave 1; a few whales show up from wave 1. The clock now runs 6 PM to 2 AM. Tuning: `CONFIG.shift.phases` (built with `wavePhase()` / `breakPhase()`).
 - **Overflow:** 2 temporary slots (one per side) instead of 4, every hotel.
