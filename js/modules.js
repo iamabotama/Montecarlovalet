@@ -77,6 +77,7 @@ const MCV_MODULES = [
   'sim/commands.js',
   'sim/step.js',
   'tutorial/tutorial.js',
+  'tutorial/spotlight.js',
   // rendering + in-game UI
   'ui/canvas.js',
   'ui/widgets.js',

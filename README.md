@@ -129,3 +129,6 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - About 1 in 3 landings is special (`EVENT_CONFIG.vipHeli`): royalty ($2,000, black-SUV motorcade blocks the right side), celebrity ($1,500, paparazzi), POTUS (wider sprite, blue suit, red tie; when he walks in the hotel becomes TRUMP TOWERS for the rest of the shift, gold, every car a beater).
 - Easter egg: meeting POTUS unlocks the hidden Trump Towers hotel (gold button on hotel select).
 - Fix: a valet walking back from the pad no longer blocks sending one to the next helicopter.
+
+## v2.14: tutorial spotlight
+- `js/tutorial/spotlight.js`: during the tutorial everything dims except the step's highlight, your valet and the step's `focus` list (guests/cars involved). Tuning in `SPOT` (darkness, fade, padding). Visual only; taps work as before.

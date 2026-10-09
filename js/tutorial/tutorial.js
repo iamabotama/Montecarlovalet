@@ -51,6 +51,7 @@ const TUT_STEPS = [
   {
     pos: 'mid',
     text: tl('tut.firstGuest'),
+    focus: () => [tutGuestRect(TUT.g1), tutCarRect(TUT.g1)],
     enter() {
       TUT.g1 = spawnArrival('standard').id;
     },
@@ -62,6 +63,7 @@ const TUT_STEPS = [
   {
     pos: 'mid',
     hl: () => tutCarRect(TUT.g1),
+    focus: () => [tutGuestRect(TUT.g1)],
     text: tl('tut.tapCar'),
     until: () => S.selected && tutGuest(TUT.g1) && S.selected.carId === tutGuest(TUT.g1).carId,
   },
@@ -73,6 +75,8 @@ const TUT_STEPS = [
   {
     pos: 'R',
     hl: () => (S.selected ? null : tutCarRect(TUT.g1)),
+    // once the car is picked, light up the lot (and the car being parked)
+    focus: () => (S.selected ? [[MAP.lotX - 2, MAP.lotY - 1, NS * SW + 4, NL * SH + 2], tutCarRect(TUT.g1)] : []),
     text: tl('tut.tapStall'),
     until: () => S.stats.carsParked >= 1 && !S.valet.job,
   },
@@ -80,6 +84,7 @@ const TUT_STEPS = [
   {
     pos: 'R',
     hl: () => tutCarRect(TUT.limo),
+    focus: () => [tutGuestRect(TUT.limo)],
     text: tl('tut.limo'),
     enter() {
       TUT.limo = spawnArrival('limo').id;
@@ -94,6 +99,7 @@ const TUT_STEPS = [
   {
     pos: 'L',
     hl: HL.podium,
+    focus: () => [tutGuestRect(TUT.g1)],
     text: tl('tut.leaving'),
     enter() {
       const g = tutGuest(TUT.g1);
@@ -109,11 +115,18 @@ const TUT_STEPS = [
     hl: HL.board,
     text: tl('tut.board'),
   },
-  { pos: 'L', hl: HL.board, text: tl('tut.tapTicket'), until: () => !tutGuest(TUT.g1) },
+  {
+    pos: 'L',
+    hl: HL.board,
+    focus: () => [tutGuestRect(TUT.g1), tutCarRect(TUT.g1)],
+    text: tl('tut.tapTicket'),
+    until: () => !tutGuest(TUT.g1),
+  },
   { pos: 'mid', hl: HL.money, text: tl('tut.delivered') },
   {
     pos: 'L',
     hl: HL.laneC,
+    focus: () => [tutGuestRect(TUT.bg), HL.board],
     text: tl('tut.tricky'),
     enter: tutSetupBlocked,
     until: () => {
@@ -124,6 +137,11 @@ const TUT_STEPS = [
   {
     pos: 'L',
     hl: HL.board,
+    focus: () => [
+      HL.laneC(),
+      tutGuestRect(TUT.bg),
+      ...S.temps.map((tp, i) => (tp.car ? [TEMPS[i].x - 10, TEMPS[i].y - 7, 20, 14] : null)),
+    ],
     text: tl('tut.blocked'),
     until: () => !tutGuest(TUT.bg) && !S.jobs.length && !S.valet.job && S.temps.every(t => t.car === null),
   },
@@ -259,6 +277,8 @@ function tutRender() {
   if (!TUT.on) return;
   const st = TUT_STEPS[TUT.i];
   const hl = typeof st.hl === 'function' ? st.hl() : st.hl;
+  const holes = spotlightHoles(st, hl);
+  if (holes) drawSpotlight(holes, TUT.t);
   if (hl) {
     const p = Math.floor(UI.t * 4) % 2 ? PAL.yellow : PAL.orange;
     RB(hl[0] - 1, hl[1] - 1, hl[2] + 2, hl[3] + 2, p);
