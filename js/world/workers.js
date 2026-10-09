@@ -13,6 +13,7 @@ function workerName(w) {
 }
 function jobLanes(j) {
   const car = S.cars.get(j.carId);
+  if (j.type === 'move' && car && car.loc.t === 'stall') return [j.lane, car.loc.lane]; // leaves one row, enters another
   if (j.type === 'park' || j.type === 'move') return [j.lane];
   if (j.type === 'fetch') return car && car.loc.t === 'stall' ? [car.loc.lane] : [];
   if (j.type === 'restow') return j.list.filter(e => !e.done).map(e => e.lane);

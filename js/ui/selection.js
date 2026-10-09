@@ -13,7 +13,7 @@ function selectionOptions() {
   const g = S.guests.get(car.guestId);
   const stalls = [],
     menu = [];
-  const canPark = car.loc.t === 'temp' || (car.loc.t === 'curb' && g && g.state === 'curbDrop' && g.tier !== 'limo');
+  const canPark = isMovable(car) || (car.loc.t === 'curb' && g && g.state === 'curbDrop' && g.tier !== 'limo');
   if (canPark)
     for (let l = 0; l < NL; l++)
       for (const side of LOT_SIDES) {
@@ -23,7 +23,7 @@ function selectionOptions() {
           stalls.push({ lane: l, side, idx: j, bad: true });
           continue;
         }
-        const job = { type: car.loc.t === 'temp' ? 'move' : 'park', carId: car.id, lane: l, side, bags: sel.bags };
+        const job = { type: parkJobType(car), carId: car.id, lane: l, side, bags: sel.bags };
         stalls.push({ lane: l, side, idx: e.idx, depth: e.depth, est: estimateFor(job), job });
       }
   const vip = canPark && vipStallOption(car, g, sel);
@@ -36,7 +36,7 @@ function selectionOptions() {
   if (canPark)
     PREMS.forEach((p, i) => {
       if (!premFree(i)) return;
-      const job = { type: car.loc.t === 'temp' ? 'move' : 'park', carId: car.id, prem: i, bags: sel.bags };
+      const job = { type: parkJobType(car), carId: car.id, prem: i, bags: sel.bags };
       stalls.push({ prem: i, depth: 0, est: estimateFor(job), job });
     });
   if (car.loc.t === 'curb' && g && g.state === 'curbDrop') {

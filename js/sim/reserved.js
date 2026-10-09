@@ -43,7 +43,7 @@ function vipStallOption(car, g, sel) {
   if (!vipHoldFree() || !g || !isWhale(g.tier)) return null;
   const h = S.vipHold;
   const job = {
-    type: car.loc.t === 'temp' ? 'move' : 'park',
+    type: parkJobType(car),
     carId: car.id,
     lane: h.lane,
     side: h.side,

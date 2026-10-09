@@ -63,18 +63,20 @@ function plan(j, from, dry, w) {
     walk({ t: 'stand' }, null, j.side);
     j.depth = e.depth;
   } else if (j.type === 'move') {
-    if (!car || car.loc.t !== 'temp') return { refuse: '' };
+    if (!car || !isMovable(car)) return { refuse: car && car.loc.t === 'stall' ? t('toast.moveBlocked') : '' };
     const e = parkDest(j, dry);
     if (e.refuse !== undefined) return e;
-    const i = car.loc.i;
-    walk({ t: 'temp', i });
+    const from = { ...car.loc }; // temp, prem or an unblocked stall
+    const out = from.t === 'stall' ? liveDepth(from.lane, from.idx).side : null;
+    walk(from, out);
     drive(
       car.id,
       e.dest,
-      null,
+      out,
       j.side,
       () => {
-        S.temps[i].car = null;
+        if (from.t === 'stall') S.lanes[from.lane].cars[from.idx] = null;
+        else (from.t === 'temp' ? S.temps : S.prem)[from.i].car = null;
         dropRestowEntry(car.id);
         if (j.vip) takeVipHold();
         claimSpot(e.dest, car.id);

@@ -67,11 +67,15 @@ function tapCar(car, g) {
     Sound.sfx('click');
     return;
   }
-  if (car.loc.t === 'temp') {
-    if (S.jobs.some(j => j.carId === car.id && j.type !== 'restow')) return;
+  // a parked car: select it, then tap a new spot (the selected valet moves it)
+  if (car.loc.t === 'temp' || car.loc.t === 'prem' || car.loc.t === 'stall') {
+    if (S.jobs.some(j => j.carId === car.id && j.type !== 'restow')) return toast(t('toast.alreadyQueued'));
+    if (!isMovable(car)) {
+      toast(t('toast.moveBlocked'));
+      Sound.sfx('deny');
+      return;
+    }
     S.selected = { carId: car.id };
     Sound.sfx('click');
-    return;
   }
-  if (isParked(car)) toast(t('toast.guestInside'));
 }

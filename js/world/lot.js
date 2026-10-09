@@ -43,6 +43,14 @@ function freeStalls() {
   for (const L of S.lanes) for (let j = 0; j < NS; j++) if (L.cars[j] === null && L.res[j] === null) n++;
   return n;
 }
+// Can a valet drive this car somewhere else right now? Overflow/premium spots are single-car; a stall
+// car needs a clear run to an open row end (otherwise move the cars in front of it first).
+function isMovable(car) {
+  if (car.loc.t === 'temp' || car.loc.t === 'prem') return true;
+  return car.loc.t === 'stall' && liveDepth(car.loc.lane, car.loc.idx).best === 0;
+}
+// Job type for sending a car to a stall: from the curb it is a park, from anywhere else a move.
+const parkJobType = car => (car.loc.t === 'curb' ? 'park' : 'move');
 function liveDepth(lane, idx) {
   const L = S.lanes[lane];
   let w = 0,
