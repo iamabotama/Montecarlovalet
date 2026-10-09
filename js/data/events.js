@@ -23,14 +23,13 @@ const EVENT_CONFIG = {
   joyride: {
     enabled: true,
     chance: 1 / 15, // per whale/ultra park by a HIRED valet (x the wave's eventMult)
-    heat: 3, // when he tears off
     spinSec: 1.1, // burnout at the curb
     awaySec: 30, // gone this long
     flyAlt: 40, // px above the road as he flies back in
     flySec: 2.2,
     landX: 70, // touchdown x on the road (west half)
     skidSec: 0.9,
-    ownerDrain: 2.5, // owner waiting for the car meanwhile: patience drains this many times faster
-    ownerHeat: 6, // once, when the owner is left waiting
+    shoutSec: 2.5, // the big joy-ride shout over the car
+    pingEverySec: 0.22, // chiptune tyre squeal while he tears off
   },
 };

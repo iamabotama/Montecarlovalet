@@ -97,6 +97,9 @@ const Sound = {
         this.noise(0.55, 0.1, 0, 3500);
         this.tone(1500, 0.5, 'sawtooth', 0.035, 1100);
         break;
+      case 'joyping': // 8-bit tyre squeal: quick falling pings
+        [1760, 1480, 1245].forEach((f, i) => this.tone(f, 0.05, 'square', 0.05, f * 0.7, i * 0.06));
+        break;
       case 'thud':
         this.tone(70, 0.25, 'square', 0.2, 35);
         this.noise(0.2, 0.2, 0, 250);

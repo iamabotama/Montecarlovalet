@@ -11,7 +11,8 @@ function renderGame() {
   drawPremiumStalls();
   tutWorldFx();
   // lot cars
-  for (const car of S.cars.values()) if (car.loc.t !== 'moving' && car.loc.t !== 'street') drawCar(car);
+  for (const car of S.cars.values())
+    if (car.loc.t !== 'moving' && car.loc.t !== 'street' && car.loc.t !== 'away') drawCar(car); // away: its event draws it
   S.streetQueue.forEach((id, n) => {
     if (n < LOT.streetQueueMax) drawCar(S.cars.get(id));
   });

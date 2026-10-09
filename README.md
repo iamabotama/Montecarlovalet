@@ -67,6 +67,10 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.10.1: joyride tweaks
+- The owner never knows: no heat, no faster patience; the cost is losing that valet for the ride (a ticket for the car just waits until it is back in a spot).
+- No ghost car left at the curb; a big "NAME: JOY RIDE!!" over the car; chiptune ping-ping tyre squeal as he burns out and fishtails away.
+
 ## v2.10: move parked cars
 - Select a valet (number buttons or Tab), tap any parked car (stall, premium or overflow spot), then tap a new spot: that valet moves it. A stall car needs a clear way out of its row (either open end); if it is boxed in you get "Blocked - move the cars in front first", so dig it out car by car.
 - Code: `isMovable` / `parkJobType` in `world/lot.js`; the planner's `move` job now starts from stall, premium or overflow; a move from a stall locks both rows (`world/workers.js`). Test: `tests/move_test.py`.

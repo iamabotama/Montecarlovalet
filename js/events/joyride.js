@@ -3,7 +3,8 @@
    can't resist: wheels screech, the car spins out at the curb, fishtails and tears off the east end
    of the road. ~30 s later it comes flying in from the west to a chiptune, lands hard, skids into a
    sloppy 180, and he drives it to the stall he was always meant to use (the original park job resumes).
-   While the car is away the owner may come out for it: his patience drains fast and you take heat.
+   The owner never knows (no heat): the cost is losing that valet for the ride. If the owner comes out
+   meanwhile, his ticket simply waits until the car is back in a spot.
    Core hook: parkDriveStart(worker, car, job, step) in world/runner.js. Tuning: EVENT_CONFIG.joyride. */
 const JR = () => EVENT_CONFIG.joyride;
 const JOY = { forceNext: false, autoParkCar: null }; // debug helpers
@@ -45,8 +46,9 @@ function jrStart(w, car, step) {
   ev.y = car.y;
   ev.dir = car.dir;
   ev.alt = 0;
-  addHeat(JR().heat, t('event.joyride.heat'), car.x, car.y);
-  eventBanner(t('event.joyride.banner', { name: w.name }));
+  ev.name = w.name;
+  ev.shoutT = JR().shoutSec; // big shout over the car (event.joyride.shout)
+  ev.pingT = 0;
   Sound.sfx('screech');
   return ev;
 }
@@ -89,7 +91,8 @@ function jrUpdate(ev, dt) {
   ev.st += dt;
   const car = S.cars.get(ev.carId);
   if (!car) return endEvent();
-  jrOwnerWaiting(ev, car, dt);
+  jrPings(ev, dt);
+  if (ev.shoutT > 0) ev.shoutT -= dt;
   switch (ev.stage) {
     case 'spin': // burnout at the curb: the car spins on the spot
       ev.dir = Math.floor(ev.st * 10) % 4;
@@ -168,15 +171,13 @@ function jrUpdate(ev, dt) {
       break;
   }
 }
-// The owner came out for his car while it was away: fast drain, plus heat once.
-function jrOwnerWaiting(ev, car, dt) {
-  const g = S.guests.get(car.guestId);
-  if (!g || !WAITING.has(g.state) || ev.stage === 'back') return;
-  g.wait += dt * (JR().ownerDrain - 1);
-  if (!ev.ownerHit) {
-    ev.ownerHit = true;
-    addHeat(JR().ownerHeat, t('event.joyride.owner'), g.x, g.y);
-    toast(t('event.joyride.owner'));
+// Chiptune tyre squeal (ping ping ping) while he burns out and fishtails away.
+function jrPings(ev, dt) {
+  if (ev.stage !== 'spin' && ev.stage !== 'exit' && ev.stage !== 'fishtail') return;
+  ev.pingT -= dt;
+  if (ev.pingT <= 0) {
+    Sound.sfx('joyping');
+    ev.pingT = JR().pingEverySec;
   }
 }
 // Give the car back to the valet's original park job (also used by debug END EV).
@@ -207,6 +208,15 @@ function jrDraw(ev) {
     ctx.globalAlpha = 1;
   }
   drawCarSprite(ctx, carSprite(car.tier, car.mi, ev.dir), ev.x, ev.y - ev.alt);
+  if (ev.shoutT > 0 && Math.floor(UI.t * 6) % 3) {
+    const msg = t('event.joyride.shout', { name: ev.name });
+    const x = clamp(ev.x, 4 + textW(msg), 316 - textW(msg)); // scale 2: half-width = textW
+    const y = ev.y - ev.alt - 22,
+      hw = textW(msg);
+    R(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.ink); // dark plate so it reads over the hotel front
+    RB(x - hw - 3, y - 3, hw * 2 + 6, 15, PAL.yellow);
+    drawText(ctx, msg, x, y, PAL.yellow, { align: 'center', scale: 2, shadow: PAL.crimson });
+  }
 }
 /* ---- debug: RIDE hires a helper if needed, sends in a whale and has the helper park it (forced) ---- */
 function jrDebugRide() {

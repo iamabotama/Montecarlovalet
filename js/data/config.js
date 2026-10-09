@@ -27,7 +27,7 @@ const breakPhase = (sec, patienceMult, maxPickups, stayRate, banner) => ({
 const CONFIG = {
   debugMenu: true, // DEBUG button on the title screen (screens/debug_menu.js); switch off before release
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.10.0',
+  version: '2.10.1',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
