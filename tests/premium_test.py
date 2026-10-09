@@ -67,16 +67,22 @@ async def main():
                 board: spotName(car.loc), free: premFree(1), offered: (MCV.S.selected = null, true) }; }''', c['id'])
             check(info['board'] == 'P2' and not info['free'], 'board says P2 and it is taken', info)
             # send the guest out and fetch the car
-            await g.js('id => { MCV.S.t = phaseStart(4); const car = MCV.S.cars.get(id); MCV.S.guests.get(car.guestId).stay = 0; }', c['id'])
+            await g.js('id => { MCV.S.t = phaseStart(4); MCV.S.heat = 30; const car = MCV.S.cars.get(id); const gg = MCV.S.guests.get(car.guestId); gg.tier = "whale"; gg.stay = 0; }', c['id'])
             for _ in range(60):
                 st = await g.js('''id => { const car = MCV.S.cars.get(id); const g = car && MCV.S.guests.get(car.guestId);
                     if (g && g.state === 'pickWait' && !MCV.S.jobs.some(j => j.type === 'fetch' && j.carId === id))
                       enqueue({ type: 'fetch', carId: id });
                     return car ? car.loc.t : 'gone'; }''', c['id'])
-                if st in ('gone', 'street', 'moving') and await g.js('() => MCV.S.prem[1].car === null'):
+                if st in ('gone', 'street', 'curb') and await g.js('() => MCV.S.prem[1].car === null'):
                     break
                 await g.run(250)
             check(await g.js('() => MCV.S.prem[1].car === null'), 'fetched out of P2, stall free again', st)
+            bonus = await g.js('() => ({ n: MCV.S.stats.premiumService || 0, heat: Math.round(MCV.S.heat), mgr: MCV.S.manager && String(MCV.S.manager.line) })')
+            check(bonus['n'] == 1 and bonus['heat'] <= 20, 'whale fetched before complaining: premium service bonus', bonus)
+            neg = await g.js('() => { const car = { fromPrem: true }; return [premiumService(car, { tier: "whale", stage: 1 }), premiumService(car, { tier: "mid", stage: 0 }), premiumService({}, { tier: "ultra", stage: 0 })]; }')
+            check(neg == [1, 1, 1], 'no bonus after a complaint, for non-whales, or outside premium', neg)
+            hint = await g.js('() => { MCV.S.toasts = []; tapPremiumPad(0); tapPremiumPad(1); return MCV.S.toasts.map(x => String(x.msg)); }')
+            check(len(hint) == 2 and 'rank' in hint[0] and 'double' in hint[1], 'tapping pads explains them', hint)
         # --- rank 1: P1 opens
         await g.js('() => { SAVE.careerXP = 1000; syncRank(); }')
         await g.start('monte_carlo')

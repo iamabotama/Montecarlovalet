@@ -49,4 +49,25 @@ function placeInPrem(car, i) {
   car.x = PREMS[i].x;
   car.y = PREMS[i].y;
   car.dir = PREMS[i].x < MAP.standX ? 2 : 0;
+  car.fromPrem = true;
+}
+/* Premium service: a whale or ultra whose car comes out of a premium stall before they show a single
+   complaint bubble (stage 0). Returns the tip multiplier; also pleases the manager (heat down + praise). */
+function premiumService(car, g) {
+  if (!car.fromPrem || !isWhale(g.tier) || g.stage > 0) return 1;
+  S.stats.premiumService = (S.stats.premiumService || 0) + 1;
+  coolHeat(CONFIG.premium.heatRelief);
+  S.manager = { line: t('manager.premium'), t: 3 };
+  floater(t('float.premium'), g.x, g.y - 12, PAL.lime);
+  return CONFIG.premium.tipMult;
+}
+// Why a pad is locked (shown when it is tapped).
+function premLockReason(i) {
+  const name = PREMS[i].name;
+  if (S.tutorial) return t('prem.tutorial', { name });
+  if (i === 0) {
+    const r = RANKS.findIndex(k => k.unlock.includes('stall:premium1'));
+    return t('prem.lockedRank', { name, rank: rankName(r) });
+  }
+  return t('prem.lockedPremium', { name });
 }

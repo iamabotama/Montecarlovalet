@@ -6,7 +6,7 @@
    ===================================================================== */
 const CONFIG = {
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.5.0',
+  version: '2.6.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -239,6 +239,8 @@ const CONFIG = {
     pay: 50,
     missHeat: 12,
   },
+  // Premium stalls (world/premium.js): a whale/ultra fetched from one before any complaint bubble.
+  premium: { tipMult: 2, heatRelief: 10 },
   helpers: {
     max: 3,
     freeMax: 1, // helpers beyond this (the 3rd and 4th valet) are a premium perk ('crew:extra')

@@ -80,7 +80,7 @@ function carAtCurbForPickup(car, g, k) {
     const f = isWhale(g.tier)
       ? Math.max(0, 1 - (CONFIG.tips.whalePickupDecayPer10s * w) / 10)
       : 1 - (1 - CONFIG.tips.otherDecayFloor) * clamp(w / g.patience, 0, 1);
-    const tip = jackpot(g, Math.round(base * f));
+    const tip = jackpot(g, Math.round(base * f * premiumService(car, g)));
     if (tip > 0) earn(tip, 'tip', g);
   }
 }

@@ -2,6 +2,10 @@
 /* The manager's heat meter. */
 
 /* ---- heat ---- */
+// The manager is pleased: heat goes down (never below 0).
+function coolHeat(amt) {
+  if (S.phase === 'play' && !S.tutorial) S.heat = Math.max(0, S.heat - amt);
+}
 function addHeat(amt, reason, x, y) {
   if (S.phase !== 'play' || amt <= 0 || S.tutorial) return;
   const gain = amt * (CONFIG.heat.spiral ? 1 + S.heat / 100 : 1);

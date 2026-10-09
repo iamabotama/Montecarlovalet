@@ -69,6 +69,11 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 
 ## v2.5: premium parking
 - Two gold premium stalls on pads beside the entrance drive (`world/premium.js`, drawn by `render/premium.js`): the quickest spots on the property, single stalls, no digging out.
+- **Premium service:** a whale or ultra fetched from a premium stall before showing any complaint bubble tips **double** and pleases the manager (heat -10, `CONFIG.premium`). Tapping a pad explains it (or why it is locked).
 - **P1** unlocks at rank Valet. **P2** is a premium perk, free for everyone while the store is off.
 - Premium product (`data/products.js`): the Swiss Chalet, the 3rd and 4th valet (`CONFIG.helpers.freeMax`), premium stall P2. Gates live in `premiumFeature()`; nothing is gated today.
 - Test: `tests/premium_test.py`.
+
+## v2.6: premium service + valet buttons
+- Premium service bonus (double tip, manager praise, heat -10) and pad tap hints / lock reasons (see v2.5 notes).
+- Valet number buttons at the bottom of the crew panel (`ui/crew_panel.js`): 1 = you, 2-4 = helpers. Tap to select; **Tab** cycles (number keys stay power-up shortcuts). Yellow = selected, green = working, white = idle, dim = empty slot. Test: `tests/crew_tabs_test.py`.

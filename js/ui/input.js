@@ -23,7 +23,10 @@ function hitTargets() {
   });
   add(294, 170, 10, 10, 5, toggleMute);
   if (canClockOut()) add(226, 158, 88, 12, 5, clockOut);
-  if (!S.tutorial) add(2, 124, 28, 44, 5, crewButton);
+  if (!S.tutorial) {
+    add(2, 124, 28, 44, 5, crewButton);
+    for (const b of crewTabs()) if (b.w) add(b.x, b.y, b.w_, b.h, 6, () => selectWorker(b.w));
+  }
   if (heliVisible() && S.heli.phase !== 'leaving') add(PAD.x - 18, PAD.y - 18, 36, 36, 5, tapHeli);
   if (S.helpers.length)
     for (const w of workers())
@@ -34,6 +37,7 @@ function hitTargets() {
     add(q.x, 172, q.w, 8, 5, () => promoteJob(q.j));
     add(q.x + q.w + 1, 172, 5, 8, 6, () => cancelJob(q.j));
   }
+  PREMS.forEach((p, i) => add(p.x - 10, p.y - 7, 20, 14, 1, () => tapPremiumPad(i)));
   const o = selectionOptions();
   for (const m of o.menu) add(m.x, m.y, m.w, 9, 5, m.fn);
   for (const s of o.stalls)
@@ -95,6 +99,10 @@ document.addEventListener('keydown', e => {
   if (e.key === '`' && DEBUG.enabled) DEBUG.on = !DEBUG.on;
   if (UI.screen !== 'game' || !S) return;
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') UI.paused = !UI.paused;
+  if (e.key === 'Tab' && !UI.paused && !S.tutorial) {
+    e.preventDefault();
+    cycleWorker();
+  }
   const n = parseInt(e.key, 10);
   if (n >= 1 && n <= 5 && !UI.paused) armCard(n - 1);
 });
