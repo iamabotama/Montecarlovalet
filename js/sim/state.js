@@ -53,6 +53,7 @@ function newRun(opts = {}) {
     toasts: [],
     banners: [],
     shout: null,
+    comps: newCompsState(),
     shake: 0,
     events: newEventsState(),
     manager: null,

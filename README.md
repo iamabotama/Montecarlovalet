@@ -67,6 +67,10 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Text wraps and measures by pixel width (CJK has no spaces); the queue strip and tutorial Skip button size to their labels.
 - `tools/translate.py` drafts only missing/changed lines; `tests/layout_test.py` proves every language fits its slots. How-to: `docs/TRANSLATING.md`.
 
+## v2.12: comps for upset whales
+- Tap an UPSET whale/ultra (visibly annoyed) to open the comp menu over the ticket board: Champagne $100 (+50% patience), Showgirl $200 (walks out, kiss, stays at their side: 30 s no drain), Show tickets $250 (60 s no drain), Comp room $300 (full patience, -15 heat). Each once per shift; "Just get the car" fetches as before. Calm guests behave exactly as before. A one-time dock hint teaches it each shift.
+- Code: data/comps.js (prices/effects), sim/comps.js (rules), ui/comp_menu.js (menu + visuals). Hooks: one line in tapGuest, input targets, two render calls.
+
 ## v2.11: message dock
 - Every pop-up (event shouts, warnings, wave/jackpot banners) now shows in one dock on empty scenery under the ticket board, right of the helipad, so text never covers valets, guests, cars or the board. One at a time: shout > warning > banner; text wraps to fit any language.
 - Code: `ui/messages.js` (DOCK position/size and priority). Events call `eventShout(who, text, sec)`; sim code keeps using `toast()` and `S.banners`.

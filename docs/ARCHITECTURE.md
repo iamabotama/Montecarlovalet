@@ -78,3 +78,6 @@ Formatting: `npx prettier@3 --write "js/**/*.js"` (settings in `.prettierrc`).
 
 ## Messages on screen
 All pop-up text goes through the message dock in `ui/messages.js` (under the ticket board). Sim code uses `toast(msg)` and `S.banners.push(...)`; events use `eventShout(who, text, sec)` / `eventBanner(text)` from `events/actions.js`. Never draw free-floating text over the play area: valets, guests, cars and the ticket board must stay visible.
+
+## Comps
+Comps are a player action, not a random event: `data/comps.js` (tuning), `sim/comps.js` (eligibility, applyComp, once-per-shift), `ui/comp_menu.js` (menu over the ticket board, showgirl/icon visuals). The only touch points elsewhere: `tapGuest` asks `compTapGuest(g)` first, `hitTargets` calls `compMenuTargets`, pointerdown calls `compMenuTapAway`, and `renderGame` calls `renderCompFx` / `renderCompMenu`.

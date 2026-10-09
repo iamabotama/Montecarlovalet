@@ -39,6 +39,7 @@ function hitTargets() {
   }
   PREMS.forEach((p, i) => add(p.x - 10, p.y - 7, 20, 14, 1, () => tapPremiumPad(i)));
   eventTargets(add);
+  compMenuTargets(add);
   const o = selectionOptions();
   for (const m of o.menu) add(m.x, m.y, m.w, 9, 5, m.fn);
   for (const s of o.stalls)
@@ -94,6 +95,7 @@ cv.addEventListener('pointerdown', e => {
   if (UI.screen === 'game' && !UI.paused) Sound.startMusic();
   const [x, y] = pointerAt(e);
   if (UI.screen === 'game' && S && S.tutorial && !UI.paused && tutTap(x, y)) return;
+  if (UI.screen === 'game') compMenuTapAway(x, y);
   dispatch(currentTargets(), x, y);
 });
 document.addEventListener('keydown', e => {

@@ -24,13 +24,14 @@ function armCard(i) {
   S.armed = S.armed === i ? null : i;
   Sound.sfx('click');
 }
-function tapGuest(g) {
+function tapGuest(g, skipComp) {
   if (!g) return;
   if (S.armed !== null) {
     useCard(S.armed, g);
     return;
   }
   if (eventHook('tapGuest', g)) return;
+  if (!skipComp && compTapGuest(g)) return; // upset whale: open the comp menu (sim/comps.js)
   if (g.phase === 'pick' && !g.ticket) {
     toast(t('toast.waitTicket'));
     return;

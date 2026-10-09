@@ -8,6 +8,7 @@ function stepSim(dt) {
     updateWaves();
     updateArrivals(dt);
     updateGuests(dt);
+    updateComps(dt);
     runValet(dt);
     updateMovers(dt);
     updateHeli(dt);

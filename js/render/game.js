@@ -116,9 +116,11 @@ function renderGame() {
   drawWeather();
   for (const p of S.particles) R(p.x, p.y, 1, 1, p.c);
   for (const f of S.floaters) drawText(ctx, f.text, f.x, f.y, f.color, { align: 'center', shadow: PAL.ink });
+  renderCompFx();
   renderSelection();
   ctx.restore();
   renderHUD();
+  renderCompMenu();
   if (S.meltdown && Math.floor(UI.t * 4) % 2) {
     RB(0, 0, 320, 180, PAL.red);
     RB(1, 1, 318, 178, PAL.red);

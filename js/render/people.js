@@ -27,6 +27,7 @@ function guestPose(g) {
 }
 function bubbleFor(g) {
   if (!WAITING.has(g.state) && g.state !== 'greeting') return null;
+  if (g.comp) return null; // being comped: the comp visual speaks for itself (ui/comp_menu.js)
   if (g.ignoreT > 0) return { text: t('bubble.onCall'), kind: 'phone' };
   const s = g.stage;
   if (s === 0) return null;
