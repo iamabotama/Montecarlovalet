@@ -122,20 +122,7 @@ function renderGame() {
     RB(0, 0, 320, 180, PAL.red);
     RB(1, 1, 318, 178, PAL.red);
   }
-  const b = S.banners[0]; // queued: one at a time, optional second line
-  if (b) {
-    const h = b.sub ? 21 : 14;
-    R(50, 64, 220, h, PAL.ink);
-    RB(50, 64, 220, h, PAL.yellow);
-    drawText(ctx, b.text, 160, 69, PAL.yellow, { align: 'center' });
-    if (b.sub) drawText(ctx, b.sub, 160, 77, PAL.white, { align: 'center' });
-  }
-  S.toasts.forEach((o, i) => {
-    const w = textW(o.msg) + 8;
-    R(160 - w / 2, 124 + i * 10, w, 9, PAL.ink);
-    RB(160 - w / 2, 124 + i * 10, w, 9, PAL.red);
-    drawText(ctx, o.msg, 160, 126 + i * 10, PAL.white, { align: 'center' });
-  });
+  drawMessages();
   if (S.phase === 'fired' && S.endT > 1.2) {
     R(0, 60, 320, 50, PAL.ink);
     drawText(ctx, t('hud.fired'), 160, 66, PAL.red, { align: 'center', scale: 3, shadow: PAL.crimson });
@@ -186,4 +173,29 @@ function crowdMembers() {
   const v = vipPos();
   if (v) out.push({ ref: S.heli, k: 3e6, x: v.x, y: v.y });
   return out;
+}
+
+/* Pop-up messages sit on scenery, never on the road or curb where events play out:
+   banners on the hotel front (bottom edge stays above the sidewalk), toasts stacked upward from just
+   above the queue bar. */
+const MSG = { bannerX: 74, bannerW: 220, bannerBottom: 36, toastCx: 92, toastBottom: 170 }; // banner clears the wave timer; toasts over the lot, clear of the helipad
+function drawMessages() {
+  const b = S.banners[0]; // queued: one at a time, optional second line
+  if (b) {
+    const h = b.sub ? 21 : 14,
+      y = MSG.bannerBottom - h;
+    const cx = MSG.bannerX + MSG.bannerW / 2;
+    R(MSG.bannerX, y, MSG.bannerW, h, PAL.ink);
+    RB(MSG.bannerX, y, MSG.bannerW, h, PAL.yellow);
+    drawText(ctx, b.text, cx, y + 5, PAL.yellow, { align: 'center' });
+    if (b.sub) drawText(ctx, b.sub, cx, y + 13, PAL.white, { align: 'center' });
+  }
+  S.toasts.forEach((o, i) => {
+    const w = textW(o.msg) + 8,
+      y = MSG.toastBottom - 9 - i * 10,
+      x = Math.max(2, Math.min(318 - w, Math.round(MSG.toastCx - w / 2)));
+    R(x, y, w, 9, PAL.ink);
+    RB(x, y, w, 9, PAL.red);
+    drawText(ctx, o.msg, x + w / 2, y + 2, PAL.white, { align: 'center' });
+  });
 }
