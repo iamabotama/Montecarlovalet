@@ -157,6 +157,12 @@ const ICONS = {
   wheel: ['.xxx.', 'x.x.x', 'xx.xx', 'x.x.x', '.xxx.'],
   bow: ['x...x', 'xx.xx', 'xxxxx', 'xx.xx', 'x...x'],
   crown: ['x.x.x', 'xxxxx', 'xxxxx'],
+  // skill glyphs (data/skills.js)
+  boot: ['.xx..', '.xx..', '.xx..', '.xxxx', 'xxxxx'],
+  hand: ['x.x.x', 'x.x.x', 'xxxxx', 'xxxxx', '.xxx.'],
+  wind: ['xxxx.', '....x', 'xxxx.', '..x..', 'xx...'],
+  talk: ['xxxxx', 'x...x', 'xxxxx', '.x...'],
+  eye: ['.xxx.', 'x.x.x', '.xxx.'],
 };
 function drawIcon(ctx, name, x, y, color) {
   const r = ICONS[name];

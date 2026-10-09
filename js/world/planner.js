@@ -3,6 +3,7 @@
 
 // Where a park/move job puts the car: a premium stall (j.prem) or the next free stall of a row end.
 // Returns { dest, depth } or { refuse }.
+const HANDLED_STEPS = new Set(['bags', 'greet']); // hands-on steps sped up by the Fast Hands skill
 function parkDest(j, dry) {
   if (j.prem != null)
     return premFree(j.prem, j) ? { dest: { t: 'prem', i: j.prem }, depth: 0 } : { refuse: t('toast.premTaken') };
@@ -31,6 +32,7 @@ function plan(j, from, dry, w) {
     cur = to;
   };
   const wait = (sec, label) => {
+    if (HANDLED_STEPS.has(label)) sec /= perk('handle'); // Fast Hands
     steps.push({ k: 'wait', sec: sec / m, label });
     est += sec / m;
   };

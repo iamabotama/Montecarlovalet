@@ -89,5 +89,9 @@ function completeShift() {
   S.stats.wavesCleared = waveCount();
   S.shiftComplete = true;
   earn(CONFIG.shift.completeBonus, 'pay');
+  if (!S.stats.unparked && S.stats.carsParked > 0) {
+    S.stats.everyCar = 1;
+    earn(CONFIG.shift.everyCarBonus, 'pay');
+  }
   clockOut();
 }

@@ -69,6 +69,7 @@ function renderCareerColumn(r, x, y) {
   drawCareerBar(x, cy + 11, 144);
   let ly = cy + 24;
   const line = (text, col) => (drawText(ctx, text, x, ly, col, { maxW: 144 }), (ly += 9));
+  if (r.st.everyCar) line(t('summary.everyCar', { money: fmtMoney(CONFIG.shift.everyCarBonus) }), PAL.lime);
   if (r.promotions.length) line(t('summary.promoted', { rank: rankName() }), PAL.pink);
   if (r.streak > 1) line(t('summary.streak', { n: r.streak, xp: r.streakXP }), PAL.tang);
   r.awards.slice(0, 2).forEach(id => line(t('summary.newAward', { name: t('award.' + id) }), PAL.yellow));

@@ -38,6 +38,7 @@ function startNextJob(v) {
     S.jobs.unshift(j);
     v.job = j;
     j.worker = v;
+    claimSecondWind(v, j);
     return;
   }
 }
@@ -113,7 +114,7 @@ function runWorker(v, dt) {
       endJob(j);
       break;
     }
-    const m = speedMult() * v.speed;
+    const m = speedMult() * v.speed * jobWind(j);
     if (st.k === 'do') {
       st.fn();
       j.si++;
@@ -153,7 +154,7 @@ function runWorker(v, dt) {
         v.x = st.pts[0][0];
         v.y = st.pts[0][1];
       }
-      const speed = (SPD.tilePx / SPD.walkPerTileSec) * m * eventWalkRate();
+      const speed = (SPD.tilePx / SPD.walkPerTileSec) * m * valetWalkRate();
       v.walking = true;
       const before = budget;
       const o = { x: v.x, y: v.y, pi: v.pi, dir: v.dir };

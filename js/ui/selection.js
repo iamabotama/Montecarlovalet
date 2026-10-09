@@ -80,6 +80,7 @@ function renderSelection() {
   const car = o.car;
   RB(Math.round(car.x - 10), Math.round(car.y - 6), 20, 13, PAL.yellow);
   if (o.stalls.length && lotFull()) drawText(ctx, t('sel.lotFull'), 160, 84, PAL.red, { align: 'center' });
+  const best = perk('lotSense', 0) ? fastestStall(o.stalls) : null; // Lot Sense skill
   for (const s of o.stalls) {
     const [x, y, w, h] = optionRect(s);
     if (s.bad) {
@@ -90,11 +91,18 @@ function renderSelection() {
     RB(x, y, w + 1, h + 1, pulse);
     R(x + 1, y + 1, w - 1, h - 1, PAL.ink);
     drawText(ctx, s.prem != null ? PREMS[s.prem].name : 'D' + s.depth, x + 3, y + 2, PAL.yellow);
-    if (s.est != null) drawText(ctx, String(Math.round(s.est)), x + 3, y + 8, PAL.white);
+    if (s.est != null) drawText(ctx, String(Math.round(s.est)), x + 3, y + 8, s === best ? PAL.lime : PAL.white);
+    if (s === best) RB(x - 1, y - 1, w + 3, h + 3, PAL.lime);
   }
   for (const m of o.menu) {
     R(m.x, m.y, m.w, 9, PAL.ink);
     RB(m.x, m.y, m.w, 9, PAL.yellow);
     drawText(ctx, m.label, m.x + 3, m.y + 2, PAL.yellow);
   }
+}
+// The quickest usable stall option (lowest time estimate), for the Lot Sense highlight.
+function fastestStall(stalls) {
+  let best = null;
+  for (const s of stalls) if (!s.bad && s.est != null && (!best || s.est < best.est)) best = s;
+  return best;
 }

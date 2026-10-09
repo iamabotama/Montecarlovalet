@@ -2,7 +2,7 @@
 /* Career screen: the active character's rank, streak, awards wall and lifetime stats.
    Left: the medal grid (tap one for details). Right: the selected award, then lifetime numbers.
    Reads only; awards and streaks are earned in career/awards.js and career/streaks.js. */
-const WALL = { x: 8, y: 46, cols: 5, w: 30, h: 26, gap: 2 };
+const WALL = { x: 8, y: 46, cols: 6, w: 26, h: 26, gap: 2 }; // 6 x 4 = 24 medals
 const awardTile = i => ({
   x: WALL.x + (i % WALL.cols) * (WALL.w + WALL.gap),
   y: WALL.y + Math.floor(i / WALL.cols) * (WALL.h + WALL.gap),
@@ -14,7 +14,15 @@ defineScreen('career', {
   },
   buttons: () => [
     ...AWARDS.map((a, i) => ({ ...awardTile(i), w: WALL.w, h: WALL.h, hidden: true, fn: () => (UI.awardSel = i) })),
-    button(112, 162, 96, t('btn.back'), () => goScreen('title'), PAL.lgrey),
+    button(56, 162, 96, t('btn.back'), () => goScreen('title'), PAL.lgrey),
+    button(
+      168,
+      162,
+      96,
+      skillPoints() ? t('career.skillsN', { n: skillPoints() }) : t('career.skills'),
+      () => goScreen('skills'),
+      skillPoints() ? PAL.pink : PAL.yellow,
+    ),
   ],
   render() {
     const me = activeChar();
@@ -38,7 +46,7 @@ defineScreen('career', {
       const p = awardTile(i);
       R(p.x, p.y, WALL.w, WALL.h, PAL.ink);
       if (i === UI.awardSel) RB(p.x, p.y, WALL.w, WALL.h, PAL.white);
-      drawMedal(p.x + 8, p.y + 5, a, !!me.awards[a.id]);
+      drawMedal(p.x + 6, p.y + 5, a, !!me.awards[a.id]);
     });
     renderAwardDetail(AWARDS[UI.awardSel] || AWARDS[0], me, 176, 46);
     renderLifetime(me, 176, 108);

@@ -32,6 +32,7 @@ const MCV_MODULES = [
   'data/cosmetics.js',
   'data/goals.js',
   'data/awards.js',
+  'data/skills.js',
   'data/products.js',
   // hotels (levels): registry first, then one file per hotel in menu order
   'data/hotels/registry.js',
@@ -60,10 +61,12 @@ const MCV_MODULES = [
   'career/store.js',
   'career/streaks.js',
   'career/awards.js',
+  'career/skills.js',
   'career/progression.js',
   'career/roster.js',
   // simulation rules (one shift)
   'sim/state.js',
+  'sim/perks.js',
   'sim/fx.js',
   'sim/waves.js',
   'sim/patience.js',
@@ -110,6 +113,7 @@ const MCV_MODULES = [
   'screens/howto.js',
   'screens/vehicle_guide.js',
   'screens/career.js',
+  'screens/skills.js',
   'screens/hotels.js',
   'screens/shift_prep.js',
   'screens/promotion.js',

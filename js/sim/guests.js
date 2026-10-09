@@ -87,6 +87,7 @@ function carAtCurbForPickup(car, g, k) {
 function leaveAngry(g, why) {
   const car = S.cars.get(g.carId);
   S.stats.angry++;
+  if (g.phase !== 'pick') S.stats.unparked++; // gave up before their car was parked
   floater(t('float.hmph'), g.x, g.y - 6, PAL.red);
   removeQueuedJobsFor(g.carId);
   const T = CONFIG.tiers[g.tier];
@@ -162,6 +163,7 @@ function updateGuests(dt) {
       if (S.jobs.some(j => j.type === 'park' && j.carId === g.carId)) g.claimed = true;
       else if (g.claimT >= CONFIG.power.rivalClaimSec) {
         S.stats.stolen++;
+        S.stats.unparked++;
         floater(t('float.stolen'), g.x, g.y - 6, PAL.lav);
         Sound.sfx('steal');
         S.npcs.push({ kind: 'senior', x: MAP.curbX[car.loc.k] - 2, y: 34, t: 1 });
@@ -186,7 +188,7 @@ function updateGuests(dt) {
         g.wait = 0;
         g.over = 0;
         g.stage = 0;
-        g.patience = CONFIG.tiers[g.tier].pickPatience * patienceMult();
+        g.patience = CONFIG.tiers[g.tier].pickPatience * patienceMult() * perkPatience(g.tier);
         g.x = MAP.standX - 2;
         eventHook('pickupStart', g);
       }

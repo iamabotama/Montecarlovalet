@@ -4,6 +4,7 @@
 function waveOff(car, g) {
   const T = CONFIG.tiers[g.tier];
   S.stats.waved++;
+  S.stats.unparked++;
   removeQueuedJobsFor(car.id);
   const heat =
     T.waveOffHeatChance !== undefined ? (Math.random() < T.waveOffHeatChance ? T.waveOffHeat : 0) : T.waveOffHeat;

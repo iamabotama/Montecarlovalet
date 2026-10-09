@@ -17,6 +17,7 @@ function newCharacter(id = 0, name = '') {
     totals: { shifts: 0, earned: 0, goals: 0 },
     life: { marks: {} }, // lifetime sums of every shift stat (career/awards.js)
     awards: {}, // award id -> local day it was earned (data/awards.js)
+    skills: {}, // skill id -> true (data/skills.js, career/skills.js)
     awardsUnseen: 0, // shown as NEW on the Career button until the wall is opened
     streak: { last: null, count: 0, best: 0 }, // consecutive play days (career/streaks.js)
   };

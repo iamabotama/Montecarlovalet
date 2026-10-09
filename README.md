@@ -145,6 +145,11 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
 - Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.
 
+## v2.18: Career 2.0, stage 2 (skill tree) + every-car bonus
+- **Skill tree** (Career > Skills): Footwork (Quick Feet, Fast Hands, Second Wind), Charm (Smooth Talker, Whale Charmer, Silver Tongue), Management (Good Hire, Manager's Pet, Lot Sense). One point per promotion (5 total vs 9 skills), learned top-down in each branch, free reset. Data `data/skills.js`, rules `career/skills.js`, shift-side `sim/perks.js`, screen `screens/skills.js`.
+- **Every Last Car**: finish the night with no arriving car waved off, sent away, stolen or abandoned at the curb (beaters too) for +$500 (`CONFIG.shift.everyCarBonus`) and a gold award. Tracked by `S.stats.unparked`.
+- Awards wall is now 6 columns (room for 24 medals).
+
 ## v2.17: Career 2.0, stage 1 (characters, awards wall, daily streaks)
 - **Characters** (`career/character.js`): career data moved off the save onto a character record (save v3; old saves migrate automatically onto character 1). Built so more characters can be added later.
 - **Awards wall**: Career button on the title menu (shows "(n new)"), `screens/career.js`. 20 awards in `data/awards.js`: bronze/silver/gold pay 100/250/500 XP; 4 are secret ("?") until found. Tap a medal for details; lifetime stats alongside.

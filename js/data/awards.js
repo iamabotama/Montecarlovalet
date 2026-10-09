@@ -15,6 +15,7 @@ const AWARDS = [
   { id: 'fullNight', tier: 1, icon: 'moon', check: (L, r) => r.complete },
   { id: 'threeStars', tier: 2, icon: 'star', check: (L, r) => r.stars >= 3 },
   { id: 'calmNight', tier: 3, icon: 'thumb', check: (L, r) => r.complete && !r.st.angry },
+  { id: 'everyCar', tier: 3, icon: 'key', check: (L, r) => r.st.everyCar },
   { id: 'parked100', tier: 1, icon: 'car', check: L => L.carsParked >= 100 },
   { id: 'parked1000', tier: 3, icon: 'car', check: L => L.carsParked >= 1000 },
   { id: 'whales25', tier: 2, icon: 'whale', check: L => L.whalesServed >= 25 },

@@ -27,7 +27,7 @@ const breakPhase = (sec, patienceMult, maxPickups, stayRate, banner) => ({
 const CONFIG = {
   debugMenu: true, // DEBUG button on the title screen (screens/debug_menu.js); switch off before release
   debug: false, // ?debug=1 in the URL also enables it. Backtick toggles overlay.
-  version: '2.17.0',
+  version: '2.18.0',
   // Lot defaults; each hotel overrides lanes/stallsPerLane/openSides/tempSlots (data/hotels/*).
   lot: {
     orientation: 'horizontal',
@@ -179,6 +179,7 @@ const CONFIG = {
   //   callOutSec (last call): everyone still inside comes out within this many seconds.
   shift: {
     completeBonus: 150, // $ for surviving the whole night
+    everyCarBonus: 500, // extra $ when the whole night is done and no arriving car went unparked (beaters too)
     clockOutFromWave: 2, // clocking out early is allowed during breaks once this many waves are done
     // Waves (id = what helicopter schedules point at, data/hotels/*): shorter and steeper than before, a few
     // whales from wave 1, pickups from wave 1. Optional per wave: tipMult (x tips), eventMult (x fun-event odds).

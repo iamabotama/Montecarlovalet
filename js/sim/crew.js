@@ -20,7 +20,7 @@ function hireValet() {
     return;
   }
   const m = hireCandidate();
-  const wage = memberWage(m);
+  const wage = helperWage(m);
   if (S.money < wage) {
     toast(t('toast.needToHire', { money: fmtMoney(wage), name: m.name }));
     Sound.sfx('deny');

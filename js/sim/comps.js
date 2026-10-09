@@ -3,11 +3,11 @@
    Tapping an upset whale/ultra opens the comp menu instead of fetching; the menu also offers
    "Get car" so nothing is lost. Calm guests and everyone else behave exactly as before. */
 function newCompsState() {
-  return { used: {}, menu: null, hinted: false };
+  return { used: {}, menu: null, hinted: false, free: 0 }; // free: comps given free by Silver Tongue
 }
 const compEligible = g => !!g && isWhale(g.tier) && WAITING.has(g.state) && g.stage >= COMPS.minStage;
 const compUsed = id => !!S.comps.used[id];
-const compAffordable = id => S.money >= COMPS[id].cost;
+const compAffordable = id => S.money >= compPrice(id);
 const compsLeft = () => COMPS.order.some(id => !compUsed(id));
 
 // Called first thing when a guest is tapped (sim/commands.js). True = the tap opened the menu.
@@ -26,7 +26,9 @@ function applyComp(id, g) {
     Sound.sfx('deny');
     return false;
   }
-  S.money -= C.cost;
+  const price = compPrice(id);
+  if (!price) S.comps.free++;
+  S.money -= price;
   S.comps.used[id] = true;
   S.comps.menu = null;
   if (C.refill) g.wait = Math.max(0, g.wait - C.refill * g.patience);

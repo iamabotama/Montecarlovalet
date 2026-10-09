@@ -75,7 +75,7 @@ async def main():
         await g.js("goScreen('career')")
         await g.run(200)
         await g.shot('c_career_wall')
-        await g.tap(8 + 1 * 32 + 15, 46 + 13)
+        await g.tap(8 + 1 * 28 + 13, 46 + 13)
         await g.run(100)
         check('career wall opened clears NEW', await g.js('() => [activeChar().awardsUnseen, UI.awardSel]') == [0, 1])
         await g.shot('c_career_detail')

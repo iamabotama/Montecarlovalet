@@ -68,6 +68,7 @@ function useCard(idx, g) {
   } else if (type === 'directAway') {
     removeQueuedJobsFor(car.id);
     S.stats.waved++;
+    S.stats.unparked++;
     floater(t('float.generalParking'), g.x, g.y - 6, PAL.lime);
     departCar(car);
     guestGone(g);

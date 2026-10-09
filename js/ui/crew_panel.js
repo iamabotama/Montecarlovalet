@@ -11,7 +11,7 @@ function renderCrewPanel() {
   const w = activeWorker();
   const full = S.helpers.length >= helperCap();
   const next = hireCandidate();
-  const poor = S.money < memberWage(next);
+  const poor = S.money < helperWage(next);
   const home = w.id !== 0;
   const col = home ? PAL.orange : full || poor ? PAL.dgrey : PAL.lime;
   R(2, 124, 28, 44, PAL.ink);
@@ -20,7 +20,7 @@ function renderCrewPanel() {
     ? [w.name, t('crew.send'), t('crew.home'), t('crew.level', { n: memberLevel(memberById(w.memberId)) + 1 })]
     : full
       ? [t('crew.crew'), t('crew.full'), '', '']
-      : [t('crew.hire'), next.name, fmtMoney(memberWage(next)), t('crew.perHour')];
+      : [t('crew.hire'), next.name, fmtMoney(helperWage(next)), t('crew.perHour')];
   lines.forEach((l, i) => drawText(ctx, l, 16, 127 + i * 7, i < 2 ? PAL.white : col, { align: 'center', maxW: 26 }));
   for (const b of crewTabs()) {
     const sel = b.w && b.w.id === S.activeW;

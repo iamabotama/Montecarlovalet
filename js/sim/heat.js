@@ -4,7 +4,7 @@
 /* ---- heat ---- */
 // The manager is pleased: heat goes down (never below 0).
 function coolHeat(amt) {
-  if (S.phase === 'play' && !S.tutorial) S.heat = Math.max(0, S.heat - amt);
+  if (S.phase === 'play' && !S.tutorial) S.heat = Math.max(0, S.heat - amt * perk('heatCool')); // Manager's Pet
 }
 function addHeat(amt, reason, x, y) {
   if (S.phase !== 'play' || amt <= 0 || S.tutorial) return;

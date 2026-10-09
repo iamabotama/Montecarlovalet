@@ -19,7 +19,7 @@ function compMenuRows() {
     y: y + 10 + i * row,
     w,
     label: t(COMPS[id].name),
-    price: compUsed(id) ? t('comp.used') : fmtMoney(COMPS[id].cost),
+    price: compUsed(id) ? t('comp.used') : compPrice(id) ? fmtMoney(compPrice(id)) : t('comp.free'),
     ok: !compUsed(id) && compAffordable(id),
     fn: () => applyComp(id, g),
   }));

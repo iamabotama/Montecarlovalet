@@ -54,6 +54,7 @@ function newRun(opts = {}) {
     banners: [],
     shout: null,
     comps: newCompsState(),
+    perks: opts.perks || {}, // skill perks snapshot for this shift (career/skills.js skillPerks, read via sim/perks.js)
     shake: 0,
     events: newEventsState(),
     manager: null,
@@ -87,6 +88,8 @@ function newRun(opts = {}) {
       heliMissed: 0,
       eventsSurvived: 0,
       wavesCleared: 0,
+      unparked: 0, // arriving cars that left without being parked (waved, sent away, stolen, gave up)
+      everyCar: 0, // 1 when the night was completed with unparked === 0
       marks: {}, // event tallies for awards: every event start under its id, plus eventMark(key)
     },
   };

@@ -139,4 +139,5 @@ const tiles = len => len / SPD.tilePx;
 // Driving is also scaled by the hotel (snow in the Alps); walking is not.
 const driveMult = () => HOTEL.mods.driveMult;
 const driveSec = (len, m = 1) => (SPD.driveBaseSec + SPD.drivePerTileSec * tiles(len)) / (m * driveMult());
-const walkSec = (len, m = 1) => (SPD.walkPerTileSec * tiles(len)) / (m * eventWalkRate());
+const valetWalkRate = () => eventWalkRate() * perk('walk'); // events slow everyone; Quick Feet speeds valets
+const walkSec = (len, m = 1) => (SPD.walkPerTileSec * tiles(len)) / (m * valetWalkRate());

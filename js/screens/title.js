@@ -1,8 +1,14 @@
 'use strict';
 /* Title screen. */
 const menuItem = (i, label, fn, col) => ({ ...button(120, 105 + i * 12, 80, label, fn, col), h: 11 });
+// NEW awards first, then unspent skill points (both turn the item pink).
 const careerLabel = () =>
-  activeChar().awardsUnseen ? t('title.careerNew', { n: activeChar().awardsUnseen }) : t('title.career');
+  activeChar().awardsUnseen
+    ? t('title.careerNew', { n: activeChar().awardsUnseen })
+    : skillPoints()
+      ? t('title.careerPoints', { n: skillPoints() })
+      : t('title.career');
+const careerAlert = () => !!(activeChar().awardsUnseen || skillPoints());
 // Always recognisable, even to someone who can't read the current language: 'Langue / Language'.
 function languageLabel() {
   const own = t('title.language');
@@ -11,7 +17,7 @@ function languageLabel() {
 defineScreen('title', {
   buttons: () => [
     menuItem(0, t('title.start'), () => (SAVE.tutorialSeen ? goScreen('hotels') : startTutorial())),
-    menuItem(1, careerLabel(), () => goScreen('career'), activeChar().awardsUnseen ? PAL.pink : undefined),
+    menuItem(1, careerLabel(), () => goScreen('career'), careerAlert() ? PAL.pink : undefined),
     menuItem(2, t('title.tutorial'), startTutorial),
     menuItem(3, t('title.vehicles'), () => goScreen('guide')),
     menuItem(4, t('title.settings'), () => goScreen('settings')),
