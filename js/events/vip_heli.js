@@ -8,7 +8,9 @@
    Kinds:
      royal  - fictional royalty; a black-SUV motorcade waits on the road and blocks the right side
      celeb  - a celebrity; paparazzi crowd the hotel front with camera flashes
-     potus  - the President: when he walks in, the sign reads TRUMP TOWERS, the facade turns gold and
+     potus  - the President: police and black SUVs close the road and the whole game freezes
+              (freezePlay hook) while he walks slowly to the door saying one of his lines. When he walks in,
+              the motorcade pulls out, play resumes, the sign reads TRUMP TOWERS, the facade turns gold and
               every car becomes an ordinary beater (ordinary beater tips) for the rest of the shift.
               The first time also unlocks the hidden Trump Towers hotel (SAVE.secrets.potus). */
 const VIP = () => EVENT_CONFIG.vipHeli;
@@ -51,6 +53,7 @@ defineEvent('vipHeli', {
         look: VIP_LOOKS[kind],
         wide: kind === 'potus',
         tie: kind === 'potus' ? PAL.red : null,
+        walkSec: VIP()[kind].walkSec,
       };
       startEvent('vipHeli', { kind, stage: 'inbound' });
       S.banners.push({
@@ -68,7 +71,7 @@ defineEvent('vipHeli', {
       ev.stage = 'show';
       if (ev.kind === 'royal') vipMotorcade(ev);
       if (ev.kind === 'celeb') ev.papT = VIP().celeb.paparazziSec;
-      if (ev.kind === 'potus') ev.stage = 'walking';
+      if (ev.kind === 'potus') potusMotorcade(ev);
     },
     heliMissed() {
       if (activeEvent('vipHeli')) endEvent();
@@ -76,6 +79,11 @@ defineEvent('vipHeli', {
     vipInside(H) {
       const ev = activeEvent('vipHeli');
       if (ev && ev.kind === 'potus' && H.special) trumpTowers(ev);
+    },
+    // the road is closed while the President walks in
+    freezePlay() {
+      const ev = activeEvent('vipHeli');
+      return !!(ev && ev.frozen);
     },
     // POTUS shift: every new arrival is a beater too
     arrivalTier() {
@@ -94,9 +102,11 @@ defineEvent('vipHeli', {
       if ((ev.papT -= dt) <= 0) endEvent();
     }
     if (ev.kind === 'royal' && ev.waitT > 0 && (ev.waitT -= dt) <= 0) vipMotorcadeLeaves(ev);
+    if (ev.kind === 'potus' && ev.leaveT > 0 && (ev.leaveT -= dt) <= 0) vipMotorcadeLeaves(ev);
   },
   draw(ev) {
     if (ev.kind === 'celeb' && ev.papT > 0) drawPaparazzi(ev);
+    if (ev.kind === 'potus' && ev.quote) drawPotusQuote(ev);
   },
   debugNeedsPad: true, // debug menu switches to a hotel with a helipad
   debug: {
@@ -157,6 +167,62 @@ function drawPaparazzi(ev) {
   }
 }
 
+/* ---- POTUS: the road closes, the game freezes, he walks in slowly with one of his lines ---- */
+let lastPotusQuote = -1; // never the same line twice in a row
+function potusMotorcade(ev) {
+  const C = VIP().potus,
+    y = MAP.streetY;
+  ev.stage = 'walking';
+  ev.frozen = true;
+  C.police.forEach((x, i) => {
+    const from = x < 160 ? -20 : 340;
+    spawnService(
+      ev,
+      'police',
+      [
+        [from, y],
+        [x, y],
+      ],
+      90,
+      null,
+    ).lights = true;
+    if (!i) sirenOn();
+  });
+  C.suvX.forEach((x, i) =>
+    spawnService(
+      ev,
+      'suv',
+      [
+        [x < 160 ? -40 - i * 10 : 360 + i * 10, y],
+        [x, y],
+      ],
+      80,
+      null,
+    ),
+  );
+  const lines = tlist('event.potus.quotes');
+  let q = rndi(0, lines.length - 1);
+  if (lines.length > 1 && q === lastPotusQuote) q = (q + 1) % lines.length;
+  lastPotusQuote = q;
+  ev.quote = lines[q];
+  eventBanner(t('event.potus.roadClosed'));
+  Sound.sfx('engine');
+}
+// His speech bubble, over his head while he walks.
+function drawPotusQuote(ev) {
+  const v = vipPos();
+  if (!v) return;
+  const lines = wrapText(String(ev.quote), 120);
+  const w = Math.max(...lines.map(l => textW(l))) + 6,
+    h = lines.length * 7 + 4;
+  const x = clamp(Math.round(v.x) - Math.round(w / 2), 2, 318 - w),
+    y = Math.max(2, Math.round(v.y) - 14 - h);
+  R(x, y, w, h, PAL.white);
+  RB(x, y, w, h, PAL.ink);
+  R(clamp(Math.round(v.x) - 1, x + 2, x + w - 4), y + h, 3, 2, PAL.white); // the bubble's tail
+  lines.forEach((l, i) => drawText(ctx, l, x + 3, y + 3 + i * 7, PAL.ink, { shadow: false }));
+}
+
 /* ---- POTUS: TRUMP TOWERS for the rest of this shift (the hotel itself never changes) ---- */
 function trumpTowers(ev) {
   S.trumped = true;
@@ -178,7 +244,12 @@ function trumpTowers(ev) {
     writeSave();
     eventBanner(t('event.potus.unlocked'));
   }
-  endEvent();
+  // he is inside: the motorcade pulls out, the road reopens and play resumes (vipMotorcadeLeaves ends the event)
+  ev.quote = null;
+  ev.frozen = false;
+  ev.stage = 'leaving';
+  ev.leaveT = VIP().potus.leaveSec;
+  sirenOff();
 }
 
 /* ---- debug: next helicopter is special and comes now ---- */

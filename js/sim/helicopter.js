@@ -39,7 +39,8 @@ function heliGreet() {
   H.ok = true;
   H.phase = 'leaving';
   H.t = 0;
-  H.vipT = 2.5;
+  H.vipDur = (H.special && H.special.walkSec) || 2.5; // a special VIP can take the walk slower
+  H.vipT = H.vipDur;
   H.greeting = false;
   S.stats.heli = 'MET'; // i18n-ignore: outcome id
   S.stats.heliMet++;

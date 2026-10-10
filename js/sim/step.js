@@ -2,7 +2,12 @@
 /* One fixed simulation tick. */
 
 function stepSim(dt) {
-  if (S.phase === 'play') {
+  // An event can stop the whole game for a moment (POTUS motorcade): only the helicopter VIP and
+  // the event itself keep moving; clock, arrivals, guests, patience and valets all hold still.
+  if (S.phase === 'play' && eventHook('freezePlay')) {
+    updateHeli(dt);
+    updateEvents(dt);
+  } else if (S.phase === 'play') {
     S.t += dt;
     for (const k of ['hustle', 'coffee']) if (S.boost[k] > 0) S.boost[k] -= dt;
     updateWaves();

@@ -145,6 +145,10 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
 - Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.
 
+## v2.19: the Presidential motorcade
+- POTUS landing (events/vip_heli.js): two police cruisers (lights + siren) close the road at both ends and two black SUVs flank his path; the **whole game freezes** while he walks slowly (7 s, `EVENT_CONFIG.vipHeli.potus.walkSec`) to the door with one of his lines in a speech bubble (i18n list `event.potus.quotes`, never the same line twice in a row). Once inside: TRUMP TOWERS as before, the motorcade pulls out and play resumes.
+- Core: one generic `freezePlay` event hook in `sim/step.js` (any event can pause the shift), and an optional per-VIP walk time (`special.walkSec`, `S.heli.vipDur`).
+
 ## v2.18.1: clearer lot labels
 - Temp slots read **TEMP**, premium pads read **VIP** (i18n `lot.temp`, `lot.vip`); parking choices show only the park time (`sel.sec`, e.g. "8s"). Row letters A-F stay: the ticket board uses them.
 - Latin capital **W** redrawn (`GLYPH_FIX` in `art/font.js`): the font's full-height middle stroke made it look like a box at 8px.

@@ -94,7 +94,7 @@ function drawHeliBody(hx, hy, s, ang) {
 function vipPos() {
   const H = S.heli;
   if (!H || !(H.vipT > 0)) return null;
-  const f = 1 - H.vipT / 2.5;
+  const f = 1 - H.vipT / (H.vipDur || 2.5);
   const px = lerp(PAD_MEET[0], MAP.standX + 4, f),
     py = f < 0.5 ? lerp(PAD.y, MAP.streetY, f * 2) : lerp(MAP.streetY, 34, (f - 0.5) * 2);
   return { x: px, y: py - 8 };

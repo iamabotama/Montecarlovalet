@@ -63,8 +63,14 @@ async def main():
         await g.run(1500)
         sp, ok = await land_and_meet(g, 'potus')
         check(sp and sp['kind'] == 'potus' and ok, 'POTUS met', sp)
+        t0 = await g.js('() => MCV.S.t')
         await g.run(1200)
         await g.shot('vip_potus_walk')
+        r = await g.js('''() => { const ev = activeEvent('vipHeli'); return { t: MCV.S.t, frozen: !!(ev && ev.frozen),
+            quote: ev && ev.quote && String(ev.quote), cars: ev ? ev.vehicles.map(v => v.kind) : [] }; }''')
+        check(r['frozen'] and abs(r['t'] - t0) < 1e-6, 'motorcade freezes the game clock', {'t0': t0, **r})
+        check(r['quote'] in await g.js("() => tlist('event.potus.quotes').map(String)"), 'he says one of his lines', r['quote'])
+        check(r['cars'].count('police') == 2 and r['cars'].count('suv') == 2, 'two cruisers + two SUVs on the road', r['cars'])
         for _ in range(40):
             if await g.js('() => !!MCV.S.trumped'):
                 break
@@ -78,6 +84,14 @@ async def main():
               'secret Trump Towers hotel unlocked')
         await g.run(800)
         await g.shot('vip_trump_towers')
+        for _ in range(40):
+            if not await g.js("() => !!activeEvent('vipHeli')"):
+                break
+            await g.run(250)
+        t1 = await g.js('() => MCV.S.t')
+        await g.run(500)
+        check(not await g.js("() => !!activeEvent('vipHeli')") and await g.js('() => MCV.S.t') > t1,
+              'motorcade leaves and play resumes')
 
         # the next shift is the real hotel again
         await g.js("() => startGame('monte_carlo')")

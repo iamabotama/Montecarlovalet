@@ -564,4 +564,17 @@ defineLanguage('fr', 'Français', {
   'lot.temp': 'PROV.',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Route fermée : convoi présidentiel',
+  'event.potus.quotes': [
+    'Cet endroit est immense.',
+    'On va gagner, très fort.',
+    'Covfefe.',
+    'La Chine nous tue.',
+    'Croyez-moi, les amis.',
+    "Beaucoup disent que c'est le meilleur casino.",
+    "C'est énorme, vraiment énorme.",
+    'Personne ne connaît mieux les casinos que moi.',
+    "Le monde n'a jamais vu ça.",
+    'On va tellement gagner que vous en aurez marre de gagner.',
+  ],
 });

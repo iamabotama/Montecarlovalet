@@ -27,7 +27,13 @@ const EVENT_CONFIG = {
     royalTitles: 4, // event.vip.royal1..4
     royal: { tip: 2000, suvX: [252, 276], waitSec: 25 }, // motorcade waits on the road, right side blocked
     celeb: { tip: 1500, paparazziSec: 20 },
-    potus: { tip: 1000 },
+    potus: {
+      tip: 1000,
+      walkSec: 7, // the slow walk from the pad to the door (a regular VIP takes 2.5)
+      police: [24, 296], // cruisers close the road at both ends (x on the street)
+      suvX: [96, 226], // black SUVs park on the road either side of his path
+      leaveSec: 1.5, // after he is inside: the motorcade pulls out and play resumes
+    },
     force: null, // debug: the next landing is this kind
   },
   snowmobiles: {

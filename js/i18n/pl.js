@@ -565,4 +565,17 @@ defineLanguage('pl', 'Polski', {
   'lot.temp': 'TYMCZ.',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Droga zamknięta: kolumna prezydencka',
+  'event.potus.quotes': [
+    'To miejsce jest ogromne.',
+    'Wygramy na całego.',
+    'Covfefe.',
+    'Chiny nas wykańczają.',
+    'Uwierzcie mi, ludzie.',
+    'Wielu mówi, że to najlepsze kasyno.',
+    'Wspaniałe, po prostu wspaniałe.',
+    'Nikt nie wie o kasynach więcej niż ja.',
+    'Jakiego świat nie widział.',
+    'Wygramy tyle, że zmęczy was wygrywanie.',
+  ],
 });

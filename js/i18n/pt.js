@@ -564,4 +564,17 @@ defineLanguage('pt', 'Português', {
   'lot.temp': 'TEMP',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Rua fechada: comitiva presidencial',
+  'event.potus.quotes': [
+    'Este lugar é enorme.',
+    'Vamos vencer pra caramba.',
+    'Covfefe.',
+    'A China está acabando com a gente.',
+    'Acreditem, pessoal.',
+    'Muita gente diz que este é o melhor cassino.',
+    'É tremendo, simplesmente tremendo.',
+    'Ninguém sabe mais sobre cassinos do que eu.',
+    'Como o mundo nunca viu.',
+    'Vamos vencer tanto que vocês vão se cansar de vencer.',
+  ],
 });

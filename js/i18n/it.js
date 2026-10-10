@@ -564,4 +564,17 @@ defineLanguage('it', 'Italiano', {
   'lot.temp': 'TEMP',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Strada chiusa: corteo presidenziale',
+  'event.potus.quotes': [
+    'Questo posto è enorme.',
+    'Vinceremo alla grande.',
+    'Covfefe.',
+    'La Cina ci sta uccidendo.',
+    'Credetemi, gente.',
+    'Molti dicono che è il miglior casinò.',
+    'È strepitoso, davvero strepitoso.',
+    'Nessuno conosce i casinò meglio di me.',
+    'Come il mondo non ha mai visto.',
+    'Vinceremo così tanto che vi stuferete di vincere.',
+  ],
 });

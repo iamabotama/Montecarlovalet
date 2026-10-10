@@ -565,4 +565,17 @@ defineLanguage('de', 'Deutsch', {
   'lot.temp': 'KURZ',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Straße gesperrt: Präsidentenkonvoi',
+  'event.potus.quotes': [
+    'Hier ist es riesig.',
+    'Wir gewinnen ganz groß.',
+    'Covfefe.',
+    'China macht uns fertig.',
+    'Glaubt mir, Leute.',
+    'Viele sagen, das ist das beste Casino.',
+    'Riesig, einfach riesig.',
+    'Niemand weiß mehr über Casinos als ich.',
+    'So etwas hat die Welt noch nie gesehen.',
+    'Wir werden so viel gewinnen, dass ihr das Gewinnen satt seid.',
+  ],
 });

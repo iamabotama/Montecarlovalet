@@ -585,4 +585,17 @@ defineLanguage('en', 'English', {
   'lot.temp': 'TEMP',
   'lot.vip': 'VIP',
   'sel.sec': '{n}s',
+  'event.potus.roadClosed': 'Road closed: Presidential motorcade',
+  'event.potus.quotes': [
+    'This place is huge.',
+    "We're going to win big league.",
+    'Covfefe.',
+    'China is killing us.',
+    'Believe me, folks.',
+    'Many people are saying this is the best casino.',
+    "It's tremendous, just tremendous.",
+    'Nobody knows more about casinos than me.',
+    'The likes of which the world has never seen.',
+    "We're gonna win so much you're gonna get tired of winning.",
+  ],
 });
