@@ -1,11 +1,12 @@
+from harness import URL, CHROME
 import asyncio
 from playwright.async_api import async_playwright
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path='/usr/bin/chromium')
+        b = await p.chromium.launch(executable_path=CHROME)
         pg = await b.new_page(viewport={'width':1280,'height':720})
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(500)
+        await pg.goto(URL); await pg.wait_for_timeout(500)
         await pg.screenshot(path='/tmp/u_title.png')
         await pg.mouse.click(640, 548); await pg.wait_for_timeout(400)
         S = lambda e: pg.evaluate(e)

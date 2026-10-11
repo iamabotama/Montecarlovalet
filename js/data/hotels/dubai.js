@@ -7,6 +7,11 @@ defineHotel({
   blurb: [tl('hotel.dubai.blurb1'), tl('hotel.dubai.blurb2')],
   unlockRank: 3,
   product: 'hotel_pack_1',
+  unlockBoss: 'las_vegas',
+  boss: {
+    who: tl('hotel.dubai.boss'),
+    look: { h: PAL.ink, s: PAL.peach, c: PAL.white, p: PAL.white, k: PAL.yellow, x: PAL.yellow }, // white suit, gold
+  },
   lot: { lanes: 4, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 196, y: 150 },

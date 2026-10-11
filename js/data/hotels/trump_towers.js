@@ -8,6 +8,10 @@ defineHotel({
   city: tl('hotel.trump_towers.city'),
   blurb: [tl('hotel.trump_towers.blurb1'), tl('hotel.trump_towers.blurb2')],
   secret: 'potus', // only listed (and playable) once SAVE.secrets.potus is set
+  boss: {
+    who: tl('hotel.trump_towers.boss'),
+    look: { h: PAL.yellow, s: PAL.peach, c: PAL.ink, p: PAL.ink, k: PAL.yellow, x: PAL.yellow },
+  },
   lot: { lanes: 4, stallsPerLane: 7, openSides: ['west', 'east'], tempSlots: { west: 1, east: 1 } },
   map: { lotX: 46, lotY: 81 },
   pad: { x: 196, y: 150 },

@@ -10,10 +10,15 @@ function loadHotel(id) {
   buildBG();
   return h;
 }
-// opts: { loadout, goals } from the shift-prep screen; goals are drawn here when not supplied.
+// opts: { loadout, goals, rematch } from the shift-prep screen; goals are drawn here when not supplied.
 function startGame(hotelId, opts = {}) {
   const h = loadHotel(hotelId || (HOTEL && HOTEL.id) || HOTEL_ORDER[0]);
-  newRun({ loadout: opts.loadout || activeChar().loadout, goals: opts.goals || drawGoals(h), perks: skillPerks() });
+  newRun({
+    loadout: opts.loadout || activeChar().loadout,
+    goals: opts.goals || drawGoals(h),
+    perks: skillPerks(),
+    rematch: !!opts.rematch,
+  });
   UI.screen = 'game';
   UI.paused = false;
   Sound.startMusic();

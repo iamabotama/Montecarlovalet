@@ -149,6 +149,19 @@ const CAR_BODIES = {
     ws: 5,
     inset: 1,
   },
+  // boss stretch: as long as fits one curb space (curbX spacing 24 game px), but wider and boxy
+  hummer: {
+    L: 69,
+    prof: [
+      [0, 9],
+      [0.02, 10],
+      [0.98, 10],
+      [1, 9],
+    ],
+    cab: [0.12, 0.84],
+    ws: 5,
+    inset: 2,
+  },
   limo: {
     L: 66,
     prof: [
@@ -203,6 +216,7 @@ const CAR_LOOKS = {
   limo: [
     ['limo', '#f4f4f4', ['chrome']],
     ['limo', '#1a1a20', ['chrome']],
+    ['hummer', '#141418', ['chrome', 'coachline', 'bullbar', 'rooflights']], // boss: Hummdinger Stretch
   ],
 };
 const C_INK = '#101018',
@@ -278,7 +292,9 @@ function buildCarEast(tier, mi) {
   }
   for (let x = 0; x < L; x++)
     for (let y = -hw[x] + 1; y <= hw[x] + 1; y++) if (!glow) set(x + 2, y + 1, 'rgba(0,0,0,0.35)');
-  const axles = [Math.floor(L * 0.18), Math.floor(L * 0.8)].concat(bk === 'limo' ? [Math.floor(L * 0.5)] : []);
+  const axles = [Math.floor(L * 0.18), Math.floor(L * 0.8)].concat(
+    bk === 'limo' || bk === 'hummer' ? [Math.floor(L * 0.5)] : [],
+  );
   const nearAxle = x => axles.some(a => Math.abs(x - a) <= 3);
   for (const a of axles)
     for (let dx = -3; dx < 3; dx++)
@@ -316,7 +332,7 @@ function buildCarEast(tier, mi) {
       for (let y = -h; y <= h; y++)
         set(x, y, Math.abs(y) === h ? C_GLASS : y === -h + 1 ? hexShade(P, 1.3) : hexShade(P, y < 0 ? 0.96 : 0.84));
   }
-  if (bk === 'limo')
+  if (bk === 'limo' || bk === 'hummer')
     for (let x = c0 + 8; x < c1 - ws - 2; x += 8)
       for (let y = -hw[x] + 2; y < hw[x] - 1; y++) set(x, y, hexShade(P, 0.62));
   for (const s of [-1, 1]) {
@@ -386,6 +402,12 @@ function buildCarEast(tier, mi) {
     }
     for (let x = c1 + 2; x < L - 3; x++) for (const y of [-4, 4]) set(x, y, hexShade(P, 1.25));
   }
+  if (has('bullbar'))
+    for (let y = -hw[L - 1] + 1; y <= hw[L - 1] - 1; y++) {
+      set(L, y, C_CHROME);
+      if (Math.abs(y) % 3 === 0) set(L + 1, y, hexShade(C_CHROME, 0.75));
+    }
+  if (has('rooflights')) for (let y = -3; y <= 3; y += 2) set(c1 - 2, y, Math.abs(y) === 3 ? C_GOLD : C_HEAD);
   if (has('ornament')) {
     set(L - 4, 0, C_CHROME);
     set(L - 5, 0, '#ffffff');

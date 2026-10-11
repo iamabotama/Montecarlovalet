@@ -17,7 +17,7 @@ defineEvent('blizzard', {
     BLZ_ROLL.t += dt;
     if (BLZ_ROLL.t < 1) return;
     BLZ_ROLL.t = 0;
-    if (eventCanStart('blizzard') && Math.random() < eventChance('blizzard')) blizzardStart();
+    if (inWave() && eventCanStart('blizzard') && Math.random() < eventChance('blizzard')) blizzardStart();
   },
   update(ev, dt) {
     if (ev.t >= BLZ().durationSec) endEvent(); // the director advances ev.t

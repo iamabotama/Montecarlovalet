@@ -92,6 +92,7 @@ async def main():
         check(any('VIP' in l for l in lines), 'promotion screen lists the premium stall', lines)
         # --- store on, nothing bought: premium features gated
         gated = await g.js('''() => { CONFIG.store.enabled = true; SAVE.entitlements = []; activeChar().xp = 99999; syncRank();
+            for (const id of regularHotels()) activeChar().hotels[id] = { highScore: 0, shifts: 0, best: {}, bossBeaten: true }; // boss gates passed: test only the store
             startGame('monte_carlo');
             const r = { p2: MCV.S.prem[1].open, cap: helperCap(), swiss: hotelAccess(HOTELS.swiss_chalet).ok,
                         dubai: hotelAccess(HOTELS.dubai).ok };

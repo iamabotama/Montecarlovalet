@@ -139,8 +139,13 @@ const MODELS = {
   limo: [
     ['Stretch Limo', 'limo', PAL.white, PAL.lgrey, PAL.white],
     ['Stretch Limo', 'limo', PAL.asph, PAL.ink, PAL.asph3],
+    ['Hummdinger Stretch', 'limo', PAL.ink, PAL.asph, PAL.yellow, { boss: true }], // boss wave only (sim/boss.js)
   ],
 };
+// Models a tier can roll for ordinary arrivals: everything except boss-only models (6th field { boss: true }).
+const isBossModel = (tier, mi) => !!(MODELS[tier][mi] && MODELS[tier][mi][5] && MODELS[tier][mi][5].boss);
+const guestModels = tier => MODELS[tier].map((m, mi) => mi).filter(mi => !isBossModel(tier, mi));
+const bossModel = tier => MODELS[tier].findIndex((m, mi) => isBossModel(tier, mi));
 
 // Snowmobile spoof brands (events/snowmobiles.js, Swiss Alps).
 const SLED_MODELS = ['Ski-Dew Summit', 'Arctic Kat ZR', 'Polarus Rush', 'Yamahoo Sidewinder', 'Lynks Rave'];

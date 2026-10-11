@@ -82,10 +82,11 @@ function drawGuideTier(tier, y, h) {
   guideLines(tier).forEach((l, i) =>
     drawText(ctx, l, 8, y + 15 + i * 7, i < 2 ? PAL.yellow : PAL.lgrey, { maxW: 114 }),
   );
-  const models = MODELS[tier];
+  const mis = guestModels(tier); // boss-only models stay a surprise
+  const models = mis.map(mi => MODELS[tier][mi]);
   const x0 = 124,
     slot = (316 - x0) / models.length;
-  const sprites = models.map((m, mi) => carSprite(tier, mi, 0));
+  const sprites = mis.map(mi => carSprite(tier, mi, 0));
   // one scale for the whole row (as big as the slots allow, max 2x) so names line up
   const k = Math.min(
     2,

@@ -1,10 +1,11 @@
+from harness import URL, CHROME
 import asyncio
 from playwright.async_api import async_playwright
 async def run(meet):
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path='/usr/bin/chromium'); pg = await b.new_page(viewport={'width':1280,'height':720})
+        b = await p.chromium.launch(executable_path=CHROME); pg = await b.new_page(viewport={'width':1280,'height':720})
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(400)
+        await pg.goto(URL); await pg.wait_for_timeout(400)
         await pg.evaluate('SAVE.tutorialSeen=true'); await pg.evaluate("startGame('monte_carlo')"); await pg.wait_for_timeout(300)
         await pg.evaluate('MCV.S.heli.at = MCV.S.t + 1')
         await pg.wait_for_timeout(3500)

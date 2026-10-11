@@ -13,7 +13,7 @@ Add `?debug=1` to the URL (or set `CONFIG.debug = true`), then press backtick. T
 Push to `main` here. `.github/workflows/deploy.yml` syntax-checks every module and the module list, then copies `index.html`, `sw.js`, `manifest.webmanifest`, `icons/` + `js/` (plus `CNAME` = `www.montecarlovalet.com`) into **iamabotama/Montecarlovalet.com**, which serves GitHub Pages. Needs the `DEPLOY_TOKEN` repo secret (a token with push access to that repo). Never edit the `.com` repo by hand; it is overwritten on every deploy.
 
 ## Status
-Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - see below. Next: cloud save + real payments (Stage 3).
+Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - see below. Latest: v2.20 (boss waves). Next: cloud save + real payments (Stage 3).
 
 ## v1.1 changes
 - **Tutorial** (`js/tutorial.js`): 19 scripted steps - hotel drops in, the valet appears, first guest, parking choices, limo greet, ticket pickup via the board, digging out a blocked car, then score / heat / power-ups. Plays automatically on a first START; replay any time from the title (TUTORIAL). Edit `TUT_STEPS` to change the script.
@@ -144,6 +144,19 @@ Stage 1 (playable core) done. Stage 2 (career, hotels, offline) done in v2.0 - s
 - Park the GT within 40 s for a $700 tip and a one-liner. Too slow, and the henchman walks over, climbs in, and the ejector seat launches him off the top of the screen (no tip).
 - The parody keeps it legally safe: no real names, no "007", no theme music (the sting is original).
 - Tuning: `EVENT_CONFIG.secretAgent` in `data/events.js`. Debug menu: AGENT, EJECT. Test: `tests/agent_test.py`.
+
+## v2.20: boss waves, next wave, end shift
+- POTUS landing (events/vip_heli.js): two police cruisers (lights + siren) close the road at both ends and two black SUVs flank his path; the **whole game freezes** while he walks slowly (7 s, `EVENT_CONFIG.vipHeli.potus.walkSec`) to the door with one of his lines in a speech bubble (i18n list `event.potus.quotes`, never the same line twice in a row). Once inside: TRUMP TOWERS as before, the motorcade pulls out and play resumes.
+- **Boss waves** (`js/sim/boss.js`, tuning `CONFIG.boss`): each hotel's big event wave is now a boss fight. At hotels with a helipad the headliner lands first (meet them for $1,500); then the **Hummdinger Stretch** (a boss-only limo with a crown on the roof) jumps the street queue with 4 limos behind it, then a 40 s surge of whales, ultras and limos. Win: headliner met, Hummdinger greeted, no more than 2 guests leaving unhappy (pips under the wave pill), not fired. +$500. Fun events wait while a fight runs. Headliners per hotel: `boss: { who, look }` in `data/hotels/*` (the Crown Prince, the Champ, the Tycoon, the Pop Star, the Mogul).
+- **Bosses unlock hotels**: a hotel's `unlockBoss` names the hotel whose boss must be beaten first (Vegas <- Monte Carlo <- ... ), on top of its rank. Hotels a character has already played stay open. Beaten bosses show a crown on the hotel card; the summary says which hotel opened. Awards: Boss Fight, Boss of Bosses.
+- **Boss Rematch** (shift prep, once you have reached a hotel's boss): starts the shift at the boss wave. Practice: no stars, high score, bests or full-shift bonuses; a boss win still counts.
+- **NEXT WAVE**: on a break with nothing left outside (no one at the curb or on the board, no jobs, no helicopter inbound, no event), start the next wave now for $2 per second skipped (`CONFIG.shift.earlyCall`). Guests still inside stay inside, so their pickups land in the next wave. Helper wages are still charged for the skipped time.
+- **END SHIFT**: in last call, once every guest has gone home, complete the night at once (same bonuses and stars as 2 AM).
+- Phase controls (NEXT WAVE, CLOCK OUT, END SHIFT) stack under the wave pill; CLOCK OUT no longer sits under the message dock, where banners hid it.
+- **Next-wave preview** in the message dock on breaks: the wave's name, expected cars per tier as board letters (B2 S4 W1...), and a helicopter or boss warning (`wavePreview()` in `sim/waves.js`).
+- Random fun events (secret agent, blizzard) roll only during waves (`inWave()`).
+- Fixes: `spawnArrival()` crashed outside waves (breaks have no arrival mix; a rare self-triggered secret agent during a break broke the shift). The Globetrotter and All-Star awards could never be earned. Stars overlapped the 4th info line on hotel cards. Four old tests (`gameplay`, `tutorial`, `heli`, `crew`) had a hard-coded local path; they now use the harness.
+- Tests: `tests/phase_skip_test.py`, `tests/boss_test.py`.
 
 ## v2.19: the Presidential motorcade
 - POTUS landing (events/vip_heli.js): two police cruisers (lights + siren) close the road at both ends and two black SUVs flank his path; the **whole game freezes** while he walks slowly (7 s, `EVENT_CONFIG.vipHeli.potus.walkSec`) to the door with one of his lines in a speech bubble (i18n list `event.potus.quotes`, never the same line twice in a row). Once inside: TRUMP TOWERS as before, the motorcade pulls out and play resumes.

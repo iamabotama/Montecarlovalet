@@ -2,7 +2,7 @@
 import sys
 from harness import Game, run
 
-HOTELS = ['monte_carlo', 'las_vegas', 'swiss_chalet', 'dubai']
+HOTELS = sys.argv[1:] or ['monte_carlo', 'las_vegas', 'swiss_chalet', 'dubai']  # or name hotels: python3 hotels_test.py dubai
 
 
 async def main():

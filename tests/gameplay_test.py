@@ -1,3 +1,4 @@
+from harness import URL, CHROME
 import asyncio, json
 from playwright.async_api import async_playwright
 BOT='''() => { window._bot=setInterval(()=>{ const S=MCV.S; if(!S||S.phase!=='play')return;
@@ -7,10 +8,10 @@ BOT='''() => { window._bot=setInterval(()=>{ const S=MCV.S; if(!S||S.phase!=='pl
   if(g.state==='pickWait' && !S.jobs.some(j=>j.carId===car.id)) MCV.enqueue({type:'fetch',carId:car.id}); } }, 300); }'''
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path='/usr/bin/chromium')
+        b = await p.chromium.launch(executable_path=CHROME)
         pg = await b.new_page(viewport={'width':1280,'height':720})
         errs=[]; pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto('file:///home/ubuntu/repo/index.html'); await pg.wait_for_timeout(600)
+        await pg.goto(URL); await pg.wait_for_timeout(600)
         await pg.screenshot(path='/tmp/n_title.png'); await pg.evaluate('SAVE.tutorialSeen=true')
         await pg.evaluate("startGame('monte_carlo')"); await pg.wait_for_timeout(300)
         await pg.evaluate(BOT); await pg.evaluate('MCV.DEBUG.scale=4')

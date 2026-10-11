@@ -14,7 +14,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | `art/`, `audio/` | Palette, pixel fonts (one face per script: Press Start 2P, Fusion Pixel for CJK), procedural car and people sprites, sound | Read game state |
 | `world/` | The active lot's geometry, the routing graph, the lot model (stalls, temps, curb), and planning and running valet jobs | Award money or heat |
 | `career/` | Everything that **persists between shifts**: save and migrations, characters (`character.js`), XP and ranks, unlocks, awards (`awards.js`), daily streaks (`streaks.js`), the skill tree (`skills.js`), crew roster, store ownership | Run during a shift (except roster and wage lookups) |
-| `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`), arrivals, guests, heat, economy, power-ups, helicopter, goals, crew wages, shift end | Draw anything |
+| `sim/` | The rules of **one shift**: run state `S`, the night's waves/breaks (`waves.js`, incl. NEXT WAVE / END SHIFT and the next-wave preview), arrivals, guests, heat, economy, power-ups, helicopter, the **boss wave** (`boss.js`), goals, crew wages, shift end | Draw anything |
 | `events/` | **Fun events**, isolated from the core rules: `director.js` (registry, one event at a time, cooldown, core hooks), `actions.js` (the only things an event may do: close a lot end, send a valet on an errand, police/tow vehicles, siren, banners), then one file per event (`drunk_driver.js`), `joyride.js` (a hired valet takes a whale car for a spin; core hook `parkDriveStart`, `worker.away`). Odds and on/off live in `data/events.js`  `events/vip_heli.js` (special helicopters: royalty motorcade, celebrity paparazzi, POTUS -> TRUMP TOWERS for the shift + unlocks the secret `data/hotels/trump_towers.js`; core hooks heliIncoming/heliGreet/heliMissed/vipInside/arrivalTier). Secret hotels: `secret:` field in the hotel file, listed via `listedHotels()` once `SAVE.secrets[...]` is set. | Reach into lots, jobs or routing directly; change core rules permanently `snowmobiles.js` (Swiss passive: some everyday cars are faster snowmobiles; hooks carCreated/vehicleSpeed/drawCar/carName), `blizzard.js` (Swiss: white-out overlay, walkRate + waitRate). Def fields: `walkRate`, `overlay(ev)` (drawn above everything). `secret_agent.js` (Monte Carlo easter egg: 7 fountain taps; uses the new director `passiveTargets(add)`). |
 | `tutorial/` | The scripted first shift | Change rules for normal play |
 | `render/` | Drawing the world: themed background, people, crowd spacing (`crowd.js`), helicopter, the game frame | Change state |
@@ -43,6 +43,7 @@ Each folder owns one job. Files only *call down* the list (UI calls sim, sim cal
 | --- | --- |
 | A hotel | New `data/hotels/<id>.js` plus one line in `js/modules.js` |
 | A wave, break or difficulty change | `CONFIG.shift.phases` (data only; `sim/waves.js` reads it). Helicopter timing is `helo.times` in the hotel file |
+| A hotel's boss | `boss: { who, look }` in the hotel file; the next hotel's `unlockBoss` points at it. Fight tuning (surge, entourage, leaks, rewards): `CONFIG.boss` |
 | A nightly goal | One entry in `data/goals.js` (count any new stat in `S.stats`) |
 | A power-up | `data/powerups.js` (info) and `CONFIG.power`. Logic goes in `sim/powerups.js#useCard`, or its own `sim/<name>.js` if it has state (see `sim/reserved.js`). Unlock it in `CONFIG.career.ranks` |
 | A uniform or name tag | `data/cosmetics.js`, plus an unlock key in a rank |
@@ -89,3 +90,15 @@ All pop-up text goes through the message dock in `ui/messages.js` (under the tic
 
 ## Comps
 Comps are a player action, not a random event: `data/comps.js` (tuning), `sim/comps.js` (eligibility, applyComp, once-per-shift), `ui/comp_menu.js` (menu over the ticket board, showgirl/icon visuals). The only touch points elsewhere: `tapGuest` asks `compTapGuest(g)` first, `hitTargets` calls `compMenuTargets`, pointerdown calls `compMenuTapAway`, and `renderGame` calls `renderCompFx` / `renderCompMenu`.
+
+## Boss waves
+`sim/boss.js` runs the fight inside the hotel's event wave as a small stage machine (`S.boss.stage`: wait -> herald -> motorcade -> surge -> mop -> done). It is core rules, not a fun event: it gates progression, so it must not compete with the director's one-event-at-a-time slot. The touch points elsewhere are one line each:
+- `sim/helicopter.js` `heliGreet` / `heliMissed` call `bossHeliDone(ok)` when the landing is the boss's (`H.special.boss`); `bossCallHeli()` lands it as soon as the pad is free, putting any regular landing back in the schedule.
+- `sim/guests.js` `greetLimo` calls `bossHummerGreeted(g)`; `leaveAngry` calls `bossLeak(g)` (every unhappy exit during the fight is a leak).
+- `sim/waves.js` `nextInterval` / `arrivalMix` ask `bossSurge()` for the surge's pace and mix.
+- `events/director.js` `eventCanStart` returns false while `bossLive()`.
+- The Hummdinger is a boss-only model: the 6th field `{ boss: true }` on its `MODELS` row keeps it out of `guestModels(tier)` (random picks, vehicle guide); `bossModel(tier)` finds it.
+- Career: `awardShift` records `bossTries` / `bossBeaten` on the hotel record; `hotelAccess` checks `unlockBoss` (hotels already played stay open). A rematch (`newRun({ rematch: true })` -> `startAtBossWave()`) is banked as practice: no stars, high score, bests or full-shift bonuses.
+
+## Skipping ahead
+`sim/waves.js`: `canCallNextWave()` (a break with `nothingOutside()`) and `canEndShift()` (last call, hotel empty). `ui/hud.js#phaseButtons()` is the one list behind both the drawn buttons and the tap targets. Skipped break time is still charged as helper wages (`sim/crew.js#chargeWages`). Random fun events roll only `inWave()`, so they never hold a break open.

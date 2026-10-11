@@ -27,7 +27,7 @@ defineEvent('secretAgent', {
     AGT_ROLL.t += dt;
     if (AGT_ROLL.t < 1) return;
     AGT_ROLL.t = 0;
-    if (eventCanStart('secretAgent') && Math.random() < eventChance('secretAgent')) agentStart();
+    if (inWave() && eventCanStart('secretAgent') && Math.random() < eventChance('secretAgent')) agentStart();
   },
   update: (ev, dt) => agentUpdate(ev, dt),
   draw: ev => agentDraw(ev),

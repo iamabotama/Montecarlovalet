@@ -21,6 +21,8 @@ function phaseIndexAt(t) {
   return P.length - 1;
 }
 const curPhase = () => (S.tutorial ? null : PHASES()[phaseIndexAt(S.t)]);
+// Random fun events roll only here: breaks and last call are for clearing the board (and skipping ahead).
+const inWave = () => !!curPhase() && curPhase().kind === 'wave';
 const phaseName = p => (p.event ? HOTEL.event.name : p.name);
 const waveCount = () => PHASES().filter(p => p.kind === 'wave').length;
 // 1-based number of the wave at or before phase i (a break reports the wave it follows).
@@ -46,16 +48,85 @@ const pickupsAllowed = () => maxPickups() > 0;
 // Wave 1 is the learning wave and plays the same at every hotel; later waves use the hotel's pace.
 function nextInterval() {
   const p = curPhase();
+  if (bossSurge()) return rnd(...bossSurge().interval); // sim/boss.js: celebs and high rollers pour in
   if (!p || !p.interval) return null;
   const iv = rnd(...p.interval);
   return waveNumber(phaseIndexAt(S.t)) > 1 ? iv * HOTEL.arrivals.intervalMult : iv;
 }
-const arrivalMix = () => (curPhase() || PHASES()[0]).mix;
+// Breaks and last call have no mix of their own: a forced spawn there (debug, scripted arrivals) uses wave 1's.
+const arrivalMix = () => (bossSurge() && bossSurge().mix) || (curPhase() && curPhase().mix) || PHASES()[0].mix;
 
 function canClockOut() {
   const p = curPhase();
   return S.phase === 'play' && !!p && p.kind === 'break' && S.stats.wavesCleared >= CONFIG.shift.clockOutFromWave;
 }
+
+/* ---- skipping ahead: NEXT WAVE (breaks) and END SHIFT (last call) ----
+   A break can be cut short once nothing needs you outside: no guest at the curb, on the board or walking
+   out, no queued job, no helicopter on approach and no fun event running. Guests still INSIDE stay inside,
+   so their pickups land in the next wave: that is the risk, and the early-call bonus (CONFIG.shift.earlyCall)
+   is the reward. Helper wages for the skipped time are charged (sim/crew.js chargeWages). */
+function nothingOutside() {
+  for (const g of S.guests.values()) if (g.state !== 'inside') return false;
+  if (S.streetQueue.length || S.jobs.some(j => !j.aborted)) return false;
+  if (S.heli && ['incoming', 'landed'].includes(S.heli.phase)) return false;
+  return !activeEvent();
+}
+function canCallNextWave() {
+  const p = curPhase();
+  return (
+    S.phase === 'play' &&
+    !!p &&
+    p.kind === 'break' &&
+    phaseLeftSec() > CONFIG.shift.earlyCall.minSec &&
+    nothingOutside()
+  );
+}
+const earlyCallBonus = () => Math.round(Math.max(0, phaseLeftSec()) * CONFIG.shift.earlyCall.perSec);
+function callNextWave() {
+  if (!canCallNextWave()) return;
+  const skipped = phaseLeftSec();
+  const bonus = earlyCallBonus();
+  S.t = phaseStart(phaseIndexAt(S.t) + 1);
+  chargeWages(skipped);
+  S.stats.earlyCalls++;
+  S.stats.earlySec += Math.round(skipped);
+  if (bonus > 0) earn(bonus, 'pay', { x: MAP.standX, y: MAP.standY - 10 });
+  Sound.sfx('whistle');
+  updateWaves(); // enter the wave now: banner, first arrival soon
+}
+// Last call is over once every guest has gone home; the rest of the clock is dead time.
+function canEndShift() {
+  const p = curPhase();
+  return S.phase === 'play' && !!p && p.kind === 'last' && S.guests.size === 0 && nothingOutside();
+}
+function endShiftNow() {
+  if (canEndShift()) completeShift();
+}
+
+/* ---- next-wave preview (shown in the message dock during breaks) ----
+   Expected arrivals per tier for wave i, from its pace and mix and this hotel's crowd bias. These are
+   averages, not a script: the real wave rolls its own dice. */
+function wavePreview(i) {
+  const p = PHASES()[i];
+  if (!p || p.kind !== 'wave') return null;
+  const mult = waveNumber(i) > 1 ? HOTEL.arrivals.intervalMult : 1;
+  const n = p.sec / (((p.interval[0] + p.interval[1]) / 2) * mult);
+  const mix = p.mix.map((w, k) => w * HOTEL.arrivals.mixMult[k]);
+  const sum = mix.reduce((a, b) => a + b, 0) || 1;
+  return {
+    name: phaseName(p),
+    cars: Math.round(n),
+    event: !!p.event,
+    boss: !!(p.event && S.boss && S.boss.stage === 'wait'),
+    heli: !!(PAD && HOTEL.helo && HOTEL.helo.times.some(([id]) => id === p.id)),
+    counts: TIERS.map((tier, k) => ({ tier, n: Math.round((n * mix[k]) / sum) })).filter(c => c.n > 0),
+  };
+}
+const nextWavePreview = () => {
+  const p = curPhase();
+  return p && p.kind === 'break' ? wavePreview(phaseIndexAt(S.t) + 1) : null;
+};
 
 function updateWaves() {
   if (S.tutorial || S.phase !== 'play') return;
@@ -86,6 +157,7 @@ function enterPhase(p, prev) {
 }
 function completeShift() {
   if (S.phase !== 'play') return;
+  if (S.rematch) return clockOut(); // a boss rematch is half a night: no full-shift bonuses or awards
   S.stats.wavesCleared = waveCount();
   S.shiftComplete = true;
   earn(CONFIG.shift.completeBonus, 'pay');

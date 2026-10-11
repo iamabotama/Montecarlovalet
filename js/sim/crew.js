@@ -69,6 +69,26 @@ function selectWorker(w) {
   Sound.sfx('blip', 2);
   floater(workerName(w), w.x, w.y - 14, PAL.yellow);
 }
+// Time skipped by NEXT WAVE still counts toward helpers' hourly pay (same rule as updateCrew below).
+function chargeWages(sec) {
+  if (S.tutorial) return;
+  for (const w of S.helpers.slice()) {
+    if (w.leaving || w.arriveT > 0) continue;
+    w.paidT -= sec;
+    while (w.paidT <= 0 && S.helpers.includes(w)) {
+      if (S.money >= w.wage) {
+        S.money -= w.wage;
+        S.stats.wages += w.wage;
+        w.paidT += CONFIG.clock.realSecPerGameHour;
+        floater(t('float.wages', { money: fmtMoney(w.wage) }), w.x, w.y - 12, PAL.orange);
+      } else {
+        toast(t('toast.quitNoWages', { name: workerName(w) }));
+        sendHome(w);
+        break;
+      }
+    }
+  }
+}
 function updateCrew(dt) {
   for (const w of S.helpers.slice()) {
     if (w.arriveT > 0) {

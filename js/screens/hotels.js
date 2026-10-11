@@ -75,18 +75,23 @@ function drawHotelCard(h, x, y, selected) {
   );
   if (acc.ok) {
     const best = hotelHighScore(h.id);
-    drawStars(cx, y + 80, hotelStars(h.id));
-    drawText(ctx, t('hotels.best', { money: fmtMoney(best) }), cx, y + 88, best ? PAL.lime : PAL.dgrey, {
+    drawStars(cx, y + 87, hotelStars(h.id)); // below the 4 info lines (they end at y + 84)
+    if (bossBeatenAt(h.id)) drawIcon(ctx, 'crown', x + CARD.w - 9, y + 3, PAL.yellow); // boss beaten
+    drawText(ctx, t('hotels.best', { money: fmtMoney(best) }), cx, y + 95, best ? PAL.lime : PAL.dgrey, {
       align: 'center',
     });
-    if (selected) drawText(ctx, t('hotels.selected'), cx, y + 100, PAL.yellow, { align: 'center' });
+    if (selected) drawText(ctx, t('hotels.selected'), cx, y + 104, PAL.yellow, { align: 'center' });
     else
-      drawText(ctx, t('hotels.thirdStar', { money: fmtMoney(h.starTarget) }), cx, y + 100, PAL.dgrey, {
+      drawText(ctx, t('hotels.thirdStar', { money: fmtMoney(h.starTarget) }), cx, y + 104, PAL.dgrey, {
         align: 'center',
       });
   } else {
-    drawIcon(ctx, 'lock', cx - 2, y + 86, PAL.orange);
-    wrapText(acc.reason, 67).forEach((l, i) => drawText(ctx, l, cx, y + 94 + i * 7, PAL.orange, { align: 'center' }));
+    // a crown when the lock is a boss to beat (career/progression.js hotelAccess), a padlock otherwise
+    if (acc.boss) drawIcon(ctx, 'crown', cx - 2, y + 89, PAL.pink);
+    else drawIcon(ctx, 'lock', cx - 2, y + 88, PAL.orange);
+    wrapText(acc.reason, 67)
+      .slice(0, 2)
+      .forEach((l, i) => drawText(ctx, l, cx, y + 96 + i * 7, acc.boss ? PAL.pink : PAL.orange, { align: 'center' }));
   }
 }
 // Tiny top-down sketch of the hotel's lot: rows, open ends (green) and closed ends (grey).

@@ -15,6 +15,10 @@ defineHotel({
       ['high', 0.3, 0.7],
     ],
   }, // two VIP landings: Dinner Rush, High Rollers
+  boss: {
+    who: tl('hotel.monte_carlo.boss'),
+    look: { h: PAL.lgrey, s: PAL.peach, c: PAL.crimson, p: PAL.crimson, k: PAL.ink, x: PAL.yellow }, // crown + robe
+  },
   event: { name: tl('hotel.monte_carlo.event'), short: tl('hotel.monte_carlo.eventShort') },
   starTarget: 600,
   theme: {

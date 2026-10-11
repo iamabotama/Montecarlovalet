@@ -3,6 +3,9 @@
    Nothing outside this folder hard-codes a hotel. Fields (all optional except id/name):
      id, name (facade sign), city, blurb[]           identity + hotel-select text
      unlockRank                                      career rank index needed to play it
+     unlockBoss                                      hotel id whose boss wave must be beaten first (sim/boss.js)
+     boss: { who, look }                             the boss wave's headliner: name, and their helicopter look
+                                                     (look = drawPerson colours; only used where there is a pad)
      product                                         store product id that also unlocks it (see data/products.js)
      lot:  { lanes, stallsPerLane, openSides, tempSlots:{west,east} }   merged over CONFIG.lot
      map:  { lotX, lotY }                            merged over CONFIG.map
@@ -18,6 +21,8 @@ const HOTELS = {};
 const HOTEL_ORDER = [];
 const HOTEL_DEFAULTS = {
   unlockRank: 0,
+  unlockBoss: null,
+  boss: null,
   product: null,
   starTarget: 600,
   blurb: [],

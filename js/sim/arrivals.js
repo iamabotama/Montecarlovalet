@@ -44,7 +44,7 @@ function makeGuest(tier, mi) {
 function prefillLot() {
   for (let n = 0; n < LOT.prefilledCars; n++) {
     const tier = TIERS[weightedIndex(CONFIG.arrivals.prefillMix)];
-    const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1));
+    const g = makeGuest(tier, pick(guestModels(tier)));
     const car = S.cars.get(g.carId);
     for (let tries = 0; tries < 30; tries++) {
       const l = rndi(0, NL - 1),
@@ -62,7 +62,7 @@ function prefillLot() {
 function spawnArrival(forceTier) {
   const mix = arrivalMix().map((w, i) => w * HOTEL.arrivals.mixMult[i]); // hotel crowd bias
   const tier = forceTier || eventHook('arrivalTier') || TIERS[weightedIndex(mix)];
-  const g = makeGuest(tier, rndi(0, MODELS[tier].length - 1));
+  const g = makeGuest(tier, pick(guestModels(tier)));
   S.streetQueue.push(g.carId);
   return g;
 }

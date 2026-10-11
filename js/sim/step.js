@@ -17,6 +17,7 @@ function stepSim(dt) {
     runValet(dt);
     updateMovers(dt);
     updateHeli(dt);
+    updateBoss(dt);
     updateEvents(dt);
     updateGoals();
     updateVipHold(dt);

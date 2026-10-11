@@ -79,6 +79,7 @@ const MCV_MODULES = [
   'sim/comps.js',
   'sim/movers.js',
   'sim/helicopter.js',
+  'sim/boss.js',
   'sim/goals.js',
   'sim/crew.js',
   'sim/shift.js',

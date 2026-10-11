@@ -2,10 +2,15 @@
 /* VIP helicopter event. The hotel decides how many landings a night (HOTEL.helo.times) and where the
    pad is (PAD). Per landing: wait -> incoming (descend) -> landed (meet window) -> leaving -> next/gone.
    A valet standing at the pad when it is 'landed' greets the VIP (planner job type 'heli'). */
-function newHeliState() {
+// fromT: landings scheduled before this time are skipped (a boss rematch starts mid-night).
+function newHeliState(fromT = 0) {
   if (!PAD || !HOTEL.helo || !HOTEL.helo.times.length) return null;
-  const schedule = HOTEL.helo.times.map(([id, a, b]) => phaseTime(id, rnd(a, b))).sort((a, b) => a - b);
-  return { phase: 'wait', at: schedule.shift(), schedule, t: 0, greeting: false, ok: null, vipT: 0 };
+  const schedule = HOTEL.helo.times
+    .map(([id, a, b]) => phaseTime(id, rnd(a, b)))
+    .filter(at => at >= fromT)
+    .sort((a, b) => a - b);
+  const at = schedule.shift();
+  return { phase: at === undefined ? 'gone' : 'wait', at, schedule, t: 0, greeting: false, ok: null, vipT: 0 };
 }
 function heliAlt() {
   const H = S.heli,
@@ -46,6 +51,7 @@ function heliGreet() {
   S.stats.heliMet++;
   S.banners.push({ text: t('banner.vipMet', { money: fmtMoney(tip) }), t: 3 });
   eventHook('heliGreet', H);
+  if (H.special && H.special.boss) bossHeliDone(true);
   Sound.sfx('gala');
   S.shake = 0.2;
 }
@@ -60,6 +66,7 @@ function heliMissed() {
   if (j && !j.worker) S.jobs.splice(S.jobs.indexOf(j), 1);
   addHeat(CONFIG.helo.missHeat, t('heat.heliMissed'));
   eventHook('heliMissed', H);
+  if (H.special && H.special.boss) bossHeliDone(false);
   floater(t('float.nobodyMetVip'), PAD.x, PAD.y - 22, PAL.red);
   Sound.sfx('deny');
 }

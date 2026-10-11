@@ -106,6 +106,7 @@ function renderGame() {
   }
   drawVip();
   drawHeli();
+  drawBossMark();
   // manager
   if (S.manager || S.phase === 'fired') {
     const mx = S.phase === 'fired' ? 156 - Math.min(20, S.endT * 15) : 156;
@@ -177,4 +178,17 @@ function crowdMembers() {
   const v = vipPos();
   if (v) out.push({ ref: S.heli, k: 3e6, x: v.x, y: v.y });
   return out;
+}
+// A flashing crown on the roof of the boss's Hummer until it has been greeted (sim/boss.js).
+function drawBossMark() {
+  const g = S.boss && S.boss.hummer != null && S.guests.get(S.boss.hummer);
+  const car = g && S.cars.get(g.carId);
+  if (!car || car.x < -6) return;
+  drawIcon(
+    ctx,
+    'crown',
+    Math.round(car.x) - 2,
+    Math.round(car.y) - 1,
+    Math.floor(UI.t * 4) % 2 ? PAL.yellow : PAL.orange,
+  );
 }

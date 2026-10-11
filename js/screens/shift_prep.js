@@ -39,9 +39,24 @@ defineScreen('prep', {
       cos.push(
         button(176, 132, 136, NAMETAGS[activeChar().look.nametag].name, () => cycleCosmetic('nametag', tags), PAL.lav),
       );
+    const rec = activeChar().hotels[P.hotel.id];
+    const rematch =
+      rec && rec.bossTries > 0 // offered once you have reached this hotel's boss
+        ? [
+            button(
+              82,
+              160,
+              126,
+              t('prep.rematch'),
+              () => startGame(P.hotel.id, { loadout: P.loadout, goals: P.goals, rematch: true }),
+              PAL.pink,
+            ),
+          ]
+        : [];
     return [
       ...tiles,
       ...cos,
+      ...rematch,
       button(6, 160, 70, t('btn.back'), () => goScreen('hotels'), PAL.lgrey),
       button(
         214,

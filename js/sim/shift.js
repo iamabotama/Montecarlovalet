@@ -33,6 +33,7 @@ function finishRun() {
     st,
     t: S.t,
     complete: S.shiftComplete,
+    rematch: !!S.rematch,
     crewJobs: crewJobsThisShift(),
   });
   RESULT = {

@@ -22,7 +22,7 @@ function hitTargets() {
     UI.paused = true;
   });
   add(294, 170, 10, 10, 5, toggleMute);
-  if (canClockOut()) add(226, 158, 88, 12, 5, clockOut);
+  for (const b of phaseButtons()) add(b.x, b.y, b.w, b.h, 7, b.fn);
   if (!S.tutorial) {
     add(2, 124, 28, 44, 5, crewButton);
     for (const b of crewTabs()) if (b.w) add(b.x, b.y, b.w_, b.h, 6, () => selectWorker(b.w));

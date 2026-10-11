@@ -54,6 +54,7 @@ function greetLimo(car, g) {
   earn(CONFIG.pay.limo, 'pay', g);
   earn(hotelTip(rndi(...CONFIG.tiers.limo.greetTip)), 'tip', g);
   S.stats.limos++;
+  if (g.boss) bossHummerGreeted(g);
   departCar(car);
   guestGone(g);
 }
@@ -85,6 +86,7 @@ function carAtCurbForPickup(car, g, k) {
   }
 }
 function leaveAngry(g, why) {
+  bossLeak(g);
   const car = S.cars.get(g.carId);
   S.stats.angry++;
   if (g.phase !== 'pick') S.stats.unparked++; // gave up before their car was parked

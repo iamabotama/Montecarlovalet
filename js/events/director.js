@@ -29,7 +29,13 @@ function eventOn(id) {
 }
 // May a new event start right now?
 function eventCanStart(id) {
-  return eventOn(id) && S.phase === 'play' && !S.events.active && (S.events.cooldown <= 0 || DEBUG.alwaysEvents);
+  return (
+    eventOn(id) &&
+    S.phase === 'play' &&
+    !S.events.active &&
+    !bossLive() &&
+    (S.events.cooldown <= 0 || DEBUG.alwaysEvents)
+  ); // no fun events during a boss fight (sim/boss.js)
 }
 // The odds an event rolls against (debug ALWAYS forces 1).
 function eventChance(id) {

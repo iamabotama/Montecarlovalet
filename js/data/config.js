@@ -181,6 +181,9 @@ const CONFIG = {
     completeBonus: 150, // $ for surviving the whole night
     everyCarBonus: 500, // extra $ when the whole night is done and no arriving car went unparked (beaters too)
     clockOutFromWave: 2, // clocking out early is allowed during breaks once this many waves are done
+    // NEXT WAVE: a break with nothing left outside can be cut short for $perSec per second skipped
+    // (offered while more than minSec of the break remains). See sim/waves.js callNextWave.
+    earlyCall: { perSec: 2, minSec: 3 },
     // Waves (id = what helicopter schedules point at, data/hotels/*): shorter and steeper than before, a few
     // whales from wave 1, pickups from wave 1. Optional per wave: tipMult (x tips), eventMult (x fun-event odds).
     phases: [
@@ -259,6 +262,18 @@ const CONFIG = {
         banner: tl('phase.lastCall.closing'),
       },
     ],
+  },
+  // Boss wave (sim/boss.js): the hotel's event wave. Helipad hotels land the headliner first.
+  boss: {
+    enabled: true,
+    startFrac: 0.12, // how far into the event wave the fight starts
+    heliTip: 1500, // meeting the headliner's helicopter
+    motorcadeAfterSec: 3, // after the headliner is met, the Hummer pulls up
+    hummer: { patience: 28, pay: 40, tip: [300, 450] }, // greet it (like a limo) before patience runs out
+    entourage: { limos: 4, gapSec: [2.5, 4] }, // limos right behind the Hummer
+    surge: { sec: 40, interval: [2.4, 3.4], mix: [0, 5, 15, 35, 30, 15] }, // then celebs and high rollers
+    maxLeaks: 2, // guests who may leave unhappy during the fight; one more loses it
+    winBonus: 500,
   },
   // Extra valets: tap HIRE (left panel), tap a valet to make him active; new jobs go to the active valet.
   // VIP helicopter timing. Where the pad is and how many landings a night belong to the hotel.

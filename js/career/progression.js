@@ -1,7 +1,11 @@
 'use strict';
 /* Career progression: XP -> rank, and what each rank unlocks (power-ups, cosmetics, hotels, loadout size).
    Unlock keys in CONFIG.career.ranks[].unlock:  '<powerupId>' | 'uniform:<id>' | 'nametag:<id>'.
-   Hotels unlock by their own `unlockRank` (data/hotels/*), optionally also gated by a store product. */
+   Hotels unlock by their own `unlockRank` (data/hotels/*) AND, when set, by beating the boss wave of the hotel
+   named in `unlockBoss` (sim/boss.js). Hotels a character has already played stay open (saves from before
+   boss gates). Optionally also gated by a store product. */
+const bossBeatenAt = id => !!(activeChar().hotels[id] && activeChar().hotels[id].bossBeaten);
+const playedHotel = id => !!(activeChar().hotels[id] && activeChar().hotels[id].shifts > 0);
 const RANKS = CONFIG.career.ranks;
 
 const rankForXP = xp => RANKS.reduce((r, k, i) => (xp >= k.xp ? i : r), 0);
@@ -37,6 +41,8 @@ function hotelAccess(h) {
   if (!secretFound(h)) return { ok: false, reason: '' };
   if (activeChar().rank < h.unlockRank)
     return { ok: false, reason: t('hotels.reach', { rank: rankName(h.unlockRank) }) };
+  if (h.unlockBoss && !bossBeatenAt(h.unlockBoss) && !playedHotel(h.id))
+    return { ok: false, boss: true, reason: t('hotels.beatBoss', { who: HOTELS[h.unlockBoss].boss.who }) };
   const granted = unlockKeys().has('hotel:' + h.id) || unlockKeys().has('hotel:*');
   if (h.product && !storeOwns(h.product) && !granted)
     return {
@@ -74,14 +80,20 @@ const hotelStars = id => (activeChar().hotels[id] ? activeChar().hotels[id].star
 function awardShift(r) {
   const me = activeChar();
   const rec = hotelRecord(r.hotel);
-  const isHigh = r.money > rec.highScore;
+  // A boss rematch (shift started at the boss wave) is practice: no high score, stars or bests.
+  const isHigh = !r.rematch && r.money > rec.highScore;
   if (isHigh) rec.highScore = Math.round(r.money);
   rec.shifts++;
-  const stars = shiftStars(r);
+  const stars = r.rematch ? 0 : shiftStars(r);
   rec.stars = Math.max(rec.stars || 0, stars);
-  rec.best.biggestTip = Math.max(rec.best.biggestTip || 0, r.st.biggestTip);
-  rec.best.longestShift = Math.max(rec.best.longestShift || 0, r.t);
-  rec.best.whalesServed = Math.max(rec.best.whalesServed || 0, r.st.whalesServed);
+  if (!r.rematch) {
+    rec.best.biggestTip = Math.max(rec.best.biggestTip || 0, r.st.biggestTip);
+    rec.best.longestShift = Math.max(rec.best.longestShift || 0, r.t);
+    rec.best.whalesServed = Math.max(rec.best.whalesServed || 0, r.st.whalesServed);
+  }
+  rec.bossTries = (rec.bossTries || 0) + (r.st.bossTries || 0);
+  const bossNew = !!r.st.bossWon && !rec.bossBeaten;
+  if (r.st.bossWon) rec.bossBeaten = true;
   me.totals.shifts++;
   me.totals.earned += Math.round(r.earned);
   me.totals.goals += r.goalsDone;
@@ -109,5 +121,6 @@ function awardShift(r) {
     highScore: rec.highScore,
     stars,
     promotions,
+    bossNew, // first time this hotel's boss was beaten
   };
 }
